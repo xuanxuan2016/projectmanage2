@@ -1,0 +1,41 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 2018-10-26, 16:08:32
+    Author     : linhai.wang
+*/
+
+#pagemiss {
+    margin-top:30px;
+    width: 750px;
+    margin:0 auto;
+    height: 780px;
+    background-color: #fff;
+    position:relative;
+    top:50px;
+}
+#pagemiss .pagemiss-bg {
+    width: 200px;
+    height: 180px;
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform: translateX(-50%) translateY(-80%);
+}
+#pagemiss .pagemiss-bg img{
+    margin: 0 auto;
+    width: 180px;
+    height: 140px;
+    text-align: center;
+}
+#pagemiss .pagemiss-bg p {
+    text-align: center;
+    color:#727171;
+    position:relative;
+    top:8px;
+    left:-5px;
+}
+

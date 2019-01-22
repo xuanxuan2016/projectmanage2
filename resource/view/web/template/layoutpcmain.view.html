@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>开发管理系统-{{title}}</title>
+        <meta charset="UTF-8">
+        <meta name="renderer" content="webkit|ie-comp|ie-stand">
+        <meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+    </head>
+    <body>
+        <div id="header" class="header" v-cloak>
+            <div class="left">
+                <div></div>
+            </div>
+            <div class="right">
+                <div>
+                    <el-dropdown @command="handleCommand">
+                        <span class="el-dropdown-link">
+                            {{account_name}}<i class="el-icon-arrow-down el-icon--right"></i>
+                        </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command="a">修改密码</el-dropdown-item>
+                            <el-dropdown-item command="logout" divided>退出</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
+            </div>
+        </div>
+        <div id="nav" class="nav" >
+            <div class="left">
+                <el-breadcrumb separator="/">
+                    <el-breadcrumb-item :to="{ path: '/' }">主页</el-breadcrumb-item>
+                    <el-breadcrumb-item><a href="/">活动管理</a></el-breadcrumb-item>
+                    <el-breadcrumb-item>活动列表</el-breadcrumb-item>
+                    <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+                </el-breadcrumb>
+            </div>
+        </div>
+        <div class="side">
+            <div class="logo">
+                开发管理系统
+            </div>
+            <div id="menu" class="menu" v-cloak>
+                {{menu}}
+            </div>
+        </div>
+        <div class="content">
+            {{template}}
+        </div>
+    </body>
+</html>

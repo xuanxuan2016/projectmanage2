@@ -1,0 +1,38 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 2019-1-3, 14:39:23
+    Author     : linhai.wang
+*/
+
+.bmcontainer{
+    display: flex;
+    flex-direction:row;
+    justify-content:center;
+}
+
+.login{
+    width: 430px;
+    height: 410px;
+    border: 1px solid #f1f2f2;
+    background-color: #fff;
+    box-shadow: 0 0 18px 0 rgba(57, 141, 238, 0.12);
+    margin-top:80px;
+    text-align:center;
+}
+
+.login>div,.login>button{
+    width:80%;
+    margin-top:30px;
+}
+
+.login>div:nth-of-type(1){    
+    text-align:left;
+    font-size: 20px;
+    font-weight: normal;
+    margin:30px auto 0 auto;
+}
+

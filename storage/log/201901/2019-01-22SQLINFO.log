@@ -1,0 +1,526 @@
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:08.374]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/saveaccountinfo]
+UserID:[1]
+RequestID:[194818DB-1BBA-F511-46EE-EE25C4443D7C]
+Memo:[
+ sql:insert into account(cname,username,password,role_id,is_can_search,status) values(:cname,:username,:password,:role_id,:is_can_search,:status) 
+ param:{":cname":"\u5927\u80d6\u5b50",":username":"test2",":password":"$2y$10$POT9I\/VGQMzGzGdmVM.BHek4qs7oXOnJ3bAd\/aPcpuImfHCFgqAEy",":role_id":"1",":is_can_search":"1",":status":"01"} 
+ startdate:2019-01-22 16:52:08.324 
+ enddate:2019-01-22 16:52:08.312 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:26.157]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/saveaccountinfo]
+UserID:[1]
+RequestID:[FE25482F-38DB-D31E-3D4A-D49B90AE9E42]
+Memo:[
+ sql:insert into account(cname,username,password,role_id,is_can_search,status) values(:cname,:username,:password,:role_id,:is_can_search,:status) 
+ param:{":cname":"\u5927\u80d6\u5b50",":username":"test2",":password":"$2y$10$NOX7jxj9ndDTohBtgU4n\/O5utgRmSmMIMwbQbHXTclL2IXPS3Ere.",":role_id":"1",":is_can_search":"1",":status":"01"} 
+ startdate:2019-01-22 16:52:26.135 
+ enddate:2019-01-22 16:52:26.125 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:45.131]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[F6D0DC90-6466-F348-E389-DB403D4D2AE5]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.is_can_search=:is_can_search 
+ param:{":is_can_search":"1"} 
+ startdate:2019-01-22 16:52:45.114 
+ enddate:2019-01-22 16:52:45.123 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:47.469]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[9FD0C525-D78E-A31C-448B-A82133C1CCF1]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+ param:{":status":"01",":is_can_search":"1"} 
+ startdate:2019-01-22 16:52:47.451 
+ enddate:2019-01-22 16:52:47.460 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:50.114]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadaccountinfo]
+UserID:[1]
+RequestID:[B5B7025B-E9B4-A8CC-F607-A370CE938DBB]
+Memo:[
+ sql:select id,cname,username,role_id,is_can_search,status from account where id=:id 
+ param:{":id":"3"} 
+ startdate:2019-01-22 16:52:50.099 
+ enddate:2019-01-22 16:52:50.106 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:52.380]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/saveaccountinfo]
+UserID:[1]
+RequestID:[12E68782-D9DB-5282-F101-5F0199D558BA]
+Memo:[
+ sql:update account set cname=:cname,username=:username,password=case when :password!='' then :password else password end,role_id=:role_id,status=:status,is_can_search=:is_can_search,update_date=now() where id=:id 
+ param:{":id":"3",":cname":"\u5927\u80d6\u5b501",":username":"test2",":password":"",":role_id":"1",":is_can_search":"1",":status":"01"} 
+ startdate:2019-01-22 16:52:52.364 
+ enddate:2019-01-22 16:52:52.372 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:52.716]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[872D412E-5470-7C47-92BE-4C54FEAF601B]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+ param:{":status":"01",":is_can_search":"1"} 
+ startdate:2019-01-22 16:52:52.693 
+ enddate:2019-01-22 16:52:52.705 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:54.415]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadaccountinfo]
+UserID:[1]
+RequestID:[F6469638-13BB-1395-CDD0-071CC6A24308]
+Memo:[
+ sql:select id,cname,username,role_id,is_can_search,status from account where id=:id 
+ param:{":id":"3"} 
+ startdate:2019-01-22 16:52:54.399 
+ enddate:2019-01-22 16:52:54.406 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:56.472]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/saveaccountinfo]
+UserID:[1]
+RequestID:[F2043428-F4C0-7632-AF8D-B6463EC81F63]
+Memo:[
+ sql:update account set cname=:cname,username=:username,password=case when :password!='' then :password else password end,role_id=:role_id,status=:status,is_can_search=:is_can_search,update_date=now() where id=:id 
+ param:{":id":"3",":cname":"\u5927\u80d6\u5b5011",":username":"test2",":password":"",":role_id":"1",":is_can_search":"1",":status":"01"} 
+ startdate:2019-01-22 16:52:56.454 
+ enddate:2019-01-22 16:52:56.464 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:56.758]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[489B8BBB-D9D8-7886-2AD8-0FE67A0A0751]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+ param:{":status":"01",":is_can_search":"1"} 
+ startdate:2019-01-22 16:52:56.740 
+ enddate:2019-01-22 16:52:56.748 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:52:59.733]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadaccountinfo]
+UserID:[1]
+RequestID:[6EB0A97A-571F-9543-7151-6B36307C0B2B]
+Memo:[
+ sql:select id,cname,username,role_id,is_can_search,status from account where id=:id 
+ param:{":id":"3"} 
+ startdate:2019-01-22 16:52:59.718 
+ enddate:2019-01-22 16:52:59.725 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:53:00.912]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/saveaccountinfo]
+UserID:[1]
+RequestID:[309BFCB2-358C-4777-8377-80300A76C9D4]
+Memo:[
+ sql:update account set cname=:cname,username=:username,password=case when :password!='' then :password else password end,role_id=:role_id,status=:status,is_can_search=:is_can_search,update_date=now() where id=:id 
+ param:{":id":"3",":cname":"\u5927\u80d6\u5b5011",":username":"test2",":password":"",":role_id":"1",":is_can_search":"1",":status":"01"} 
+ startdate:2019-01-22 16:53:00.896 
+ enddate:2019-01-22 16:53:00.903 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:53:01.201]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[D182C87A-0381-F360-F3AF-9CC7B0A80B99]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+ param:{":status":"01",":is_can_search":"1"} 
+ startdate:2019-01-22 16:53:01.184 
+ enddate:2019-01-22 16:53:01.193 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:54:29.922]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/common/login/login]
+UserID:[]
+RequestID:[6176F245-5103-3F90-939B-F52A659290EE]
+Memo:[
+ sql:select id,cname,password,role_id from account where username=:username and status=:status 
+ param:{":username":"test3",":status":"01"} 
+ startdate:2019-01-22 16:54:29.903 
+ enddate:2019-01-22 16:54:29.911 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:54:33.114]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/common/login/login]
+UserID:[]
+RequestID:[4D5C1430-CDF5-3F89-D8CA-20C995697C22]
+Memo:[
+ sql:select id,cname,password,role_id from account where username=:username and status=:status 
+ param:{":username":"test2",":status":"01"} 
+ startdate:2019-01-22 16:54:33.095 
+ enddate:2019-01-22 16:54:33.105 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:54:33.611]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/common/home]
+UserID:[3]
+RequestID:[8DC3C03A-C9EC-41DF-A034-AB182CC491FD]
+Memo:[
+ sql:select a.cname,a.code,a.icode,a.itype,a.url,a.icon
+                        from einterface a 
+                        join einterfacerole b on a.id=b.auth_id
+                        where b.role_id=:role_id and a.status=:status and b.status=:status 
+ param:{":role_id":"1",":status":"01"} 
+ startdate:2019-01-22 16:54:33.497 
+ enddate:2019-01-22 16:54:33.600 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:58:58.288]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadbaseinfo]
+UserID:[3]
+RequestID:[C3EF8D20-6B32-C60C-5393-49EE29A7CEA2]
+Memo:[
+ sql:select id,cname from role where status=:status 
+ param:{":status":"01"} 
+ startdate:2019-01-22 16:58:58.270 
+ enddate:2019-01-22 16:58:58.278 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 16:58:58.294]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[3]
+RequestID:[635C10EF-9D86-28F2-3A76-CDC8C19B080C]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+ param:{":status":"01",":is_can_search":"1"} 
+ startdate:2019-01-22 16:58:58.277 
+ enddate:2019-01-22 16:58:58.286 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:00:54.593]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadaccountinfo]
+UserID:[3]
+RequestID:[4C4720A8-5B43-E28B-E32D-E7CF45CA4A42]
+Memo:[
+ sql:select id,cname,username,role_id,is_can_search,status from account where id=:id 
+ param:{":id":"3"} 
+ startdate:2019-01-22 17:00:54.577 
+ enddate:2019-01-22 17:00:54.583 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:01:44.011]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/saveaccountinfo]
+UserID:[3]
+RequestID:[B4070C99-7302-9D3E-C367-DF670C0DDCA8]
+Memo:[
+ sql:insert into account(cname,username,password,role_id,is_can_search,status) values(:cname,:username,:password,:role_id,:is_can_search,:status) 
+ param:{":cname":"\u4e2d\u80d6\u5b50",":username":"test3",":password":"$2y$10$rTRfArGNIhGVd4DmaNJ39Oww7aS33eloXY\/cyENrqF3e2oL48TJOK",":role_id":"1",":is_can_search":"1",":status":"01"} 
+ startdate:2019-01-22 17:01:43.914 
+ enddate:2019-01-22 17:01:43.994 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:01:44.292]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[3]
+RequestID:[B05BFEF1-7E5B-4D38-026D-E0D4B8984F0F]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+ param:{":status":"01",":is_can_search":"1"} 
+ startdate:2019-01-22 17:01:44.274 
+ enddate:2019-01-22 17:01:44.284 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:04:43.784]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/common/login/login]
+UserID:[]
+RequestID:[635F6AAE-476A-4725-D0F4-CC17145D73ED]
+Memo:[
+ sql:select id,cname,password,role_id from account where username=:username and status=:status 
+ param:{":username":"wanglinhai",":status":"01"} 
+ startdate:2019-01-22 17:04:43.724 
+ enddate:2019-01-22 17:04:43.734 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:05:52.825]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadbaseinfo]
+UserID:[1]
+RequestID:[21681267-BB95-0468-9A3A-A584B319C14E]
+Memo:[
+ sql:select id,cname from role where status=:status 
+ param:{":status":"01"} 
+ startdate:2019-01-22 17:05:52.796 
+ enddate:2019-01-22 17:05:52.802 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:05:52.841]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[21DC850E-CCBF-4490-3BE0-A2249B880F13]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+ param:{":status":"01",":is_can_search":"1"} 
+ startdate:2019-01-22 17:05:52.824 
+ enddate:2019-01-22 17:05:52.832 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:11:15.213]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[13285E14-CC49-C5ED-0EA0-DFEB89552C70]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.is_can_search=:is_can_search 
+ param:{":is_can_search":"1"} 
+ startdate:2019-01-22 17:11:15.195 
+ enddate:2019-01-22 17:11:15.204 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:11:16.764]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[8B0C367F-142F-576B-FEB7-6BC17638754B]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+ param:{":status":"06",":is_can_search":"1"} 
+ startdate:2019-01-22 17:11:16.746 
+ enddate:2019-01-22 17:11:16.756 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:11:18.827]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[879D531D-CE51-28D2-3BAF-6B355C3D21FE]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+ param:{":status":"01",":is_can_search":"1"} 
+ startdate:2019-01-22 17:11:18.812 
+ enddate:2019-01-22 17:11:18.819 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:11:20.261]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[073EBFB0-D120-65CD-6A8B-AFBB3FE7AE06]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.is_can_search=:is_can_search 
+ param:{":is_can_search":"1"} 
+ startdate:2019-01-22 17:11:20.244 
+ enddate:2019-01-22 17:11:20.253 
+]
+Trace:[]
+----------------------------------------------------------------------
+Date:[2019-01-22 17:11:22.423]
+ClientIP:[10.100.251.1]
+ServerIP:[10.100.251.115]
+Url:[web/auth/account/loadlist]
+UserID:[1]
+RequestID:[8D098186-566F-E5EB-4037-725B8BC9670C]
+Memo:[
+ sql:
+OldSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+NewSql：select a.id,a.cname,a.username,a.is_can_search,a.role_id,b.cname 'role_id_tran',a.status
+                    from account a
+                        join role b on a.role_id=b.id
+                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search limit 0,10
+TotalSql：select count(*) total from account a                        join role b on a.role_id=b.id                    where 1=1  and a.status=:status and a.is_can_search=:is_can_search 
+ param:{":status":"06",":is_can_search":"1"} 
+ startdate:2019-01-22 17:11:22.404 
+ enddate:2019-01-22 17:11:22.412 
+]
+Trace:[]

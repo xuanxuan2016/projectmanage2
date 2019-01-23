@@ -90,7 +90,7 @@ class View {
         preg_match_all($strReg, $strView, $arrMatch, PREG_PATTERN_ORDER);
         if (!empty($arrMatch[0])) {
             for ($i = 0, $j = count($arrMatch[1]); $i < $j; $i++) {
-                $strView = str_replace($arrMatch[1][$i], isset($arrContent[$arrMatch[2][$i]]) ? $arrContent[$arrMatch[2][$i]] : '', $strView);
+                $strView = str_replace($arrMatch[1][$i], isset($arrContent[$arrMatch[2][$i]]) ? $arrContent[$arrMatch[2][$i]] : $arrMatch[1][$i], $strView);
             }
         }
     }

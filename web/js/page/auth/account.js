@@ -155,6 +155,11 @@
                 }
             }
         },
+        watch: {
+            'dialog.account_info.id': function(val) {
+                app.$data.dialog.account_info.password.rules.required.value = val == '0';
+            }
+        },
         created: function() {
         },
         methods: {
@@ -167,10 +172,8 @@
                 //title
                 if (id) {
                     app.$data.dialog.title = '编辑账号';
-                    app.$data.dialog.account_info.password.rules.required.value = false;
                 } else {
                     app.$data.dialog.title = '新增账号';
-                    app.$data.dialog.account_info.password.rules.required.value = true;
                 }
                 //获取数据
                 new Promise(function(resolve) {
@@ -206,10 +209,9 @@
                 }
             },
             /**
-             * 查询条件
-             * 账号是否有效
+             * 查询条件变化
              */
-            statusChange: function() {
+            searchChange: function() {
                 app.$data.list.page.page_index = 1;
                 account.loadList();
             },

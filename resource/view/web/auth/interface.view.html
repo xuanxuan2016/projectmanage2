@@ -1,3 +1,168 @@
-<div id="app" >
-    功能点
+<div id="app" v-cloak>
+    <div class='page-search'>
+        <el-collapse>
+            <el-collapse-item title="查询条件">
+                <div class="search">
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <span>是否有效：</span>
+                            <el-select v-model="search.status" placeholder="请选择" @change="searchChange">
+                                <el-option label="全部" value=""></el-option>
+                                <el-option label="有效" value="01"></el-option>
+                                <el-option label="无效" value="06"></el-option>
+                            </el-select>
+                        </div>
+                        <div class='search-item'>
+                            <span>权限类型：</span>
+                            <el-select v-model="search.itype" placeholder="请选择" @change="searchChange">
+                                <el-option label="全部" value=''></el-option>
+                                <el-option label="模块" value='0'></el-option>
+                                <el-option label="页面" value='1'></el-option>
+                                <el-option label="按钮" value='2'></el-option>
+                            </el-select>
+                        </div>
+                    </div>
+                </div>
+            </el-collapse-item>
+        </el-collapse>
+    </div>
+    <div class='page-button'>
+        <el-button v-if="auth_button['Auth.Interface.Edit']" type="primary" @click="showDialogInterface(0)">新增</el-button>
+    </div>
+    <div class='page-list'>
+        <el-table
+            :data="list.data"
+            border
+            stripe
+            style="width: 100%">     
+            <el-table-column
+                label="权限名称">
+                <template slot-scope="scope">
+                    <a class="table-a" @click="showDialogInterface(scope.row.id)">{{scope.row.cname}}</a>
+                </template>
+            </el-table-column>
+            <el-table-column
+                prop="code"
+                label="权限code">
+            </el-table-column>
+            <el-table-column
+                prop="icode"
+                label="权限key">
+            </el-table-column>
+            <el-table-column
+                prop="itype"
+                label="权限类别"
+                :formatter="formatIType">
+            </el-table-column>
+            <el-table-column
+                prop="url"
+                label="页面地址">
+            </el-table-column>
+            <el-table-column
+                prop="icon"
+                label="页面图标">
+            </el-table-column>
+            <el-table-column
+                prop="status"
+                label="是否有效"
+                :formatter="formatStatus">
+            </el-table-column>
+        </el-table>
+    </div>
+    <div class='page-pagination'>
+        <el-pagination
+            background
+            layout="total,prev, pager, next"
+            :current-page=list.page.page_index
+            :total=list.page.total
+            :page-size=list.page.page_size
+            @current-change="pageIndexChange"
+            @prev-click="pageIndexChange"
+            @next-click="pageIndexChange">
+        </el-pagination>
+    </div>
+    <div class='dialog'>
+        <el-dialog
+            :title="dialog.title"
+            :visible.sync="dialog.visible"
+            :append-to-body="true"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            width="30%"
+            top="5vh">
+            <div class="dialog-content">
+                <div class="dialog-row">                    
+                    <div class="dialog-item dialog-label require">
+                        权限名称
+                    </div>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.interface_info.cname.value" placeholder="请输入权限名称" maxlength="20"></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        权限code
+                    </div>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.interface_info.code.value" placeholder="请输入权限code" maxlength="20"></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        权限key
+                    </div>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.interface_info.icode.value" placeholder="请输入权限key" maxlength="100"></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        权限类别
+                    </div>
+                    <div class="dialog-item">
+                        <el-select v-model="dialog.interface_info.itype" placeholder="请选择" >
+                            <el-option label="模块" value='0'></el-option>
+                            <el-option label="页面" value='1'></el-option>
+                            <el-option label="按钮" value='2'></el-option>
+                        </el-select>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label" :class="{require:dialog.interface_info.url.rules.required.value}">
+                        页面地址
+                    </div>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.interface_info.url.value" placeholder="请输入页面地址" maxlength="50"></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label" :class="{require:dialog.interface_info.icon.rules.required.value}">
+                        页面图标
+                    </div>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.interface_info.icon.value" placeholder="请输入页面图标" maxlength="100"></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        是否有效
+                    </div>
+                    <div class="dialog-item">
+                        <el-select v-model="dialog.interface_info.status" placeholder="请选择" >
+                            <el-option label="有效" value='01'></el-option>
+                            <el-option label="无效" value='06'></el-option>
+                        </el-select>
+                    </div>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialog.visible = false">取 消</el-button>
+                <el-button v-if="auth_button['Auth.Interface.Edit']" type="primary" @click="saveInterfaceInfo">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+    <div class="auth-button">
+        <!--用于页面上的按钮与弹框按钮-->
+        {{auth_button}}
+    </div>
 </div>

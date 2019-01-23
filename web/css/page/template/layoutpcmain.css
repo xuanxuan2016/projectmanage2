@@ -185,13 +185,14 @@ and open the template in the editor.
 .dialog-content .dialog-label{
     margin-right:10px;
     line-height:40px;
+    width: 100px;
+    text-align: right;
 }
-.dialog-content .dialog-label::before{
+.dialog-content .dialog-label::after{
     content: "*";
     color: #fff;
-    margin-right: 2px;
 }
-.dialog-content .dialog-label.require::before{
+.dialog-content .dialog-label.require::after{
     color: #f56c6c;
 }
 .dialog-content .el-input{

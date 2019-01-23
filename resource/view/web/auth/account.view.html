@@ -6,7 +6,7 @@
                     <div class="search-row">
                         <div class='search-item'>
                             <span>是否有效：</span>
-                            <el-select v-model="search.status" placeholder="请选择" @change="statusChange">
+                            <el-select v-model="search.status" placeholder="请选择" @change="searchChange">
                                 <el-option label="全部" value=""></el-option>
                                 <el-option label="有效" value="01"></el-option>
                                 <el-option label="无效" value="06"></el-option>
@@ -14,7 +14,7 @@
                         </div>
                         <div class='search-item'>
                             <span>可被查询：</span>
-                            <el-select v-model="search.is_can_search" placeholder="请选择" @change="statusChange">
+                            <el-select v-model="search.is_can_search" placeholder="请选择" @change="searchChange">
                                 <el-option label="全部" value=''></el-option>
                                 <el-option label="是" value='1'></el-option>
                                 <el-option label="否" value='0'></el-option>
@@ -102,7 +102,7 @@
                     </div>
                 </div>
                 <div class="dialog-row">
-                    <div class="dialog-item dialog-label" :class="{require:dialog.account_info.id==0}">
+                    <div class="dialog-item dialog-label" :class="{require:dialog.account_info.password.rules.required.value}">
                         账号密码
                     </div>
                     <div class="dialog-item">

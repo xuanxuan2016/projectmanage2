@@ -1,1 +1,1 @@
-[Tue Jan 22 16:34:32.688868 2019] [:error] [pid 8411] [client 10.100.251.1:58700] PHP Fatal error:  Call to undefined method App\\Http\\Model\\Web\\Auth\\AccountModel::getRules() in /vagrant/htdocs/projectmanage/app/Http/Model/Web/Auth/AccountModel.php on line 268, referer: http://dev2.beautymyth.cn/web/auth/account
+fsdf

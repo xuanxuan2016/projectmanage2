@@ -1,3 +1,5 @@
 /nbproject/private/
 /nbproject/
 /storage/log/
+storage/log/access_log
+storage/log/error_log

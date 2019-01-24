@@ -42,6 +42,9 @@
          */
         initAccountInfo: function(account_info) {
             for (var objKey in account_info) {
+                if (typeof app.$data.dialog.account_info[objKey] === 'undefined') {
+                    continue;
+                }
                 if (typeof app.$data.dialog.account_info[objKey].value !== 'undefined') {
                     app.$data.dialog.account_info[objKey].value = account_info[objKey];
                 } else {

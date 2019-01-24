@@ -171,7 +171,7 @@ and open the template in the editor.
     padding: 10px 20px 10px;
 }
 .dialog-content .el-select{
-    width: 200px;
+    width: 300px;
 }
 .dialog-content .dialog-row{
     display: flex;
@@ -196,6 +196,6 @@ and open the template in the editor.
     color: #f56c6c;
 }
 .dialog-content .el-input{
-    width: 200px;
+    width: 300px;
 }
 /********************************************************dialog样式 end********************************************************/

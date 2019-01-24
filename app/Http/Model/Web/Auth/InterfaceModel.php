@@ -2,7 +2,6 @@
 
 namespace App\Http\Model\Web\Auth;
 
-use Framework\Facade\Des;
 use Framework\Facade\Request;
 use Framework\Service\Database\DB;
 use Framework\Service\Validation\ValidDBData;

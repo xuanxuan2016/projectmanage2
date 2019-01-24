@@ -37,6 +37,9 @@
          */
         initInterfaceInfo: function(interface_info) {
             for (var objKey in interface_info) {
+                if (typeof app.$data.dialog.interface_info[objKey] === 'undefined') {
+                    continue;
+                }
                 if (typeof app.$data.dialog.interface_info[objKey].value !== 'undefined') {
                     app.$data.dialog.interface_info[objKey].value = interface_info[objKey];
                 } else {

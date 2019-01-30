@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Model\Web\Auth;
+namespace App\Http\Model\Web\Project;
 
-use App\Facade\Menu;
+use Framework\Facade\Config;
 use Framework\Facade\Request;
 use Framework\Service\Database\DB;
 use Framework\Service\Validation\ValidDBData;
 use Framework\Service\Validation\ValidPostData;
 
-class RoleModel {
+class ProjectModel {
 
     /**
      * 数据实例
@@ -40,10 +40,10 @@ class RoleModel {
         ],
         'cname' => [
             'trim' => ['value' => true],
-            'required' => ['value' => true, 'err_msg' => '请输入角色名称']
+            'required' => ['value' => true, 'err_msg' => '请输入项目名称']
         ],
         'status' => [
-            'optional' => ['value' => ['01', '06'], 'err_msg' => '请设置角色是否有效']
+            'optional' => ['value' => ['01', '06'], 'err_msg' => '请设置项目是否有效']
         ]
     ];
 
@@ -70,9 +70,9 @@ class RoleModel {
         }
         //2.记录操作日志(埋点)
         //3.业务逻辑
-        $arrRoleList = $this->getRoleList($arrParam);
+        $arrProjectList = $this->getProjectList($arrParam);
         //4.结果返回
-        $arrData = $arrRoleList;
+        $arrData = $arrProjectList;
         return true;
     }
 
@@ -113,22 +113,22 @@ class RoleModel {
     /**
      * 获取数据
      */
-    protected function getRoleList($arrParam) {
+    protected function getProjectList($arrParam) {
         //分页
         $intPageSize = $arrParam['page_size'];
         $intStart = ($arrParam['page_index'] - 1) * $intPageSize;
 
         //查询
         $strSql = "select a.id,a.cname,a.status
-                    from role a
+                    from project a
                     where 1=1 {$arrParam['where']['sql']}";
         $arrParams = $arrParam['where']['param'];
         $intTotal = 0;
-        $arrRoleList = $this->objDB->setMainTable('role')->selectPage($strSql, $intStart, $intPageSize, $intTotal, $arrParams, true);
+        $arrProjectList = $this->objDB->setMainTable('project')->selectPage($strSql, $intStart, $intPageSize, $intTotal, $arrParams, true);
 
         //返回
         return [
-            'list' => $arrRoleList,
+            'list' => $arrProjectList,
             'total' => $intTotal
         ];
     }
@@ -143,25 +143,29 @@ class RoleModel {
         //1.参数验证
         //2.记录操作日志(埋点)
         //3.业务逻辑
-        $arrData['interface'] = $this->getInterfaceInfo();
+        $arrData['person'] = $this->getPersonInfo();
         //4.结果返回        
         return true;
     }
 
     /**
-     * 获取权限点
+     * 获取人员
      */
-    protected function getInterfaceInfo() {
+    protected function getPersonInfo() {
         //查询
-        $strSql = "select id,cname,code,itype from einterface where status=:status order by code";
+        $strSql = "select a.id,a.cname label,b.cname role 
+                    from account a
+                        join role b on a.role_id=b.id
+                        where a.status=:status
+                        order by a.role_id";
         $arrParams[':status'] = '01';
-        $arrInterfaceInfo = $this->objDB->setMainTable('role')->select($strSql, $arrParams);
+        $arrPersonInfo = $this->objDB->setMainTable('account')->select($strSql, $arrParams);
 
-        //获取权限的树状结构
+        //获取人员的树状结构
         $arrRoot[] = [
             'id' => 0,
-            'label' => '权限',
-            'children' => $this->getChildren($arrInterfaceInfo, 0, '0')
+            'label' => '人员',
+            'children' => $this->getChildren($arrPersonInfo)
         ];
 
         //返回
@@ -169,51 +173,51 @@ class RoleModel {
     }
 
     /**
-     * 将权限点处理为树状结构
+     * 将人员处理为树状结构
      */
-    protected function getChildren($arrInterfaceInfo, $strIType, $strCode) {
+    protected function getChildren($arrPersonInfo) {
         $arrChildren = [];
-        //根据itype获取节点
-        $arrLevel = array_values(array_filter($arrInterfaceInfo, function($value) use($strIType, $strCode) {
-                    return $value['itype'] == $strIType && strpos($value['code'], $strCode) === 0;
-                }));
-        //遍历获取到的节点
-        foreach ($arrLevel as $arrLevelTmp) {
+        //获取角色
+        $arrRole = array_unique(array_column($arrPersonInfo, 'role'));
+        //根据角色分类人员
+        foreach ($arrRole as $strRole) {
             $arrChildren[] = [
-                'id' => $arrLevelTmp['id'],
-                'label' => $arrLevelTmp['cname'],
-                'children' => $this->getChildren($arrInterfaceInfo, $arrLevelTmp['itype'] + 1, $arrLevelTmp['code'])
+                'id' => $strRole,
+                'label' => $strRole,
+                'children' => array_values(array_filter($arrPersonInfo, function($value) use ($strRole) {
+                                    return $value['role'] == $strRole;
+                                }))
             ];
         }
         //返回
         return $arrChildren;
     }
 
-    // -------------------------------------- loadRoleInfo -------------------------------------- //
+    // -------------------------------------- loadProjectInfo -------------------------------------- //
 
     /**
      * 加载账号信息
      */
-    public function loadRoleInfo(&$strErrMsg, &$arrData) {
+    public function loadProjectInfo(&$strErrMsg, &$arrData) {
         $arrParam = [];
         //1.参数验证
-        $strErrMsg = $this->checkLoadRoleInfo($arrParam);
+        $strErrMsg = $this->checkLoadProjectInfo($arrParam);
         if (!empty($strErrMsg)) {
             return false;
         }
         //2.记录操作日志(埋点)
         //3.业务逻辑
-        $arrRoleInfo = $this->getRoleInfo($arrParam);
-        $arrRoleInfo['auth'] = $this->getAuthInfo($arrParam);
+        $arrProjectInfo = $this->getProjectInfo($arrParam);
+        $arrProjectInfo['person'] = $this->getProjectPersonInfo($arrParam);
         //4.结果返回
-        $arrData['info'] = $arrRoleInfo;
+        $arrData['info'] = $arrProjectInfo;
         return true;
     }
 
     /**
      * 参数检查
      */
-    protected function checkLoadRoleInfo(&$arrParam) {
+    protected function checkLoadProjectInfo(&$arrParam) {
         //1.获取页面参数
         $arrParam = [
             'id' => Request::getParam('id')
@@ -231,49 +235,45 @@ class RoleModel {
     /**
      * 获取数据
      */
-    protected function getRoleInfo($arrParam) {
+    protected function getProjectInfo($arrParam) {
         //查询
-        $strSql = "select id,cname,status from role where id=:id";
+        $strSql = "select id,cname,status from project where id=:id";
         $arrParams[':id'] = $arrParam['id'];
-        $arrRoleInfo = $this->objDB->setMainTable('role')->select($strSql, $arrParams);
+        $arrProjectInfo = $this->objDB->setMainTable('project')->select($strSql, $arrParams);
 
         //返回
-        return $arrRoleInfo[0];
+        return $arrProjectInfo[0];
     }
 
     /**
-     * 获取角色的权限数据
+     * 获取项目的权限数据
      */
-    protected function getAuthInfo($arrParam) {
+    protected function getProjectPersonInfo($arrParam) {
         //查询
-        $strSql = "select auth_id from einterfacerole where role_id=:id and status=:status";
+        $strSql = "select account_id from projectperson where project_id=:id and status=:status";
         $arrParams[':id'] = $arrParam['id'];
         $arrParams[':status'] = '01';
-        $arrAuthInfo = $this->objDB->setMainTable('einterfacerole')->select($strSql, $arrParams);
+        $arrPersonInfo = $this->objDB->setMainTable('projectperson')->select($strSql, $arrParams);
 
         //返回
-        return array_values(array_column($arrAuthInfo, 'auth_id'));
+        return array_values(array_column($arrPersonInfo, 'account_id'));
     }
 
-    // -------------------------------------- saveRoleInfo -------------------------------------- //
+    // -------------------------------------- saveProjectInfo -------------------------------------- //
 
     /**
      * 加载账号信息
      */
-    public function saveRoleInfo(&$strErrMsg) {
+    public function saveProjectInfo(&$strErrMsg) {
         $arrParam = [];
         //1.参数验证
-        $strErrMsg = $this->checkSaveRoleInfo($arrParam);
+        $strErrMsg = $this->checkSaveProjectInfo($arrParam);
         if (!empty($strErrMsg)) {
             return false;
         }
         //2.记录操作日志(埋点)
         //3.业务逻辑
-        $blnRet = $this->updateRoleInfo($arrParam);
-        if ($blnRet && !empty($arrParam['id'])) {
-            //移除cache文件
-            Menu::delCacheFileByRoleId($arrParam['id']);
-        }
+        $blnRet = $this->updateProjectInfo($arrParam);
         //4.结果返回
         if (!$blnRet) {
             $strErrMsg = '保存失败';
@@ -285,7 +285,7 @@ class RoleModel {
     /**
      * 参数检查
      */
-    protected function checkSaveRoleInfo(&$arrParam) {
+    protected function checkSaveProjectInfo(&$arrParam) {
         //1.获取页面参数
         $arrParam = Request::getAllParam();
 
@@ -301,21 +301,21 @@ class RoleModel {
 
         //3.字段数据库配置检查
         //4.业务检查    
-        $arrAuth = json_decode($arrParam['auth'], true);
-        if (in_array('0', $arrAuth)) {
-            unset($arrAuth[array_search('0', $arrAuth)]);
-        }
-        if (empty($arrAuth)) {
-            return '请设置权限点';
+        $arrPerson = json_decode($arrParam['person'], true);
+        $arrPerson = array_values(array_filter($arrPerson, function($value) {
+                    return checkFormat($value, Config::get('const.ValidFormat.FORMAT_POSINT'));
+                }));
+        if (empty($arrPerson)) {
+            return '请设置项目人员';
         }
         //5.其它参数
-        $arrParam['auth'] = array_values($arrAuth);
+        $arrParam['person'] = array_values($arrPerson);
     }
 
     /**
      * 保存数据
      */
-    protected function updateRoleInfo($arrParam) {
+    protected function updateProjectInfo($arrParam) {
         //param
         $arrParams = [
             ':id' => $arrParam['id'],
@@ -323,61 +323,61 @@ class RoleModel {
             ':status' => $arrParam['status']
         ];
         //开启事务
-        $this->objDB->setMainTable('role')->beginTran();
-        //1.role
+        $this->objDB->setMainTable('project')->beginTran();
+        //1.project
         if ($arrParams[':id'] == 0) {
             unset($arrParams[':id']);
-            $strSql = 'insert into role(cname,status) values(:cname,:status)';
+            $strSql = 'insert into project(cname,status) values(:cname,:status)';
             //exec
-            $intRoleId = $this->objDB->setMainTable('role')->insert($strSql, $arrParams);
-            if ($intRoleId < 0) {
-                $this->objDB->setMainTable('role')->rollbackTran();
+            $intProjectId = $this->objDB->setMainTable('project')->insert($strSql, $arrParams);
+            if ($intProjectId < 0) {
+                $this->objDB->setMainTable('project')->rollbackTran();
                 return false;
             }
         } else {
-            $strSql = "update role set cname=:cname,status=:status,update_date=now() where id=:id";
+            $strSql = "update project set cname=:cname,status=:status,update_date=now() where id=:id";
             //exec
-            $intRet = $this->objDB->setMainTable('role')->update($strSql, $arrParams);
+            $intRet = $this->objDB->setMainTable('project')->update($strSql, $arrParams);
             if ($intRet != 1) {
-                $this->objDB->setMainTable('role')->rollbackTran();
+                $this->objDB->setMainTable('project')->rollbackTran();
                 return false;
             }
         }
 
-        //2.einterfacerole
+        //2.projectperson
         //2.1.删除
-        $strSql = 'update einterfacerole set status=:status,update_date=now() where role_id=:role_id';
+        $strSql = 'update projectperson set status=:status,update_date=now() where project_id=:project_id';
         $arrParams = [
-            ':role_id' => $arrParam['id'],
+            ':project_id' => $arrParam['id'],
             ':status' => '06'
         ];
-        $intRet = $this->objDB->setMainTable('role')->update($strSql, $arrParams, true);
+        $intRet = $this->objDB->setMainTable('project')->update($strSql, $arrParams, true);
         if ($intRet < 0) {
-            $this->objDB->setMainTable('role')->rollbackTran();
+            $this->objDB->setMainTable('project')->rollbackTran();
             return false;
         }
 
         //2.2.插入
         $arrParams = [
-            ':role_id' => $arrParam['id'] == 0 ? $intRoleId : $arrParam['id'],
+            ':project_id' => $arrParam['id'] == 0 ? $intProjectId : $arrParam['id'],
             ':status' => '01'
         ];
         $strAuth = '';
-        for ($i = 0, $j = count($arrParam['auth']); $i < $j; $i++) {
-            if (is_numeric($arrParam['auth'][$i])) {
-                $strAuth.=":authid{$i},";
-                $arrParams[":authid{$i}"] = $arrParam['auth'][$i];
+        for ($i = 0, $j = count($arrParam['person']); $i < $j; $i++) {
+            if (is_numeric($arrParam['person'][$i])) {
+                $strAuth.=":personid{$i},";
+                $arrParams[":personid{$i}"] = $arrParam['person'][$i];
             }
         }
         $strAuth = trim($strAuth, ',');
-        $strSql = "insert into einterfacerole(role_id,auth_id) select :role_id,id from einterface where status=:status and id in ({$strAuth})";
-        $intRet = $this->objDB->setMainTable('role')->insert($strSql, $arrParams, false);
+        $strSql = "insert into projectperson(project_id,account_id) select :project_id,id from account where status=:status and id in ({$strAuth})";
+        $intRet = $this->objDB->setMainTable('project')->insert($strSql, $arrParams, false);
         if ($intRet < 1) {
-            $this->objDB->setMainTable('role')->rollbackTran();
+            $this->objDB->setMainTable('project')->rollbackTran();
             return false;
         }
         //提交事务
-        $this->objDB->setMainTable('role')->commitTran();
+        $this->objDB->setMainTable('project')->commitTran();
         //返回
         return true;
     }

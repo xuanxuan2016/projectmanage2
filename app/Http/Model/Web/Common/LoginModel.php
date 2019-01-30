@@ -2,6 +2,7 @@
 
 namespace App\Http\Model\Web\Common;
 
+use App\Facade\Menu;
 use Framework\Facade\Des;
 use Framework\Facade\Request;
 use Framework\Service\Database\DB;
@@ -44,6 +45,8 @@ class LoginModel {
         $arrLoginInfo = $this->checkAccount($arrParam);
         //4.结果返回
         if (!empty($arrLoginInfo)) {
+            //移除权限cache文件
+            Menu::delCacheFileByAccountId($arrLoginInfo['account_id']);
             //cookie记录
             Request::setCookie('DevLoginInfo', json_encode($arrLoginInfo), time() + 5 * 24 * 3600, 'beautymyth.cn');
             //返回

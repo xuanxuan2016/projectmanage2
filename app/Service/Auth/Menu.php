@@ -34,7 +34,7 @@ class Menu {
 
     /**
      * 清除临时文件
-     * 1.用户登录(暂不处理)
+     * 1.用户登录
      * 2.用户账号角色修改
      * @param string $strAccountId 角色id
      */
@@ -152,12 +152,7 @@ class Menu {
     protected function replaceProjectMenu($strMenu, &$arrRoute) {
         $strProjectMenu = '';
         $strReplace = "<el-menu-item index='/web/task/require'>需求</el-menu-item><el-menu-item index='/web/task/qa'>送测</el-menu-item>";
-        $arrProject = [
-            ['id' => 1, 'cname' => 'HroExternal'],
-            ['id' => 2, 'cname' => 'MHR'],
-            ['id' => 3, 'cname' => 'HroInterview'],
-            ['id' => 4, 'cname' => 'WeiXinPay']
-        ];
+        $arrProject = $this->getProject();
         //循环项目
         foreach ($arrProject as $arrProjectTmp) {
             $strProjectMenu.="<el-submenu index='{$arrProjectTmp['cname']}'>
@@ -172,6 +167,22 @@ class Menu {
         }
         //替换menu
         return str_replace($strReplace, $strProjectMenu, $strMenu);
+    }
+
+    /**
+     * 获取可用项目
+     */
+    protected function getProject() {
+        $strSql = 'select b.id,b.cname
+                    from projectperson a
+                            join project b on a.project_id=b.id
+                    where a.account_id=:account_id and a.status=:status and b.status=:status
+                    order by b.id';
+        $arrParams = [
+            ':account_id' => User::getAccountId(),
+            ':status' => '01'
+        ];
+        return $this->objDB->setMainTable('projectperson')->select($strSql, $arrParams);
     }
 
     /**

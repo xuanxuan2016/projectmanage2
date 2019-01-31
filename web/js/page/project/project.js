@@ -88,17 +88,7 @@
              * 页面基础信息
              */
             base_info: {
-                person: [{
-                        id: 0,
-                        label: '人员',
-                        children: [{
-                                id: 1,
-                                label: '系统管理员'
-                            }, {
-                                id: 2,
-                                label: '开发'
-                            }]
-                    }]
+                person: []
             },
             /**
              * 查询条件

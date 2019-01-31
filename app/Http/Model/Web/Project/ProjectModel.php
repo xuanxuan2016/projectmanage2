@@ -2,6 +2,7 @@
 
 namespace App\Http\Model\Web\Project;
 
+use App\Facade\Menu;
 use Framework\Facade\Config;
 use Framework\Facade\Request;
 use Framework\Service\Database\DB;
@@ -274,6 +275,10 @@ class ProjectModel {
         //2.记录操作日志(埋点)
         //3.业务逻辑
         $blnRet = $this->updateProjectInfo($arrParam);
+        if ($blnRet && !empty($arrParam['id'])) {
+            //移除cache文件
+            Menu::delCacheFileByProjectId($arrParam['id']);
+        }
         //4.结果返回
         if (!$blnRet) {
             $strErrMsg = '保存失败';

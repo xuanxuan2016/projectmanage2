@@ -1,0 +1,117 @@
+<div id="app" v-cloak>
+    <div class='page-search'>
+        <el-collapse>
+            <el-collapse-item title="查询条件">
+                <div class="search">
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <span>项目：</span>
+                            <el-select v-model="search.project_id" placeholder="请选择" @change="searchChange">
+                                <el-option v-for="project in base_info.project" :label="project.cname" :value="project.id"></el-option>
+                            </el-select>
+                        </div>
+                        <div class='search-item'>
+                            <span>类型：</span>
+                            <el-select v-model="search.type" placeholder="请选择" @change="searchChange">
+                                <el-option label="全部" value=""></el-option>
+                                <el-option label="系统" value="01"></el-option>
+                                <el-option label="业务" value="02"></el-option>
+                            </el-select>
+                        </div>
+                    </div>
+                </div>
+            </el-collapse-item>
+        </el-collapse>
+    </div>
+    <div class='page-button'>
+        <el-button v-if="auth_button['Project.Module.Edit']" type="primary" @click="showDialogModule(0)">新增</el-button>
+    </div>
+    <div class='page-list'>
+        <el-table
+            :data="list.data"
+            border
+            stripe
+            style="width: 100%">     
+            <el-table-column
+                label="模块名称">
+                <template slot-scope="scope">
+                    <a class="table-a" @click="showDialogModule(scope.row.id,scope.row.project_id)">{{scope.row.cname}}</a>
+                </template>
+            </el-table-column>
+            <el-table-column
+                prop="projectname"
+                label="项目">
+            </el-table-column>
+            <el-table-column
+                prop="type"
+                label="类型"
+                :formatter="formatType">
+            </el-table-column>
+        </el-table>
+    </div>
+    <div class='page-pagination'>
+        <el-pagination
+            background
+            layout="total,prev, pager, next"
+            :current-page=list.page.page_index
+            :total=list.page.total
+            :page-size=list.page.page_size
+            @current-change="pageIndexChange"
+            @prev-click="pageIndexChange"
+            @next-click="pageIndexChange">
+        </el-pagination>
+    </div>
+    <div class='dialog'>
+        <el-dialog
+            :title="dialog.title"
+            :visible.sync="dialog.visible"
+            :append-to-body="true"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            width="30%"
+            top="5vh">
+            <div class="dialog-content">
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        模块名称
+                    </div>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.module_info.cname.value" placeholder="请输入模块名称" maxlength="100"></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        模块项目
+                    </div>
+                    <div class="dialog-item">
+                        <el-select v-model="dialog.module_info.project_id.value" placeholder="请选择" >
+                            <el-option label="全部" value=""></el-option>
+                            <el-option v-for="project in base_info.project" :label="project.cname" :value="project.id"></el-option>
+                        </el-select>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        模块类别
+                    </div>
+                    <div class="dialog-item">
+                        <el-select v-model="dialog.module_info.type.value" placeholder="请选择" >
+                            <el-option label="全部" value=""></el-option>
+                            <el-option label="系统" value="01"></el-option>
+                            <el-option label="业务" value="02"></el-option>
+                        </el-select>
+                    </div>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialog.visible = false">取 消</el-button>
+                <el-button v-if="auth_button['Project.Module.Edit'] && dialog.module_info.id!='0'" type="primary" @click="deleteModuleInfo">删除</el-button>
+                <el-button v-if="auth_button['Project.Module.Edit']" type="primary" @click="saveModuleInfo">保存</el-button>
+            </span>
+        </el-dialog>
+    </div>
+    <div class="auth-button">
+        <!--用于页面上的按钮与弹框按钮-->
+        {{auth_button}}
+    </div>
+</div>

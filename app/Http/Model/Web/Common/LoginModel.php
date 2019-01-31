@@ -46,7 +46,8 @@ class LoginModel {
         //4.结果返回
         if (!empty($arrLoginInfo)) {
             //移除权限cache文件
-            Menu::delCacheFileByAccountId($arrLoginInfo['account_id']);
+            Menu::delCacheFileByAccountId($arrLoginInfo['account_id'], 'auth');
+            Menu::delCacheFileByAccountId($arrLoginInfo['account_id'], 'project');
             //cookie记录
             Request::setCookie('DevLoginInfo', json_encode($arrLoginInfo), time() + 5 * 24 * 3600, 'beautymyth.cn');
             //返回

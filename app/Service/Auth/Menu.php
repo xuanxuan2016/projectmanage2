@@ -2,11 +2,10 @@
 
 namespace App\Service\Auth;
 
-use Framework\Facade\Log;
 use Framework\Facade\App;
-use Framework\Facade\User;
 use Framework\Facade\Request;
 use Framework\Service\Database\DB;
+use Framework\Facade\User as UserFacade;
 
 /**
  * 菜单与功能点
@@ -28,8 +27,8 @@ class Menu {
     /**
      * 获取缓存路径
      */
-    protected function getFilePath($strAccountId) {
-        return App::make('path.storage') . '/cache/auth/' . $strAccountId . '.log';
+    protected function getFilePath($strAccountId, $strType) {
+        return App::make('path.storage') . '/cache/auth/' . $strType . '_' . $strAccountId . '.log';
     }
 
     /**
@@ -37,9 +36,10 @@ class Menu {
      * 1.用户登录
      * 2.用户账号角色修改
      * @param string $strAccountId 角色id
+     * @param string $strType 缓存类别
      */
-    public function delCacheFileByAccountId($strAccountId) {
-        $strFilePath = $this->getFilePath($strAccountId);
+    public function delCacheFileByAccountId($strAccountId, $strType) {
+        $strFilePath = $this->getFilePath($strAccountId, $strType);
         if (file_exists($strFilePath)) {
             unlink($strFilePath);
         }
@@ -58,7 +58,24 @@ class Menu {
         ];
         $arrAccount = $this->objDB->setMainTable('account')->select($strSql, $arrParams);
         foreach ($arrAccount as $arrAccountTmp) {
-            $this->delCacheFileByAccountId($arrAccountTmp['id']);
+            $this->delCacheFileByAccountId($arrAccountTmp['id'], 'auth');
+        }
+    }
+
+    /**
+     * 清除临时文件
+     * 1.项目关联人员修改
+     * @param string $strProjectId 项目id
+     */
+    public function delCacheFileByProjectId($strProjectId) {
+        $strSql = 'select account_id from projectperson where project_id=:project_id and status=:status';
+        $arrParams = [
+            ':project_id' => $strProjectId,
+            ':status' => '01'
+        ];
+        $arrAccount = $this->objDB->setMainTable('projectperson')->select($strSql, $arrParams);
+        foreach ($arrAccount as $arrAccountTmp) {
+            $this->delCacheFileByAccountId($arrAccountTmp['account_id'], 'project');
         }
     }
 
@@ -66,7 +83,7 @@ class Menu {
      * 获取功能点
      */
     protected function getAuth() {
-        $strFilePath = $this->getFilePath(User::getAccountId());
+        $strFilePath = $this->getFilePath(UserFacade::getAccountId(), 'auth');
         if (file_exists($strFilePath)) {
             //从缓存文件获取
             return json_decode(file_get_contents($strFilePath), true);
@@ -77,7 +94,7 @@ class Menu {
                         join einterfacerole b on a.id=b.auth_id
                         where b.role_id=:role_id and a.status=:status and b.status=:status';
             $arrParams = [
-                ':role_id' => User::getAccountRole(),
+                ':role_id' => UserFacade::getAccountRole(),
                 ':status' => '01'
             ];
             $arrAuth = $this->objDB->setMainTable('einterface')->select($strSql, $arrParams);
@@ -85,6 +102,33 @@ class Menu {
             file_put_contents($strFilePath, json_encode($arrAuth), LOCK_EX);
             //返回数据
             return $arrAuth;
+        }
+    }
+
+    /**
+     * 获取可用项目
+     */
+    protected function getProject() {
+        $strFilePath = $this->getFilePath(UserFacade::getAccountId(), 'project');
+        if (file_exists($strFilePath)) {
+            //从缓存文件获取
+            return json_decode(file_get_contents($strFilePath), true);
+        } else {
+            //从数据库获取
+            $strSql = 'select b.id,b.cname,a.project_id
+                    from projectperson a
+                            join project b on a.project_id=b.id
+                    where a.account_id=:account_id and a.status=:status and b.status=:status
+                    order by b.id';
+            $arrParams = [
+                ':account_id' => UserFacade::getAccountId(),
+                ':status' => '01'
+            ];
+            $arrProject = $this->objDB->setMainTable('projectperson')->select($strSql, $arrParams);
+            //写入文件
+            file_put_contents($strFilePath, json_encode($arrProject), LOCK_EX);
+            //返回数据
+            return $arrProject;
         }
     }
 
@@ -157,32 +201,16 @@ class Menu {
         foreach ($arrProject as $arrProjectTmp) {
             $strProjectMenu.="<el-submenu index='{$arrProjectTmp['cname']}'>
                             <template slot='title'>{$arrProjectTmp['cname']}</template>
-                            <el-menu-item index='web/task/require?pjid={$arrProjectTmp['id']}'>需求</el-menu-item>
-                            <el-menu-item index='web/task/qa?pjid={$arrProjectTmp['id']}'>送测</el-menu-item>
+                            <el-menu-item index='web/task/require?project_id={$arrProjectTmp['id']}'>需求</el-menu-item>
+                            <el-menu-item index='web/task/qa?project_id={$arrProjectTmp['id']}'>送测</el-menu-item>
                         </el-submenu>";
             //菜单路径
-            if (in_array($this->getUri(), ["web/task/require?pjid={$arrProjectTmp['id']}", "web/task/qa?pjid={$arrProjectTmp['id']}"])) {
+            if (in_array($this->getUri(), ["web/task/require?project_id={$arrProjectTmp['id']}", "web/task/qa?project_id={$arrProjectTmp['id']}"])) {
                 $arrRoute = ['02', $arrProjectTmp['cname']];
             }
         }
         //替换menu
         return str_replace($strReplace, $strProjectMenu, $strMenu);
-    }
-
-    /**
-     * 获取可用项目
-     */
-    protected function getProject() {
-        $strSql = 'select b.id,b.cname
-                    from projectperson a
-                            join project b on a.project_id=b.id
-                    where a.account_id=:account_id and a.status=:status and b.status=:status
-                    order by b.id';
-        $arrParams = [
-            ':account_id' => User::getAccountId(),
-            ':status' => '01'
-        ];
-        return $this->objDB->setMainTable('projectperson')->select($strSql, $arrParams);
     }
 
     /**
@@ -215,6 +243,16 @@ class Menu {
         $arrAuth = $this->getAuth();
         //2.检查权限
         return in_array($strAuthCode, array_column($arrAuth, 'icode'));
+    }
+
+    /**
+     * 检查项目权限
+     */
+    public function checkProject() {
+        //1.获取功能点
+        $arrProject = $this->getProject();
+        //2.检查权限
+        return in_array(Request::getParam('project_id'), array_column($arrProject, 'project_id'));
     }
 
 }

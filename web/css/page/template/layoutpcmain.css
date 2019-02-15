@@ -132,6 +132,9 @@ and open the template in the editor.
 .el-pagination.is-background .el-pager li {
     margin: 0 2px;
 }
+.el-table .timeout{
+    color:#ff0000;
+}
 /********************************************************table样式 start********************************************************/
 
 /********************************************************search样式 start********************************************************/
@@ -156,6 +159,9 @@ and open the template in the editor.
     display: flex;
     flex-direction:row;
     justify-content:flex-start;
+}
+.page-search .search-row:nth-of-type(n+2){
+    margin-top:10px;
 }
 .page-search .search-item{
     margin-right:50px;

@@ -150,20 +150,20 @@ class Menu {
         $arrRoute = [];
         //2.1.一级菜单
         foreach ($this->getSubMenu($arrAuth, 0) as $arrLevel0Tmp) {
-            $strMenu.="<el-submenu index='{$arrLevel0Tmp['code']}'>
+            $strMenu .= "<el-submenu index='{$arrLevel0Tmp['code']}'>
                         <template slot='title'>
                             <i class='{$arrLevel0Tmp['icon']}'></i>
                             <span>{$arrLevel0Tmp['cname']}</span>
                         </template>";
             //2.2.二级菜单
             foreach ($this->getSubMenu($arrAuth, 1, $arrLevel0Tmp['code']) as $arrLevel1Tmp) {
-                $strMenu.="<el-menu-item index='{$arrLevel1Tmp['url']}'>{$arrLevel1Tmp['cname']}</el-menu-item>";
+                $strMenu .= "<el-menu-item index='{$arrLevel1Tmp['url']}'>{$arrLevel1Tmp['cname']}</el-menu-item>";
                 //菜单路径
                 if ($arrLevel1Tmp['url'] == $this->getUri()) {
                     $arrRoute = [$arrLevel0Tmp['code']];
                 }
             }
-            $strMenu.="</el-submenu>";
+            $strMenu .= "</el-submenu>";
         }
         //2.3.替换项目菜单
         $strMenu = $this->replaceProjectMenu($strMenu, $arrRoute);
@@ -199,13 +199,13 @@ class Menu {
         $arrProject = $this->getProject();
         //循环项目
         foreach ($arrProject as $arrProjectTmp) {
-            $strProjectMenu.="<el-submenu index='{$arrProjectTmp['cname']}'>
+            $strProjectMenu .= "<el-submenu index='{$arrProjectTmp['cname']}'>
                             <template slot='title'>{$arrProjectTmp['cname']}</template>
-                            <el-menu-item index='web/task/require?project_id={$arrProjectTmp['id']}'>需求</el-menu-item>
-                            <el-menu-item index='web/task/qa?project_id={$arrProjectTmp['id']}'>送测</el-menu-item>
+                            <el-menu-item index='/web/task/require?project_id={$arrProjectTmp['id']}'>需求</el-menu-item>
+                            <el-menu-item index='/web/task/qa?project_id={$arrProjectTmp['id']}'>送测</el-menu-item>
                         </el-submenu>";
             //菜单路径
-            if (in_array($this->getUri(), ["web/task/require?project_id={$arrProjectTmp['id']}", "web/task/qa?project_id={$arrProjectTmp['id']}"])) {
+            if (in_array($this->getUri(), ["/web/task/require?project_id={$arrProjectTmp['id']}", "/web/task/qa?project_id={$arrProjectTmp['id']}"])) {
                 $arrRoute = ['02', $arrProjectTmp['cname']];
             }
         }
@@ -253,6 +253,19 @@ class Menu {
         $arrProject = $this->getProject();
         //2.检查权限
         return in_array(Request::getParam('project_id'), array_column($arrProject, 'project_id'));
+    }
+
+    /**
+     * 获取项目名称
+     */
+    public function getProjectName() {
+        //1.获取功能点
+        $arrProject = $this->getProject();
+        //2.检查权限
+        $arrCurProject = array_values(array_filter($arrProject, function($value) {
+                    return $value['project_id'] == Request::getParam('project_id');
+                }));
+        return !empty($arrCurProject) ? $arrCurProject[0]['cname'] : '';
     }
 
 }

@@ -1,54 +1,198 @@
-<div id="app" >
+<div id="app"  v-cloak>
     <div class='page-search'>
-
+        <el-collapse>
+            <el-collapse-item title="查询条件">
+                <div class="search">
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <span>需求名称：</span>
+                            <el-input v-model="search.task_name" placeholder="输入需求名称进行模糊查询"></el-input>
+                        </div>
+                    </div>
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <span>需求状态：</span>
+                            <el-checkbox-group v-model="search.status">
+                                <el-checkbox v-for="status in base_info.status" :label="status.key" :key="status.key">{{status.value}}</el-checkbox>
+                            </el-checkbox-group>
+                        </div>
+                    </div>
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <span>开发人员：</span>
+                            <el-select v-model="search.account_id" placeholder="请选择">
+                                <el-option label="全部" value=""></el-option>
+                                <el-option-group
+                                    v-for="group in base_info.account"
+                                    :key="group.label"
+                                    :label="group.label">
+                                    <el-option
+                                        v-for="item in group.options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-option-group>
+                            </el-select>
+                        </div>
+                        <div class='search-item'>
+                            <span>提出人：</span>
+                            <el-select v-model="search.needer" placeholder="请选择">
+                                <el-option label="全部" value=""></el-option>
+                                <el-option-group
+                                    v-for="group in base_info.needer"
+                                    :key="group.label"
+                                    :label="group.label">
+                                    <el-option
+                                        v-for="item in group.options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-option-group>
+                            </el-select>
+                        </div>
+                    </div>
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <span>模块类型：</span>
+                            <el-select v-model="search.module_type" placeholder="请选择">
+                                <el-option label="全部" value=""></el-option>
+                                <el-option label="系统" value="01"></el-option>
+                                <el-option label="业务" value="02"></el-option>
+                            </el-select>
+                        </div>
+                        <div class='search-item'>
+                            <span>模块名：</span>
+                            <el-select v-model="search.module_id" placeholder="请选择" filterable>
+                                <el-option label="全部" value=""></el-option>
+                                <el-option-group
+                                    v-for="group in search_module"
+                                    :key="group.label"
+                                    :label="group.label">
+                                    <el-option
+                                        v-for="item in group.options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                    </el-option>
+                                </el-option-group>
+                            </el-select>
+                        </div>
+                    </div>
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <el-button  type="primary" @click="searchChange">查询</el-button>
+                        </div>
+                    </div>
+                </div>
+            </el-collapse-item>
+        </el-collapse>
     </div>
     <div class='page-button'>
-        <el-button-group>
-            <el-button type="primary" icon="el-icon-edit"></el-button>
-            <el-button type="primary" icon="el-icon-share"></el-button>
-            <el-button type="primary" icon="el-icon-delete"></el-button>
-        </el-button-group>
+        <el-button v-if="auth_button['Task.Require.Add']" type="primary" @click="showDialogRequire(0)">新增</el-button>
+        <el-button v-if="auth_button['Task.Require.Allot']" type="primary" @click="allotRequireInfo">分配</el-button>
+        <el-button v-if="auth_button['Task.Require.Qa']" type="primary" @click="qaRequireInfo">送测</el-button>
+        <el-button v-if="auth_button['Task.Require.Output']" type="primary" @click="outputRequireInfo">导出</el-button>
     </div>
     <div class='page-list'>
         <el-table
-            :data="tableData"
+            :data="list.data"
             border
             stripe
-            row-key="date"
             style="width: 100%"
-            :row-style="handleRowStyle">
-            <el-table-column
+            :row-class-name="handleRowClassName">
+            <el-table-column 
+                v-if="auth_button['Task.Require.Allot']" 
                 label="分配"
                 width="50"                
                 header-align="center"
                 align="center">
                 <template slot-scope="scope">
-                    <el-checkbox v-if="scope.row.date!='2016-05-04'" :key="scope.row.id" v-model="checkListFenPei[scope.row.id]"></el-checkbox>
+                    <el-checkbox v-if="scope.row.status=='01' && scope.row.xingzhi=='01'" :key="scope.row.id" v-model="checkListAllot[scope.row.id]"></el-checkbox>
                 </template>
             </el-table-column>            
-            <el-table-column
+            <el-table-column  
+                v-if="auth_button['Task.Require.Qa']" 
                 label="送测"
                 width="50"                
                 header-align="center"
                 align="center">
                 <template slot-scope="scope">
-                    <el-checkbox v-if="scope.row.date!='2016-05-03'" :key="scope.row.id" v-model="checkListQa[scope.row.id]"></el-checkbox>
+                    <el-checkbox v-if="scope.row.status=='03'" :key="scope.row.id" v-model="checkListQa[scope.row.id]"></el-checkbox>
                 </template>
             </el-table-column>
             <el-table-column
-                prop="date"
-                label="日期"
-                width="180">
+                label="需求名称"
+                :show-overflow-tooltip="true">
+                <template slot-scope="scope">
+                    <a class="table-a" @click="showDialogRequire(scope.row.id)">{{scope.row.task_name}}</a>
+                </template>
             </el-table-column>
             <el-table-column
-                prop="name"
-                label="姓名"
-                width="180">
+                prop="module_type"
+                label="模块类型"
+                :formatter="formatModuleType">
             </el-table-column>
             <el-table-column
-                prop="address"
-                label="地址">
+                prop="module_name"
+                label="模块名称"
+                :show-overflow-tooltip="true">
+            </el-table-column>
+            <el-table-column
+                prop="account_name"
+                label="开发人员">
+            </el-table-column>
+            <el-table-column
+                prop="needer"
+                label="提出人">
+            </el-table-column>
+            <el-table-column
+                prop="status"
+                label="状态"
+                :formatter="formatStatus">
+            </el-table-column>
+            <el-table-column
+                prop="xingzhi"
+                label="性质"
+                :formatter="formatXingzhi">
+            </el-table-column>
+            <el-table-column
+                prop="create_date"
+                label="需求时间"
+                :formatter="formatDate">
+            </el-table-column>
+            <el-table-column
+                prop="send_date"
+                label="分配时间"
+                :formatter="formatDate">
+            </el-table-column>
+            <el-table-column
+                prop="need_done_date"
+                label="期望时间"
+                :formatter="formatDate">
+            </el-table-column>
+            <el-table-column
+                prop="done_date"
+                label="完成时间"
+                :formatter="formatDate">
             </el-table-column>
         </el-table>
+    </div>
+    <div class='page-pagination'>
+        <el-pagination
+            background
+            layout="total,prev, pager, next"
+            :current-page=list.page.page_index
+            :total=list.page.total
+            :page-size=list.page.page_size
+            @current-change="pageIndexChange"
+            @prev-click="pageIndexChange"
+            @next-click="pageIndexChange">
+        </el-pagination>
+    </div>
+    <div class="auth-button">
+        <!--用于页面上的按钮与弹框按钮-->
+        {{auth_button}}
     </div>
 </div>

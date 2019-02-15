@@ -99,7 +99,7 @@ class RoleModel {
         $arrWhereParam = [];
         //status
         if (in_array($arrSearchParam['status'], ['01', '06'])) {
-            $strWhereSql.=' and a.status=:status';
+            $strWhereSql .= ' and a.status=:status';
             $arrWhereParam[':status'] = $arrSearchParam['status'];
         }
 
@@ -246,13 +246,25 @@ class RoleModel {
      */
     protected function getAuthInfo($arrParam) {
         //查询
-        $strSql = "select auth_id from einterfacerole where role_id=:id and status=:status";
+        $strSql = "select a.auth_id ,b.code
+                    from einterfacerole a
+                        join einterface b on a.auth_id=b.id
+                    where a.role_id=:id and a.status=:status";
         $arrParams[':id'] = $arrParam['id'];
         $arrParams[':status'] = '01';
         $arrAuthInfo = $this->objDB->setMainTable('einterfacerole')->select($strSql, $arrParams);
-
+        //获取叶子节点
+        $arrLeaf = [];
+        foreach ($arrAuthInfo as $arrAuthTmp) {
+            $strCode = $arrAuthTmp['code'];
+            if (empty(array_filter($arrAuthInfo, function($value) use($strCode) {
+                                return $strCode != $value['code'] && strpos($value['code'], $strCode) === 0;
+                            }))) {
+                $arrLeaf[] = $arrAuthTmp['auth_id'];
+            }
+        }
         //返回
-        return array_values(array_column($arrAuthInfo, 'auth_id'));
+        return $arrLeaf;
     }
 
     // -------------------------------------- saveRoleInfo -------------------------------------- //
@@ -365,7 +377,7 @@ class RoleModel {
         $strAuth = '';
         for ($i = 0, $j = count($arrParam['auth']); $i < $j; $i++) {
             if (is_numeric($arrParam['auth'][$i])) {
-                $strAuth.=":authid{$i},";
+                $strAuth .= ":authid{$i},";
                 $arrParams[":authid{$i}"] = $arrParam['auth'][$i];
             }
         }

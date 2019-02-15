@@ -147,7 +147,7 @@
              * 选择权限点
              */
             treeCheck: function() {
-                app.$data.dialog.role_info.auth.value = app.$refs.tree.getCheckedKeys();
+                app.$data.dialog.role_info.auth.value = [].concat(app.$refs.tree.getCheckedKeys(), app.$refs.tree.getHalfCheckedKeys());
             },
             /**
              * 角色修改
@@ -170,7 +170,7 @@
                     app.$data.dialog.visible = true;
                 }).then(function() {
                     //3.设置tree选中，第一次要dialog显示，组件才会渲染
-                    app.$refs.tree.setCheckedKeys(app.$data.dialog.role_info.auth.value);
+                    app.$refs.tree.setCheckedKeys(app.$data.dialog.role_info.auth.value, false);
                 }).catch(function(error) {
                     bmplugin.showErrMsg(error);
                 });

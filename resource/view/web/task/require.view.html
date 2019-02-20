@@ -191,8 +191,226 @@
             @next-click="pageIndexChange">
         </el-pagination>
     </div>
+    <div class='dialog'>
+        <el-dialog
+            :title="dialog.require.title"
+            :visible.sync="dialog.require.visible"
+            :append-to-body="true"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            custom-class='dialog-require'
+            top="5vh">
+            <div class="dialog-content">
+                <el-tabs type="card" v-model="dialog.require.tab_index">
+                    <el-tab-pane label="产品">
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label require">
+                                需求性质
+                                <el-tooltip class="item" effect="dark" content="默认为待定需求，可以选择确定需求，待定需求将不会分配开发。一旦需求改为确定就不能修改为待定了。" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <el-radio-group v-model="dialog.require.require_info.xingzhi" :disabled="!require_dialog_product_status||(dialog.require.require_info.xingzhi=='01' && dialog.require.require_info.status!='')">
+                                                <el-radio label="01">确定</el-radio>
+                                    <el-radio label="02">待定</el-radio>
+                                </el-radio-group>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label require">
+                                需求提出人
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <el-input v-model="dialog.require.require_info.needer.value" :disabled="!require_dialog_product_status" placeholder="请输入需求提出人" maxlength="50"></el-input>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label require">
+                                需求名称
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <el-input v-model="dialog.require.require_info.task_name.value" :disabled="!require_dialog_product_status" placeholder="请输入需求名称" maxlength="100"></el-input>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label require">
+                                需求模块
+                            </div>
+                        </div>
+                        <div class="dialog-row module">
+                            <div class="dialog-item">
+                                类别
+                                <el-select v-model="dialog.require.require_info.module_type" :disabled="!require_dialog_product_status" placeholder="请选择">
+                                    <el-option label="全部" value=""></el-option>
+                                    <el-option label="系统" value="01"></el-option>
+                                    <el-option label="业务" value="02"></el-option>
+                                </el-select>
+                            </div>
+                            <div class="dialog-item">
+                                模块
+                                <el-select v-model="dialog.require.require_info.module_id.value" :disabled="!require_dialog_product_status" placeholder="请选择" filterable>
+                                    <el-option-group
+                                        v-for="group in dialog_module"
+                                        :key="group.label"
+                                        :label="group.label">
+                                        <el-option
+                                            v-for="item in group.options"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                        </el-option>
+                                    </el-option-group>
+                                </el-select>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label require">
+                                需求明细
+                                <el-tooltip class="item" effect="dark" content="需求的明细说明，内容支持html编辑。如果需求比较复杂，在这里填写大致说明(比如需求的小标题)，在需求附件地址里填上附件地址" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <textarea id="need_memo"></textarea>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label">
+                                需求附件
+                                <el-tooltip class="item" effect="dark" content="当需求比较复杂，可将需求说明放在文档里，在这里填写文档地址，一行一个地址。" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <el-input v-model="dialog.require.require_info.need_attach" :disabled="!require_dialog_product_status" placeholder="请输入需求附件" type='textarea' resize='none' rows='3'></el-input>
+                            </div>
+                        </div>
+                    </el-tab-pane>
+                    <el-tab-pane label="开发">
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label require">
+                                页面入口
+                                <el-tooltip class="item" effect="dark" content="需求在页面上的操作入口。" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <el-input v-model="dialog.require.require_info.page_enter.value" :disabled="!require_dialog_dev_status" placeholder="请输入页面入口" maxlength="100"></el-input>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label require">
+                                逻辑说明
+                                <el-tooltip class="item" effect="dark" content="需求的详细逻辑说明，内容支持html编辑。如果逻辑比较复杂，在这里填写大致说明(比如逻辑的小标题)，在开发附件地址里填上附件地址。" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <textarea id="dev_memo"></textarea>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label">
+                                注意事项
+                                <el-tooltip class="item" effect="dark" content="提醒开发者或QA，特别需要注意的地方。" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <el-input v-model="dialog.require.require_info.need_tip" :disabled="!require_dialog_dev_status" placeholder="请输入注意事项" type='textarea' resize='none' rows='3'></el-input>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label require">
+                                修改文件
+                                <el-tooltip class="item" effect="dark" content="提修改需求涉及的文件，一行一个文件地址。" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <el-input v-model="dialog.require.require_info.change_file.value" :disabled="!require_dialog_dev_status" placeholder="请输入修改文件" type='textarea' resize='none' rows='3'></el-input>
+                            </div>
+                        </div>                        
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label">
+                                SQL脚本附件地址
+                                <el-tooltip class="item" effect="dark" content="SQL脚本附件地址，一行一个文件地址。" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <el-input v-model="dialog.require.require_info.sql_attach" :disabled="!require_dialog_dev_status" placeholder="请输入注意事项" type='textarea' resize='none' rows='3'></el-input>
+                            </div>
+                        </div>
+
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label">
+                                开发附件地址
+                                <el-tooltip class="item" effect="dark" content="当逻辑比较复杂，需要放在word文档里面，在这里填写附件地址。一行一个文件地址。" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <el-input v-model="dialog.require.require_info.other_attach" :disabled="!require_dialog_dev_status" placeholder="请输入注意事项" type='textarea' resize='none' rows='3'></el-input>
+                            </div>
+                        </div>
+                        <div v-if="dialog.require.require_info.is_timeout==1" class="dialog-row">
+                            <div class="dialog-item dialog-label">
+                                开发延迟原因
+                                <el-tooltip class="item" effect="dark" content="当完成时间超过期望时间，需要填写原因。" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div v-if="dialog.require.require_info.is_timeout==1" class="dialog-row">
+                            <div class="dialog-item">
+                                <el-input v-model="dialog.require.require_info.dev_dealy_reason" :disabled="!require_dialog_dev_status" placeholder="请输入开发延迟原因" type='textarea' resize='none' rows='3'></el-input>
+                            </div>
+                        </div>
+                    </el-tab-pane>
+                    <el-tab-pane v-for="item in round_arr" :label="'送测轮次'+item">
+                        <el-input v-model="dialog.require.require_info.change_file[item]" :disabled="item!=dialog.require.require_info.round || !require_dialog_changefile_status" placeholder="请输入修改文件" type='textarea' resize='none' rows='10'></el-input>
+                    </el-tab-pane>
+                </el-tabs>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialog.require.visible = false">取 消</el-button>
+                <el-button v-if="require_dialog_btnadd_status" type="primary" @click="saveRequireInfo('add')">新增</el-button>
+                <el-button v-if="require_dialog_btnsave_status" type="primary" @click="saveRequireInfo('edit')">保存</el-button>
+                <el-button v-if="require_dialog_btndone_status" type="primary" @click="saveRequireInfo('done')">完成</el-button>
+                <el-button v-if="require_dialog_btndelete_status" type="primary" @click="saveRequireInfo('delete')">作废</el-button>
+            </span>
+        </el-dialog>
+    </div>
     <div class="auth-button">
         <!--用于页面上的按钮与弹框按钮-->
         {{auth_button}}
+    </div>
+    <div class="auth-role">
+        <!--用于页面上的按钮与弹框按钮-->
+        {{auth_role}}
     </div>
 </div>

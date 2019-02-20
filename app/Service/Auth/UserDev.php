@@ -53,6 +53,13 @@ class UserDev implements UserContract {
     }
 
     /**
+     * 获取account_role_name
+     */
+    public function getAccountRoleName() {
+        return isset($this->arrUserInfo['account_role_name']) ? $this->arrUserInfo['account_role_name'] : '';
+    }
+
+    /**
      * 获取所有信息
      */
     public function getAllInfo() {

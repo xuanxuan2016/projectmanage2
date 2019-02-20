@@ -10,7 +10,7 @@ and open the template in the editor.
 
 
 /********************************************************加载vue闪烁 start********************************************************/
-[v-cloak],.auth-button { 
+[v-cloak],.auth-button,.auth-role { 
     display: none;
 }
 /********************************************************加载vue闪烁 end********************************************************/
@@ -188,7 +188,9 @@ and open the template in the editor.
     display: flex;
     flex-direction:row;
     justify-content:flex-start;
-    margin-bottom: 5px;
+}
+.dialog-content .dialog-row:nth-of-type(n+2){
+    margin-top: 5px;
 }
 .dialog-content .dialog-item{
     margin-right:50px;

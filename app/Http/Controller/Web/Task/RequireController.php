@@ -3,6 +3,7 @@
 namespace App\Http\Controller\Web\Task;
 
 use App\Facade\Menu;
+use Framework\Facade\User;
 use App\Http\Middleware\Web\CheckProject;
 use App\Http\Model\Web\Task\RequireModel;
 use App\Http\Middleware\Web\CheckAuthButton;
@@ -26,6 +27,7 @@ class RequireController extends BaseController {
         'addRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Add'], CheckProject::class],
         'loadRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Edit'], CheckProject::class],
         'editRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Edit'], CheckProject::class],
+        'doneRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Done'], CheckProject::class],
         'deleteRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Delete'], CheckProject::class],
         'outputRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Output'], CheckProject::class],
         'allotRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Allot'], CheckProject::class],
@@ -57,7 +59,8 @@ class RequireController extends BaseController {
              */
             'content' => [
                 'title' => '需求-' . Menu::getProjectName(),
-                'auth_button' => $this->getAuthButton()
+                'auth_button' => $this->getAuthButton(),
+                'auth_role' => User::getAccountRoleName()
             ],
             /**
              * js
@@ -67,7 +70,8 @@ class RequireController extends BaseController {
              * is_addhead:文件加载位置，1:head 0:body，默认0
              */
             'js' => [
-                    ['path' => 'page/task/require.js', 'is_pack' => 1, 'is_remote' => 0]
+                    ['path' => 'plugin/ckeditor/ckeditor.js', 'is_pack' => 0, 'is_remote' => 0, 'is_addhead' => 1],
+                    ['path' => 'page/task/require.js', 'is_pack' => 0, 'is_remote' => 0]
             ],
             /**
              * css
@@ -130,6 +134,15 @@ class RequireController extends BaseController {
     public function editRequireInfo() {
         $strErrMsg = '';
         $blnFlag = $this->objRequireModel->editRequireInfo($strErrMsg);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
+    }
+
+    /**
+     * 完成需求
+     */
+    public function doneRequireInfo() {
+        $strErrMsg = '';
+        $blnFlag = $this->objRequireModel->doneRequireInfo($strErrMsg);
         return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
     }
 

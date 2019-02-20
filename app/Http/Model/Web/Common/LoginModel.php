@@ -63,7 +63,10 @@ class LoginModel {
      */
     protected function checkAccount($arrParam) {
         //1.获取账号信息
-        $strSql = 'select id,cname,password,role_id from account where username=:username and status=:status';
+        $strSql = 'select a.id,a.cname,a.password,a.role_id,b.cname role_name 
+                    from account a
+                        join role b on a.role_id=b.id
+                    where a.username=:username and a.status=:status';
         $arrParams = [
             ':username' => $arrParam['username'],
             ':status' => '01'
@@ -76,7 +79,8 @@ class LoginModel {
             return [
                 'account_id' => $arrAccount[0]['id'],
                 'account_name' => $arrAccount[0]['cname'],
-                'account_role' => $arrAccount[0]['role_id']
+                'account_role' => $arrAccount[0]['role_id'],
+                'account_role_name' => $arrAccount[0]['role_name']
             ];
         }
     }

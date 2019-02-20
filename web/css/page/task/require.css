@@ -24,3 +24,50 @@ and open the template in the editor.
 .page-search .search-item {
     margin-right: 25px;
 }
+
+.dialog-require{
+    width:1000px;
+}
+
+.dialog-require .dialog-content .dialog-label {
+    text-align: left;
+}
+
+.dialog-require .dialog-content .dialog-item {
+    width: 100%;
+    margin-right:0; 
+}
+
+.dialog-require .dialog-content .module .dialog-item {
+    width: auto;
+    margin-right:20px; 
+}
+
+.dialog-require .dialog-content .module .el-select {
+    width: 200px;
+}
+
+.dialog-require .dialog-content .el-input {
+    width: 100%;
+}
+
+.dialog-require .dialog-content .dialog-row:nth-of-type(n+2) {
+    margin-top: 0;
+}
+
+.dialog-require .el-tooltip {
+    margin-right: 4px;
+    cursor: pointer;
+}
+
+.dialog-require .el-tabs__content{
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right:10px;
+}
+
+.dialog-require .el-tabs__content::-webkit-scrollbar,
+.dialog-require textarea::-webkit-scrollbar{
+    width: 10px;/*滚动条宽度设置为0*/
+}

@@ -33,21 +33,32 @@ class RequireModel {
         'id' => [
             'type' => ['value' => 'posint', 'err_msg' => 'id格式不正确']
         ],
+        'project_id' => [
+            'type' => ['value' => 'posint', 'err_msg' => 'project_id格式不正确']
+        ],
         'page_index' => [
             'type' => ['value' => 'posint', 'err_msg' => 'page_index格式不正确']
         ],
         'page_size' => [
             'type' => ['value' => 'posint', 'err_msg' => 'page_size格式不正确']
         ],
-        'cname' => [
+        'xingzhi' => [
+            'optional' => ['value' => ['01', '02'], 'err_msg' => '请设置需求性质']
+        ],
+        'needer' => [
             'trim' => ['value' => true],
-            'required' => ['value' => true, 'err_msg' => '请输入模块名称']
+            'required' => ['value' => true, 'err_msg' => '请输入需求提出人']
         ],
-        'project_id' => [
-            'type' => ['value' => 'posint', 'err_msg' => '请设置模块项目']
+        'task_name' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入需求名称']
         ],
-        'type' => [
-            'optional' => ['value' => ['01', '02'], 'err_msg' => '请设置模块类别']
+        'module_id' => [
+            'type' => ['value' => 'posint', 'err_msg' => '请选择需求模块']
+        ],
+        'need_memo' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入需求明细']
         ],
         'status' => [
             'optional' => ['value' => ['00', '01', '02', '03', '04', '05'], 'err_msg' => '请设置需求状态']
@@ -105,11 +116,6 @@ class RequireModel {
         $arrSearchParam = json_decode(Request::getParam('search_param'), true);
         $strWhereSql = '';
         $arrWhereParam = [];
-        //type
-//        if (in_array($arrSearchParam['type'], ['01', '02'])) {
-//            $strWhereSql .= ' and a.type=:type';
-//            $arrWhereParam[':type'] = $arrSearchParam['type'];
-//        }
         //project_id
         $strWhereSql .= ' and a.project_id=:project_id';
         $arrWhereParam[':project_id'] = $arrSearchParam['project_id'];
@@ -183,6 +189,15 @@ class RequireModel {
         $arrParams = $arrParam['where']['param'];
         $intTotal = 0;
         $arrRequireList = $this->objDB->setMainTable('task')->selectPage($strSql, $intStart, $intPageSize, $intTotal, $arrParams, true);
+
+        //需求是否超时
+        foreach ($arrRequireList as &$arrTmp) {
+            if (!empty($arrTmp['need_done_date'])) {
+                $arrTmp['is_timeout'] = strtotime(date('Y-m-d')) > strtotime(date('Y-m-d', strtotime($arrTmp['need_done_date']))) ? 1 : 0;
+            } else {
+                $arrTmp['is_timeout'] = 0;
+            }
+        }
 
         //返回
         return [
@@ -377,7 +392,7 @@ class RequireModel {
         }
         //2.记录操作日志(埋点)
         //3.业务逻辑
-        $blnRet = $this->updateRequireInfo($arrParam);
+        $blnRet = $this->updateRequire($arrParam);
         //4.结果返回
         if (!$blnRet) {
             $strErrMsg = '保存失败';
@@ -410,7 +425,7 @@ class RequireModel {
     /**
      * 保存数据
      */
-    protected function updateRequireInfo($arrParam) {
+    protected function updateRequire($arrParam) {
         //param
         $arrParams = [
             ':id' => $arrParam['id'],
@@ -429,6 +444,67 @@ class RequireModel {
             //exec
             $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams);
         }
+        //返回
+        return $intRet == 1 ? true : false;
+    }
+
+    // -------------------------------------- addRequireInfo -------------------------------------- //
+
+    /**
+     * 加载账号信息
+     */
+    public function addRequireInfo(&$strErrMsg) {
+        $arrParam = [];
+        //1.参数验证
+        $strErrMsg = $this->checkAddRequireInfo($arrParam);
+        if (!empty($strErrMsg)) {
+            return false;
+        }
+        //2.记录操作日志(埋点)
+        //3.业务逻辑
+        $blnRet = $this->addRequire($arrParam);
+        //4.结果返回
+        if (!$blnRet) {
+            $strErrMsg = '保存失败';
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 参数检查
+     */
+    protected function checkAddRequireInfo(&$arrParam) {
+        //1.获取页面参数
+        $arrParam = Request::getAllParam();
+
+        //2.字段自定义配置检查
+        $arrErrMsg = $this->objValidPostData->check($arrParam, ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'], $arrRules);
+        if (!empty($arrErrMsg)) {
+            return join(';', $arrErrMsg);
+        }
+
+        //3.字段数据库配置检查
+        //4.业务检查
+    }
+
+    /**
+     * 保存数据
+     */
+    protected function addRequire($arrParam) {
+        //param
+        $arrParams = [
+            ':project_id' => $arrParam['project_id'],
+            ':xingzhi' => $arrParam['xingzhi'],
+            ':needer' => $arrParam['needer'],
+            ':task_name' => $arrParam['task_name'],
+            ':module_id' => $arrParam['module_id'],
+            ':need_memo' => $arrParam['need_memo'],
+            ':need_attach' => $arrParam['need_attach'],
+        ];
+        //sql
+        $strSql = 'insert into task(project_id,xingzhi, needer,task_name,module_id,need_memo,need_attach) values(:project_id,:xingzhi,:needer,:task_name,:module_id,:need_memo,:need_attach)';
+        $intRet = $this->objDB->setMainTable('task')->insert($strSql, $arrParams, false);
         //返回
         return $intRet == 1 ? true : false;
     }

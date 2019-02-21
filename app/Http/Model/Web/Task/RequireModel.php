@@ -42,6 +42,9 @@ class RequireModel {
         'page_size' => [
             'type' => ['value' => 'posint', 'err_msg' => 'page_size格式不正确']
         ],
+        'status' => [
+            'optional' => ['value' => ['00', '01', '02', '03', '04', '05'], 'err_msg' => '请设置需求状态']
+        ],
         'xingzhi' => [
             'optional' => ['value' => ['01', '02'], 'err_msg' => '请设置需求性质']
         ],
@@ -60,8 +63,41 @@ class RequireModel {
             'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入需求明细']
         ],
-        'status' => [
-            'optional' => ['value' => ['00', '01', '02', '03', '04', '05'], 'err_msg' => '请设置需求状态']
+        'page_enter' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入页面入口']
+        ],
+        'dev_memo' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入逻辑说明']
+        ],
+        'change_file' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入修改文件']
+        ],
+        'dev_dealy_reason' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入开发延迟原因']
+        ],
+        'change_file1' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入送测修改文件']
+        ],
+        'change_file2' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入送测修改文件']
+        ],
+        'change_file3' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入送测修改文件']
+        ],
+        'change_file4' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入送测修改文件']
+        ],
+        'change_file5' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入送测修改文件']
         ]
     ];
 
@@ -190,9 +226,10 @@ class RequireModel {
         $intTotal = 0;
         $arrRequireList = $this->objDB->setMainTable('task')->selectPage($strSql, $intStart, $intPageSize, $intTotal, $arrParams, true);
 
-        //需求是否超时
+        //额外状态处理
         foreach ($arrRequireList as &$arrTmp) {
-            if (!empty($arrTmp['need_done_date'])) {
+            //需求是否超时
+            if (!empty($arrTmp['need_done_date']) && $arrTmp['status'] == '02') {
                 $arrTmp['is_timeout'] = strtotime(date('Y-m-d')) > strtotime(date('Y-m-d', strtotime($arrTmp['need_done_date']))) ? 1 : 0;
             } else {
                 $arrTmp['is_timeout'] = 0;
@@ -370,29 +407,61 @@ class RequireModel {
      */
     protected function getRequireInfo($arrParam) {
         //查询
-        $strSql = "select id,cname,project_id,type from task where id=:id";
+        $strSql = 'select a.id,a.status,a.account_id,
+                        a.xingzhi,a.needer,a.task_name,b.type module_type,a.module_id,a.need_memo,a.need_attach,
+                        a.page_enter,a.dev_memo,a.need_tip,a.change_file,a.sql_attach,a.other_attach,a.dev_dealy_reason,
+                        ifnull(c.round,0) round,a.change_file1,a.change_file2,a.change_file3,a.change_file4,a.change_file5
+                    from task a
+                        join module b on a.module_id=b.id
+                        left join qa c on a.qa_batch_id=c.batch_id
+                    where a.id=:id and a.project_id=:project_id';
         $arrParams[':id'] = $arrParam['id'];
+        $arrParams[':project_id'] = $arrParam['project_id'];
         $arrRequireInfo = $this->objDB->setMainTable('task')->select($strSql, $arrParams);
+
+        //额外状态处理
+        foreach ($arrRequireInfo as &$arrTmp) {
+            //需求是否超时
+            if (!empty($arrTmp['need_done_date']) && $arrTmp['status'] == '02') {
+                $arrTmp['is_timeout'] = strtotime(date('Y-m-d')) > strtotime(date('Y-m-d', strtotime($arrTmp['need_done_date']))) ? 1 : 0;
+            } else {
+                $arrTmp['is_timeout'] = 0;
+            }
+
+            //需求是否为自身
+            if ($arrTmp['account_id'] == User::getAccountId()) {
+                $arrTmp['is_self'] = 1;
+            } else {
+                $arrTmp['is_self'] = 0;
+            }
+
+            //送测轮次
+            $arrTmp['change_file_qa'][1] = $arrTmp['change_file1'];
+            $arrTmp['change_file_qa'][2] = $arrTmp['change_file2'];
+            $arrTmp['change_file_qa'][3] = $arrTmp['change_file3'];
+            $arrTmp['change_file_qa'][4] = $arrTmp['change_file4'];
+            $arrTmp['change_file_qa'][5] = $arrTmp['change_file5'];
+        }
 
         //返回
         return $arrRequireInfo[0];
     }
 
-    // -------------------------------------- saveRequireInfo -------------------------------------- //
+    // -------------------------------------- editRequireInfo -------------------------------------- //
 
     /**
-     * 加载账号信息
+     * 编辑信息
      */
-    public function saveRequireInfo(&$strErrMsg) {
+    public function editRequireInfo(&$strErrMsg) {
         $arrParam = [];
         //1.参数验证
-        $strErrMsg = $this->checkSaveRequireInfo($arrParam);
+        $strErrMsg = $this->checkEditRequireInfo($arrParam, $arrSaveCol);
         if (!empty($strErrMsg)) {
             return false;
         }
         //2.记录操作日志(埋点)
         //3.业务逻辑
-        $blnRet = $this->updateRequire($arrParam);
+        $blnRet = $this->editRequire($arrParam, $arrSaveCol);
         //4.结果返回
         if (!$blnRet) {
             $strErrMsg = '保存失败';
@@ -404,16 +473,17 @@ class RequireModel {
     /**
      * 参数检查
      */
-    protected function checkSaveRequireInfo(&$arrParam) {
+    protected function checkEditRequireInfo(&$arrParam, &$arrSaveCol) {
         //1.获取页面参数
         $arrParam = Request::getAllParam();
 
         //2.字段自定义配置检查
         $arrRules = $this->arrRules;
-        if ($arrParam['id'] == '0') {
-            unset($arrRules['id']);
+        $arrSaveCol = $this->getSaveCol();
+        if (empty($arrSaveCol)) {
+            return '获取保存字段失败';
         }
-        $arrErrMsg = $this->objValidPostData->check($arrParam, ['id', 'cname', 'type', 'project_id'], $arrRules);
+        $arrErrMsg = $this->objValidPostData->check($arrParam, array_merge(['id', 'project_id'], $arrSaveCol), $arrRules);
         if (!empty($arrErrMsg)) {
             return join(';', $arrErrMsg);
         }
@@ -423,27 +493,30 @@ class RequireModel {
     }
 
     /**
-     * 保存数据
+     * 编辑信息
      */
-    protected function updateRequire($arrParam) {
-        //param
+    protected function editRequire($arrParam, $arrSaveCol) {
+        $strSql = '';
+        $strWhere = '';
         $arrParams = [
             ':id' => $arrParam['id'],
-            ':cname' => $arrParam['cname'],
-            ':project_id' => $arrParam['project_id'],
-            ':type' => $arrParam['type']
+            ':project_id' => $arrParam['project_id']
         ];
-        //sql
-        if ($arrParams[':id'] == 0) {
-            unset($arrParams[':id']);
-            $strSql = 'insert into task(cname,project_id,type) values(:cname,:project_id,:type)';
-            //exec
-            $intRet = $this->objDB->setMainTable('task')->insert($strSql, $arrParams, false);
-        } else {
-            $strSql = "update task set cname=:cname,project_id=:project_id,type=:type where id=:id";
-            //exec
-            $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams);
+        //开发人员只能修改自己的需求
+        if (User::getAccountRoleName() == 'devloper') {
+            $strWhere .= ' and account_id=:account_id ';
+            $arrParams[':account_id'] = User::getAccountId();
         }
+        //需要保存的字段
+        foreach ($arrSaveCol as $strCol) {
+            $strSql .= "{$strCol}=:{$strCol},";
+            $arrParams[":{$strCol}"] = $arrParam[$strCol];
+        }
+        $strSql = trim($strSql, ',');
+        //sql
+        $strSql = "update task set {$strSql},update_date=now() where id=:id and project_id=:project_id {$strWhere}";
+        //exec
+        $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams);
         //返回
         return $intRet == 1 ? true : false;
     }
@@ -451,7 +524,7 @@ class RequireModel {
     // -------------------------------------- addRequireInfo -------------------------------------- //
 
     /**
-     * 加载账号信息
+     * 新建信息
      */
     public function addRequireInfo(&$strErrMsg) {
         $arrParam = [];
@@ -489,7 +562,7 @@ class RequireModel {
     }
 
     /**
-     * 保存数据
+     * 新建信息
      */
     protected function addRequire($arrParam) {
         //param
@@ -569,4 +642,60 @@ class RequireModel {
     }
 
     // -------------------------------------- validator -------------------------------------- //
+    // -------------------------------------- common -------------------------------------- //
+
+    /**
+     * 获取需要保存的字段
+     */
+    protected function getSaveCol($strSaveType = '') {
+        //1.获取需求信息
+        $arrRequireInfo = $this->getRequireInfo(Request::getAllParam());
+        if (empty($arrRequireInfo)) {
+            return [];
+        }
+
+        //2.根据角色与状态获取字段
+        $strRole = User::getAccountRoleName();
+        $strStatus = $arrRequireInfo['status'];
+        $arrCol = [];
+        switch ($strRole) {
+            case 'admin':
+            case 'manager':
+                switch ($strStatus) {
+                    case '01':
+                        $arrCol = ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'];
+                        break;
+                    case '02':
+                    case '03':
+                        $arrCol = ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
+                        if ($strSaveType == 'done' && $arrRequireInfo['is_timeout'] == 1) {
+                            $arrCol[] = 'dev_dealy_reason';
+                        }
+                        break;
+                    case '04':
+                        $arrCol = ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach', 'change_file_qa'];
+                        if ($arrRequireInfo['round'] != 0) {
+                            $arrCol[] = 'change_file' . $arrRequireInfo['round'];
+                        }
+                        break;
+                    default:
+                        $arrCol = [];
+                        break;
+                }
+                break;
+            case 'product':
+                $arrCol = [];
+                break;
+            case 'devloper':
+                $arrCol = [];
+                break;
+            default :
+                $arrCol = [];
+                break;
+        }
+
+        //3.返回
+        return $arrCol;
+    }
+
 }

@@ -206,15 +206,15 @@
                         <div class="dialog-row">
                             <div class="dialog-item dialog-label require">
                                 需求性质
-                                <el-tooltip class="item" effect="dark" content="默认为待定需求，可以选择确定需求，待定需求将不会分配开发。一旦需求改为确定就不能修改为待定了。" placement="right">
+                                <el-tooltip class="item" effect="dark" content="默认为待定需求，可以选择为确定需求，待定需求将不会分配开发。一旦需求分配就不能修改为待定了。" placement="right">
                                     <i class="el-icon-info"></i>
                                 </el-tooltip>
                             </div>
                         </div>
                         <div class="dialog-row">
                             <div class="dialog-item">
-                                <el-radio-group v-model="dialog.require.require_info.xingzhi" :disabled="!require_dialog_product_status||(dialog.require.require_info.xingzhi=='01' && dialog.require.require_info.status!='')">
-                                                <el-radio label="01">确定</el-radio>
+                                <el-radio-group v-model="dialog.require.require_info.xingzhi" :disabled="!require_dialog_product_status||(dialog.require.require_info.xingzhi=='01' && ['','01'].indexOf(dialog.require.require_info.status)<0)">
+                                    <el-radio label="01">确定</el-radio>
                                     <el-radio label="02">待定</el-radio>
                                 </el-radio-group>
                             </div>
@@ -392,7 +392,7 @@
                         </div>
                     </el-tab-pane>
                     <el-tab-pane v-for="item in round_arr" :label="'送测轮次'+item">
-                        <el-input v-model="dialog.require.require_info.change_file[item]" :disabled="item!=dialog.require.require_info.round || !require_dialog_changefile_status" placeholder="请输入修改文件" type='textarea' resize='none' rows='10'></el-input>
+                        <el-input v-model="dialog.require.require_info.change_file_qa[item]" :disabled="item!=dialog.require.require_info.round || !require_dialog_changefile_status" placeholder="请输入送测修改文件" type='textarea' resize='none' rows='10'></el-input>
                     </el-tab-pane>
                 </el-tabs>
             </div>

@@ -210,7 +210,12 @@
                         sql_attach: '',
                         other_attach: '',
                         dev_dealy_reason: '',
-                        change_file_qa: [],
+                        change_file1: '',
+                        change_file2: '',
+                        change_file3: '',
+                        change_file4: '',
+                        change_file5: '',
+                        change_file_qa: {}
                     },
                     require_info: {
                         id: '0',
@@ -272,8 +277,49 @@
                         },
                         sql_attach: '',
                         other_attach: '',
-                        dev_dealy_reason: '',
-                        change_file_qa: []
+                        dev_dealy_reason: {
+                            value: '',
+                            rules: {
+                                trim: {value: true},
+                                required: {value: true, err: {err_msg: '请输入开发延迟原因'}}
+                            }
+                        },
+                        change_file1: {
+                            value: '',
+                            rules: {
+                                trim: {value: true},
+                                required: {value: true, err: {err_msg: '请输入送测修改文件'}}
+                            }
+                        },
+                        change_file2: {
+                            value: '',
+                            rules: {
+                                trim: {value: true},
+                                required: {value: true, err: {err_msg: '请输入送测修改文件'}}
+                            }
+                        },
+                        change_file3: {
+                            value: '',
+                            rules: {
+                                trim: {value: true},
+                                required: {value: true, err: {err_msg: '请输入送测修改文件'}}
+                            }
+                        },
+                        change_file4: {
+                            value: '',
+                            rules: {
+                                trim: {value: true},
+                                required: {value: true, err: {err_msg: '请输入送测修改文件'}}
+                            }
+                        },
+                        change_file5: {
+                            value: '',
+                            rules: {
+                                trim: {value: true},
+                                required: {value: true, err: {err_msg: '请输入送测修改文件'}}
+                            }
+                        },
+                        change_file_qa: {}
                     }
                 },
                 allot: {
@@ -304,8 +350,25 @@
             /**
              * 需求弹框，模块类型切换
              */
-            'dialog.require.require_info.module_type': function() {
+            'dialog.require.require_info.module_type': function(newVal, oldVal) {
+                if (oldVal == '') {
+                    return;
+                }
                 this.dialog.require.require_info.module_id.value = '';
+            },
+            /**
+             * 需求弹框，送测文件
+             */
+            'dialog.require.require_info.change_file_qa': {
+                handler: function() {
+                    //后面的赋值需要兼容undefined，否则value被赋值为undefined，再赋值时就会直接覆盖整个属性(因为value=undefined)，而不是value了
+                    this.dialog.require.require_info.change_file1.value = this.dialog.require.require_info.change_file_qa['1'] || '';
+                    this.dialog.require.require_info.change_file2.value = this.dialog.require.require_info.change_file_qa['2'] || '';
+                    this.dialog.require.require_info.change_file3.value = this.dialog.require.require_info.change_file_qa['3'] || '';
+                    this.dialog.require.require_info.change_file4.value = this.dialog.require.require_info.change_file_qa['4'] || '';
+                    this.dialog.require.require_info.change_file5.value = this.dialog.require.require_info.change_file_qa['5'] || '';
+                },
+                deep: true
             }
         },
         created: function() {
@@ -529,13 +592,12 @@
              * 获取需要保存的信息
              * 由角色与需求状态控制
              */
-            getRequireInfo: function() {
+            getRequireInfo: function(saveType) {
                 //字段信息
                 var arrCol = [];
                 switch (this.auth_role) {
                     case 'admin':
                     case 'manager':
-                    case 'product':
                         switch (this.dialog.require.require_info.status) {
                             case '':
                                 arrCol = ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'];
@@ -545,16 +607,44 @@
                                 break;
                             case '02':
                             case '03':
+                                arrCol = ['id', 'xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
+                                //延迟原因
+                                if (saveType == 'done' && this.dialog.require.require_info.is_timeout) {
+                                    arrCol.push('dev_dealy_reason');
+                                }
+                                break;
                             case '04':
+                                arrCol = ['id', 'xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
+                                //送测文件
+                                if (this.dialog.require.require_info.round != '0') {
+                                    arrCol.push('change_file' + this.dialog.require.require_info.round);
+                                }
                                 break;
                             default:
+                                arrCol = [];
+                                break;
+                        }
+                        break;
+                    case 'product':
+                        switch (this.dialog.require.require_info.status) {
+                            case '':
+                                arrCol = ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'];
+                                break;
+                            case '01':
+                            case '02':
+                            case '03':
+                            case '04':
+                                arrCol = ['id', 'status', 'xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'];
+                                break;
+                            default:
+                                arrCol = [];
                                 break;
                         }
                         break;
                     case 'devloper':
                         break;
                     default :
-                        break
+                        break;
                 }
                 //提取信息
                 var arrRequireInfo = []
@@ -598,7 +688,7 @@
              */
             saveRequireInfo: function(saveType) {
                 //1.数据检查
-                var requireInfo = validator.check(this.getRequireInfo());
+                var requireInfo = validator.check(this.getRequireInfo(saveType));
                 //2.后台请求
                 if (requireInfo) {
                     new Promise(function(resolve) {

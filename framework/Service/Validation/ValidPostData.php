@@ -30,8 +30,13 @@ class ValidPostData {
         //2.循环检查
         $arrCheckResult = [];
         foreach ($arrCheckCol as $strCol) {
-            if (!isset($arrNeedCheck[$strCol]) || !isset($arrRules[$strCol])) {
-                //无字段值或无校验规则
+            if (!isset($arrRules[$strCol])) {
+                //无校验规则
+                continue;
+            }
+            if (!isset($arrNeedCheck[$strCol])) {
+                //无字段值
+                $arrCheckResult[] = "{$strCol}未设置值";
                 continue;
             }
             $arrNeedCheck[$strCol] = $this->checkCol($arrNeedCheck[$strCol], $arrRules[$strCol], $arrCheckResult);

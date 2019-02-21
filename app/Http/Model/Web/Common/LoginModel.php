@@ -49,7 +49,7 @@ class LoginModel {
             Menu::delCacheFileByAccountId($arrLoginInfo['account_id'], 'auth');
             Menu::delCacheFileByAccountId($arrLoginInfo['account_id'], 'project');
             //cookie记录
-            Request::setCookie('DevLoginInfo', json_encode($arrLoginInfo), time() + 5 * 24 * 3600, 'beautymyth.cn');
+            Request::setCookie('DevLoginInfo', json_encode($arrLoginInfo), time() + 5 * 24 * 3600);
             //返回
             return true;
         } else {

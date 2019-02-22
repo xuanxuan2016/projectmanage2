@@ -110,15 +110,6 @@ class RequireController extends BaseController {
     }
 
     /**
-     * 新增需求
-     */
-    public function addRequireInfo() {
-        $strErrMsg = '';
-        $blnFlag = $this->objRequireModel->addRequireInfo($strErrMsg);
-        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
-    }
-
-    /**
      * 加载需求
      */
     public function loadRequireInfo() {
@@ -126,6 +117,15 @@ class RequireController extends BaseController {
         $arrData = [];
         $blnFlag = $this->objRequireModel->loadRequireInfo($strErrMsg, $arrData);
         return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
+    }
+
+    /**
+     * 新增需求
+     */
+    public function addRequireInfo() {
+        $strErrMsg = '';
+        $blnFlag = $this->objRequireModel->addRequireInfo($strErrMsg);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
     }
 
     /**

@@ -219,12 +219,12 @@
                                 </el-radio-group>
                             </div>
                         </div>
-                        <div class="dialog-row">
+                        <div v-if='false' class="dialog-row">
                             <div class="dialog-item dialog-label require">
                                 需求提出人
                             </div>
                         </div>
-                        <div class="dialog-row">
+                        <div v-if='false' class="dialog-row">
                             <div class="dialog-item">
                                 <el-input v-model="dialog.require.require_info.needer.value" :disabled="!require_dialog_product_status" placeholder="请输入需求提出人" maxlength="50"></el-input>
                             </div>
@@ -360,7 +360,7 @@
                         </div>
                         <div class="dialog-row">
                             <div class="dialog-item">
-                                <el-input v-model="dialog.require.require_info.sql_attach" :disabled="!require_dialog_dev_status" placeholder="请输入注意事项" type='textarea' resize='none' rows='3'></el-input>
+                                <el-input v-model="dialog.require.require_info.sql_attach" :disabled="!require_dialog_dev_status" placeholder="请输入SQL脚本附件地址" type='textarea' resize='none' rows='3'></el-input>
                             </div>
                         </div>
 
@@ -374,10 +374,10 @@
                         </div>
                         <div class="dialog-row">
                             <div class="dialog-item">
-                                <el-input v-model="dialog.require.require_info.other_attach" :disabled="!require_dialog_dev_status" placeholder="请输入注意事项" type='textarea' resize='none' rows='3'></el-input>
+                                <el-input v-model="dialog.require.require_info.other_attach" :disabled="!require_dialog_dev_status" placeholder="请输入开发附件地址" type='textarea' resize='none' rows='3'></el-input>
                             </div>
                         </div>
-                        <div v-if="dialog.require.require_info.is_timeout==1" class="dialog-row">
+                        <div class="dialog-row">
                             <div class="dialog-item dialog-label">
                                 开发延迟原因
                                 <el-tooltip class="item" effect="dark" content="当完成时间超过期望时间，需要填写原因。" placement="right">
@@ -385,9 +385,9 @@
                                 </el-tooltip>
                             </div>
                         </div>
-                        <div v-if="dialog.require.require_info.is_timeout==1" class="dialog-row">
+                        <div  class="dialog-row">
                             <div class="dialog-item">
-                                <el-input v-model="dialog.require.require_info.dev_dealy_reason" :disabled="!require_dialog_dev_status" placeholder="请输入开发延迟原因" type='textarea' resize='none' rows='3'></el-input>
+                                <el-input v-model="dialog.require.require_info.dev_dealy_reason.value" :disabled="!require_dialog_dev_status" placeholder="请输入开发延迟原因" type='textarea' resize='none' rows='3'></el-input>
                             </div>
                         </div>
                     </el-tab-pane>
@@ -398,10 +398,10 @@
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialog.require.visible = false">取 消</el-button>
-                <el-button v-if="require_dialog_btnadd_status" type="primary" @click="saveRequireInfo('add')">新增</el-button>
-                <el-button v-if="require_dialog_btnsave_status" type="primary" @click="saveRequireInfo('edit')">保存</el-button>
-                <el-button v-if="require_dialog_btndone_status" type="primary" @click="saveRequireInfo('done')">完成</el-button>
-                <el-button v-if="require_dialog_btndelete_status" type="primary" @click="saveRequireInfo('delete')">作废</el-button>
+                <el-button v-if="require_dialog_btnadd_status" type="primary" @click="addRequireInfo">新增</el-button>
+                <el-button v-if="require_dialog_btnsave_status" type="primary" @click="editRequireInfo">保存</el-button>
+                <el-button v-if="require_dialog_btndone_status" type="primary" @click="doneRequireInfo">完成</el-button>
+                <el-button v-if="require_dialog_btndelete_status" type="primary" @click="deleteRequireInfo">作废</el-button>
             </span>
         </el-dialog>
     </div>

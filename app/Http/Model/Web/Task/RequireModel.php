@@ -2,6 +2,7 @@
 
 namespace App\Http\Model\Web\Task;
 
+use Framework\Facade\Log;
 use Framework\Facade\User;
 use Framework\Facade\Config;
 use Framework\Facade\Request;
@@ -216,10 +217,11 @@ class RequireModel {
         $intStart = ($arrParam['page_index'] - 1) * $intPageSize;
 
         //查询
-        $strSql = "select a.id,a.task_name,b.type module_type,b.cname module_name,c.cname account_name,a.needer,a.status,a.xingzhi,a.create_date,a.send_date,a.need_done_date,a.done_date
+        $strSql = "select a.id,a.task_name,b.type module_type,b.cname module_name,c.cname account_name,d.cname needer,a.status,a.xingzhi,a.create_date,a.send_date,a.need_done_date,a.done_date
                     from task a
                         join module b on a.module_id=b.id
-                        left join account c on a.account_id=b.id
+                        left join account c on a.account_id=c.id
+                        join account d on a.needer_id=d.id
                     where 1=1 {$arrParam['where']['sql']}
                     order by a.create_date desc";
         $arrParams = $arrParam['where']['param'];
@@ -267,7 +269,7 @@ class RequireModel {
         //查询
         $strSql = "select a.id value,a.cname label,a.status 
                     from account a
-                    where a.id in (select account_id from projectperson where project_id=:project_id) and a.is_can_search=1
+                    where a.id in (select distinct account_id from task where project_id=:project_id) and a.is_can_search=1
                     order by a.status,convert(a.cname using gbk)";
         $arrParams = [
             ':project_id' => Request::getParam('project_id')
@@ -286,14 +288,14 @@ class RequireModel {
      */
     protected function getNeederInfo() {
         //查询
-        $strSql = "select cname label,cname value,status 
-                    from needer 
-                    where project_id=:project_id and is_can_search=1
-                    order by status,convert(cname using gbk)";
+        $strSql = "select a.id value,a.cname label,a.status 
+                    from account a
+                    where a.id in (select distinct needer_id from task where project_id=:project_id) and a.is_can_search=1
+                    order by a.status,convert(a.cname using gbk)";
         $arrParams = [
             ':project_id' => Request::getParam('project_id')
         ];
-        $arrNeeder = $this->objDB->setMainTable('needer')->select($strSql, $arrParams);
+        $arrNeeder = $this->objDB->setMainTable('account')->select($strSql, $arrParams);
 
         //获取人员的树状结构
         $arrRoot = $this->getChildren($arrNeeder);
@@ -407,7 +409,7 @@ class RequireModel {
      */
     protected function getRequireInfo($arrParam) {
         //查询
-        $strSql = 'select a.id,a.status,a.account_id,
+        $strSql = 'select a.id,a.status,a.account_id,a.need_done_date,
                         a.xingzhi,a.needer,a.task_name,b.type module_type,a.module_id,a.need_memo,a.need_attach,
                         a.page_enter,a.dev_memo,a.need_tip,a.change_file,a.sql_attach,a.other_attach,a.dev_dealy_reason,
                         ifnull(c.round,0) round,a.change_file1,a.change_file2,a.change_file3,a.change_file4,a.change_file5
@@ -447,10 +449,72 @@ class RequireModel {
         return $arrRequireInfo[0];
     }
 
+    // -------------------------------------- addRequireInfo -------------------------------------- //
+
+    /**
+     * 新建需求
+     */
+    public function addRequireInfo(&$strErrMsg) {
+        $arrParam = [];
+        //1.参数验证
+        $strErrMsg = $this->checkAddRequireInfo($arrParam);
+        if (!empty($strErrMsg)) {
+            return false;
+        }
+        //2.记录操作日志(埋点)
+        //3.业务逻辑
+        $blnRet = $this->addRequire($arrParam);
+        //4.结果返回
+        if (!$blnRet) {
+            $strErrMsg = '保存失败';
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 参数检查
+     */
+    protected function checkAddRequireInfo(&$arrParam) {
+        //1.获取页面参数
+        $arrParam = Request::getAllParam();
+
+        //2.字段自定义配置检查
+        $arrRules = $this->arrRules;
+        $arrErrMsg = $this->objValidPostData->check($arrParam, ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach'], $arrRules);
+        if (!empty($arrErrMsg)) {
+            return join(';', $arrErrMsg);
+        }
+
+        //3.字段数据库配置检查
+        //4.业务检查
+    }
+
+    /**
+     * 新建需求
+     */
+    protected function addRequire($arrParam) {
+        //param
+        $arrParams = [
+            ':project_id' => $arrParam['project_id'],
+            ':xingzhi' => $arrParam['xingzhi'],
+            ':needer_id' => User::getAccountId(),
+            ':task_name' => $arrParam['task_name'],
+            ':module_id' => $arrParam['module_id'],
+            ':need_memo' => $arrParam['need_memo'],
+            ':need_attach' => $arrParam['need_attach'],
+        ];
+        //sql
+        $strSql = 'insert into task(project_id,xingzhi, needer_id,task_name,module_id,need_memo,need_attach) values(:project_id,:xingzhi,:needer_id,:task_name,:module_id,:need_memo,:need_attach)';
+        $intRet = $this->objDB->setMainTable('task')->insert($strSql, $arrParams, false);
+        //返回
+        return $intRet == 1 ? true : false;
+    }
+
     // -------------------------------------- editRequireInfo -------------------------------------- //
 
     /**
-     * 编辑信息
+     * 编辑需求
      */
     public function editRequireInfo(&$strErrMsg) {
         $arrParam = [];
@@ -493,7 +557,7 @@ class RequireModel {
     }
 
     /**
-     * 编辑信息
+     * 编辑需求
      */
     protected function editRequire($arrParam, $arrSaveCol) {
         $strSql = '';
@@ -502,8 +566,9 @@ class RequireModel {
             ':id' => $arrParam['id'],
             ':project_id' => $arrParam['project_id']
         ];
-        //开发人员只能修改自己的需求
-        if (User::getAccountRoleName() == 'devloper') {
+        //非管理人员与产品(产品tab字段)
+        //只能修改自己的需求
+        if (!in_array(User::getAccountRoleName(), ['admin', 'manager', 'product'])) {
             $strWhere .= ' and account_id=:account_id ';
             $arrParams[':account_id'] = User::getAccountId();
         }
@@ -521,21 +586,21 @@ class RequireModel {
         return $intRet == 1 ? true : false;
     }
 
-    // -------------------------------------- addRequireInfo -------------------------------------- //
+    // -------------------------------------- doneRequireInfo -------------------------------------- //
 
     /**
-     * 新建信息
+     * 编辑需求
      */
-    public function addRequireInfo(&$strErrMsg) {
+    public function doneRequireInfo(&$strErrMsg) {
         $arrParam = [];
         //1.参数验证
-        $strErrMsg = $this->checkAddRequireInfo($arrParam);
+        $strErrMsg = $this->checkDoneRequireInfo($arrParam, $arrSaveCol);
         if (!empty($strErrMsg)) {
             return false;
         }
         //2.记录操作日志(埋点)
         //3.业务逻辑
-        $blnRet = $this->addRequire($arrParam);
+        $blnRet = $this->doneRequire($arrParam, $arrSaveCol);
         //4.结果返回
         if (!$blnRet) {
             $strErrMsg = '保存失败';
@@ -547,12 +612,18 @@ class RequireModel {
     /**
      * 参数检查
      */
-    protected function checkAddRequireInfo(&$arrParam) {
+    protected function checkDoneRequireInfo(&$arrParam, &$arrSaveCol) {
         //1.获取页面参数
         $arrParam = Request::getAllParam();
 
         //2.字段自定义配置检查
-        $arrErrMsg = $this->objValidPostData->check($arrParam, ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'], $arrRules);
+        $arrRules = $this->arrRules;
+        $arrSaveCol = $this->getSaveColDone();
+        if (empty($arrSaveCol)) {
+            return '获取保存字段失败';
+        }
+        $arrParam['status'] = '03';
+        $arrErrMsg = $this->objValidPostData->check($arrParam, array_merge(['id', 'project_id'], $arrSaveCol), $arrRules);
         if (!empty($arrErrMsg)) {
             return join(';', $arrErrMsg);
         }
@@ -562,22 +633,24 @@ class RequireModel {
     }
 
     /**
-     * 新建信息
+     * 编辑需求
      */
-    protected function addRequire($arrParam) {
-        //param
+    protected function doneRequire($arrParam, $arrSaveCol) {
+        $strSql = '';
         $arrParams = [
-            ':project_id' => $arrParam['project_id'],
-            ':xingzhi' => $arrParam['xingzhi'],
-            ':needer' => $arrParam['needer'],
-            ':task_name' => $arrParam['task_name'],
-            ':module_id' => $arrParam['module_id'],
-            ':need_memo' => $arrParam['need_memo'],
-            ':need_attach' => $arrParam['need_attach'],
+            ':id' => $arrParam['id'],
+            ':project_id' => $arrParam['project_id']
         ];
+        //需要保存的字段
+        foreach ($arrSaveCol as $strCol) {
+            $strSql .= "{$strCol}=:{$strCol},";
+            $arrParams[":{$strCol}"] = $arrParam[$strCol];
+        }
+        $strSql = trim($strSql, ',');
         //sql
-        $strSql = 'insert into task(project_id,xingzhi, needer,task_name,module_id,need_memo,need_attach) values(:project_id,:xingzhi,:needer,:task_name,:module_id,:need_memo,:need_attach)';
-        $intRet = $this->objDB->setMainTable('task')->insert($strSql, $arrParams, false);
+        $strSql = "update task set {$strSql},update_date=now() where id=:id and project_id=:project_id";
+        //exec
+        $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams);
         //返回
         return $intRet == 1 ? true : false;
     }
@@ -585,12 +658,12 @@ class RequireModel {
     // -------------------------------------- deleteRequireInfo -------------------------------------- //
 
     /**
-     * 加载账号信息
+     * 作废需求
      */
     public function deleteRequireInfo(&$strErrMsg) {
         $arrParam = [];
         //1.参数验证
-        $strErrMsg = $this->checkSaveRequireInfo($arrParam);
+        $strErrMsg = $this->checkDeleteRequireInfo($arrParam);
         if (!empty($strErrMsg)) {
             return false;
         }
@@ -621,21 +694,20 @@ class RequireModel {
 
         //3.字段数据库配置检查
         //4.业务检查
-        //todo:检查模块是否被使用
     }
 
     /**
-     * 保存数据
+     * 作废需求
      */
     protected function deleteRequire($arrParam) {
         //param
         $arrParams = [
             ':id' => $arrParam['id'],
-            ':status' => '06'
+            ':project_id' => $arrParam['project_id'],
+            ':status' => '00'
         ];
         //sql
-        $strSql = "update task set status=:status where id=:id";
-        //exec
+        $strSql = "update task set status=:status,update_date=now() where id=:id and project_id=:project_id";
         $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams);
         //返回
         return $intRet == 1 ? true : false;
@@ -645,9 +717,9 @@ class RequireModel {
     // -------------------------------------- common -------------------------------------- //
 
     /**
-     * 获取需要保存的字段
+     * 获取编辑需求时的字段
      */
-    protected function getSaveCol($strSaveType = '') {
+    protected function getSaveCol() {
         //1.获取需求信息
         $arrRequireInfo = $this->getRequireInfo(Request::getAllParam());
         if (empty($arrRequireInfo)) {
@@ -663,17 +735,14 @@ class RequireModel {
             case 'manager':
                 switch ($strStatus) {
                     case '01':
-                        $arrCol = ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'];
+                        $arrCol = ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach'];
                         break;
                     case '02':
                     case '03':
-                        $arrCol = ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
-                        if ($strSaveType == 'done' && $arrRequireInfo['is_timeout'] == 1) {
-                            $arrCol[] = 'dev_dealy_reason';
-                        }
+                        $arrCol = ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
                         break;
                     case '04':
-                        $arrCol = ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach', 'change_file_qa'];
+                        $arrCol = ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
                         if ($arrRequireInfo['round'] != 0) {
                             $arrCol[] = 'change_file' . $arrRequireInfo['round'];
                         }
@@ -684,10 +753,29 @@ class RequireModel {
                 }
                 break;
             case 'product':
-                $arrCol = [];
+                switch ($strStatus) {
+                    case '01':
+                        $arrCol = ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach'];
+                        break;
+                    default:
+                        $arrCol = [];
+                        break;
+                }
                 break;
             case 'devloper':
-                $arrCol = [];
+                switch ($strStatus) {
+                    case '02':
+                        $arrCol = ['page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
+                        break;
+                    case '04':
+                        if ($arrRequireInfo['round'] != 0) {
+                            $arrCol[] = 'change_file' . $arrRequireInfo['round'];
+                        }
+                        break;
+                    default:
+                        $arrCol = [];
+                        break;
+                }
                 break;
             default :
                 $arrCol = [];
@@ -695,6 +783,24 @@ class RequireModel {
         }
 
         //3.返回
+        return $arrCol;
+    }
+
+    /**
+     * 获取完成需求时的字段
+     */
+    protected function getSaveColDone() {
+        //1.获取需求信息
+        $arrRequireInfo = $this->getRequireInfo(Request::getAllParam());
+        if (empty($arrRequireInfo)) {
+            return [];
+        }
+
+        $arrCol = ['status'];
+        if ($arrRequireInfo['is_timeout'] == 1) {
+            $arrCol[] = 'dev_dealy_reason';
+        }
+
         return $arrCol;
     }
 

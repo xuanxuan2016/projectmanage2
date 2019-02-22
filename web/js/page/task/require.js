@@ -69,29 +69,31 @@
             }
         },
         /**
-         * 保存需求数据
+         * 新增需求
          */
-        saveRequireInfo: function(saveType, requireInfo) {
+        addRequireInfo: function(requireInfo) {
             requireInfo = Object.assign(requireInfo, {project_id: app.$data.search.project_id});
-            switch (saveType) {
-                case 'add':
-                    return bmplugin.ajax.post('/web/task/require/addRequireInfo', requireInfo);
-                    break;
-                case 'edit':
-                    return bmplugin.ajax.post('/web/task/require/editRequireInfo', requireInfo);
-                    break;
-                case 'done':
-                    return bmplugin.ajax.post('/web/task/require/doneRequireInfo', requireInfo);
-                    break;
-                case 'delete':
-                    return bmplugin.ajax.post('/web/task/require/deleteRequireInfo', requireInfo);
-                    break;
-            }
+            return bmplugin.ajax.post('/web/task/require/addrequireinfo', requireInfo);
+        },
+        /**
+         * 编辑需求
+         */
+        editRequireInfo: function(requireInfo) {
+            requireInfo = Object.assign(requireInfo, {project_id: app.$data.search.project_id});
+            return bmplugin.ajax.post('/web/task/require/editrequireinfo', requireInfo);
+        },
+        /**
+         * 完成需求
+         */
+        doneRequireInfo: function(requireInfo) {
+            requireInfo = Object.assign(requireInfo, {project_id: app.$data.search.project_id});
+            return bmplugin.ajax.post('/web/task/require/donerequireinfo', requireInfo);
         },
         /**
          * 删除需求数据
          */
         deleteRequireInfo: function(requireInfo) {
+            requireInfo = Object.assign(requireInfo, {project_id: app.$data.search.project_id});
             return bmplugin.ajax.post('/web/task/require/deleterequireinfo', requireInfo);
         }
     };
@@ -228,7 +230,7 @@
                             value: '',
                             rules: {
                                 trim: {value: true},
-                                required: {value: true, err: {err_msg: '请输入需求提出人'}}
+                                required: {value: false, err: {err_msg: '请输入需求提出人'}}
                             }
                         },
                         task_name: {
@@ -434,13 +436,23 @@
                 switch (this.auth_role) {
                     case 'admin':
                     case 'manager':
-                    case 'product':
                         switch (this.dialog.require.require_info.status) {
                             case '':
                             case '01':
                             case '02':
                             case '03':
                             case '04':
+                                return true;
+                                break;
+                            default:
+                                return false;
+                                break;
+                        }
+                        break;
+                    case 'product':
+                        switch (this.dialog.require.require_info.status) {
+                            case '':
+                            case '01':
                                 return true;
                                 break;
                             default:
@@ -479,7 +491,6 @@
                     case 'devloper':
                         switch (this.dialog.require.require_info.status) {
                             case '02':
-                            case '03':
                                 return this.dialog.require.require_info.is_self == 1;
                                 break;
                             default:
@@ -575,8 +586,10 @@
                 switch (this.auth_role) {
                     case 'admin':
                     case 'manager':
-                    case 'product':
                         return this.auth_button['Task.Require.Edit'] && ['01', '02', '03', '04'].indexOf(this.dialog.require.require_info.status) >= 0;
+                        break;
+                    case 'product':
+                        return this.auth_button['Task.Require.Edit'] && ['01'].indexOf(this.dialog.require.require_info.status) >= 0;
                         break;
                     case 'devloper':
                         return this.auth_button['Task.Require.Edit'] && ['02', '03', '04'].indexOf(this.dialog.require.require_info.status) >= 0 && this.dialog.require.require_info.is_self == 1;
@@ -589,10 +602,9 @@
         },
         methods: {
             /**
-             * 获取需要保存的信息
-             * 由角色与需求状态控制
+             * 获取编辑需求时的信息
              */
-            getRequireInfo: function(saveType) {
+            getRequireInfo: function() {
                 //字段信息
                 var arrCol = [];
                 switch (this.auth_role) {
@@ -608,10 +620,6 @@
                             case '02':
                             case '03':
                                 arrCol = ['id', 'xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
-                                //延迟原因
-                                if (saveType == 'done' && this.dialog.require.require_info.is_timeout) {
-                                    arrCol.push('dev_dealy_reason');
-                                }
                                 break;
                             case '04':
                                 arrCol = ['id', 'xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
@@ -631,10 +639,7 @@
                                 arrCol = ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'];
                                 break;
                             case '01':
-                            case '02':
-                            case '03':
-                            case '04':
-                                arrCol = ['id', 'status', 'xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'];
+                                arrCol = ['id', 'xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'];
                                 break;
                             default:
                                 arrCol = [];
@@ -642,9 +647,40 @@
                         }
                         break;
                     case 'devloper':
+                        switch (this.dialog.require.require_info.status) {
+                            case '02':
+                                arrCol = ['id', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
+                                break;
+                            case '04':
+                                arrCol = ['id'];
+                                //送测文件
+                                if (this.dialog.require.require_info.round != '0') {
+                                    arrCol.push('change_file' + this.dialog.require.require_info.round);
+                                }
+                                break;
+                            default:
+                                arrCol = [];
+                                break;
+                        }
                         break;
                     default :
                         break;
+                }
+                //提取信息
+                var arrRequireInfo = []
+                for (var index in arrCol) {
+                    arrRequireInfo[arrCol[index]] = this.dialog.require.require_info[arrCol[index]];
+                }
+                return arrRequireInfo;
+            },
+            /**
+             * 获取完成需求时的信息
+             */
+            getRequireInfoDone: function() {
+                var arrCol = ['id'];
+                //延迟原因
+                if (this.dialog.require.require_info.is_timeout) {
+                    arrCol.push('dev_dealy_reason');
                 }
                 //提取信息
                 var arrRequireInfo = []
@@ -684,16 +720,16 @@
                 });
             },
             /**
-             * 保存需求信息
+             * 新增需求
              */
-            saveRequireInfo: function(saveType) {
+            addRequireInfo: function() {
                 //1.数据检查
-                var requireInfo = validator.check(this.getRequireInfo(saveType));
+                var requireInfo = validator.check(this.getRequireInfo());
                 //2.后台请求
                 if (requireInfo) {
                     new Promise(function(resolve) {
                         //1.保存需求信息
-                        resolve(require.saveRequireInfo(saveType, requireInfo));
+                        resolve(require.addRequireInfo(requireInfo));
                     }).then(function() {
                         //2.关闭弹框
                         app.$data.dialog.require.visible = false
@@ -706,12 +742,70 @@
                 }
             },
             /**
-             * 删除需求信息
+             * 保存需求
+             */
+            editRequireInfo: function() {
+                //1.数据检查
+                var requireInfo = validator.check(this.getRequireInfo());
+                //2.后台请求
+                if (requireInfo) {
+                    new Promise(function(resolve) {
+                        //1.保存需求信息
+                        resolve(require.editRequireInfo(requireInfo));
+                    }).then(function() {
+                        //2.关闭弹框
+                        app.$data.dialog.require.visible = false
+                    }).then(function() {
+                        //3.列表刷新
+                        require.loadList();
+                    }).catch(function(error) {
+                        bmplugin.showErrMsg(error);
+                    });
+                }
+            },
+            /**
+             * 完成需求
+             */
+            doneRequireInfo: function() {
+                this.$confirm('需求完成后将不能修改开发信息，只能找主管进行修改？', {
+                    type: 'warning',
+                    dangerouslyUseHTMLString: true
+                }).then(function() {
+                    //1.数据检查
+                    var requireInfo = validator.check(app.getRequireInfo());
+                    var requireInfoDone = validator.check(app.getRequireInfoDone());
+                    //2.后台请求
+                    if (requireInfo && requireInfoDone) {
+                        new Promise(function(resolve) {
+                            //1.保存需求
+                            resolve(require.editRequireInfo(requireInfo));
+                        }).then(function() {
+                            //2.完成需求
+                            return require.doneRequireInfo(requireInfoDone);
+                        }).then(function() {
+                            //3.关闭弹框
+                            app.$data.dialog.require.visible = false
+                        }).then(function() {
+                            //4.列表刷新
+                            require.loadList();
+                        }).catch(function(error) {
+                            bmplugin.showErrMsg(error);
+                        });
+                    }
+                }).catch(function(error) {
+                    //bmplugin.showErrMsg(error);
+                });
+            },
+            /**
+             * 作废需求
              */
             deleteRequireInfo: function() {
-                this.$confirm('确定删除此需求吗?').then(function() {
+                this.$confirm('确定作废此需求吗?', {
+                    type: 'warning',
+                    dangerouslyUseHTMLString: true
+                }).then(function() {
                     //1.数据检查
-                    var requireInfo = {id: app.$data.dialog.require_info.id, project_id: app.$data.dialog.require_info.project_id.value};
+                    var requireInfo = {id: app.$data.dialog.require.require_info.id};
                     //2.后台请求
                     if (requireInfo) {
                         new Promise(function(resolve) {
@@ -719,7 +813,7 @@
                             resolve(require.deleteRequireInfo(requireInfo));
                         }).then(function() {
                             //2.关闭弹框
-                            app.$data.dialog.visible = false
+                            app.$data.dialog.require.visible = false
                         }).then(function() {
                             //3.列表刷新
                             require.loadList();

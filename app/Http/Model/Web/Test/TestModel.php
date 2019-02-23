@@ -10,6 +10,7 @@ use Framework\Facade\Config;
 use Framework\Facade\Request;
 use Framework\Service\Database\DB;
 use Framework\Service\Database\HashCacheDB;
+use Framework\Service\File\Excel\ExcelRead;
 
 class TestModel {
 
@@ -24,16 +25,24 @@ class TestModel {
     protected $objHashCacheDB;
 
     /**
+     * ExcelRead实例
+     */
+    protected $objExcelRead;
+
+    /**
      * 构造函数
      */
-    public function __construct(DB $objDB, HashCacheDB $objHashCacheDB) {
+    public function __construct(DB $objDB, HashCacheDB $objHashCacheDB, ExcelRead $objExcelRead) {
         $this->objDB = $objDB;
         $this->objHashCacheDB = $objHashCacheDB;
+        $this->objExcelRead = $objExcelRead;
     }
 
     public function testone() {
 //        var_dump(Des::encrypt('xiaopangzi'));
-        var_dump(Des::passwordHash('xiaopangzi'));
+     //   var_dump(Des::passwordHash('qwe123'));
+        var_dump($this->objExcelRead->init(App::make('path.storage') . '/cache/file/test.xlsx')->getSheets());
+        var_dump($this->objExcelRead->init(App::make('path.storage') . '/cache/file/test.xlsx')->getSheetData(0));
 //        var_dump(json_decode(Request::getCookie('interview|LoginInfo'),true));
 //        var_dump(Request::delCookie('a'));
         //var_dump(Request::setCookie('a', 'ffff', time() + 1000));

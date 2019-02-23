@@ -117,6 +117,9 @@ class ValidPostData {
             case 'email':
                 return checkFormat($mixValue, Config::get('const.ValidFormat.FORMAT_EMAIL'));
                 break;
+            case 'date':
+                return checkFormat($mixValue, Config::get('const.ValidFormat.FORMAT_DATETIME'));
+                break;
             default :
                 return true;
         }

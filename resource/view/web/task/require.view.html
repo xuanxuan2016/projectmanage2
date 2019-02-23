@@ -91,8 +91,9 @@
     </div>
     <div class='page-button'>
         <el-button v-if="auth_button['Task.Require.Add']" type="primary" @click="showDialogRequire(0)">新增</el-button>
-        <el-button v-if="auth_button['Task.Require.Allot']" type="primary" @click="allotRequireInfo">分配</el-button>
+        <el-button v-if="auth_button['Task.Require.Allot']" type="primary" @click="showDialogAllot">分配</el-button>
         <el-button v-if="auth_button['Task.Require.Qa']" type="primary" @click="qaRequireInfo">送测</el-button>
+        <el-button v-if="auth_button['Task.Require.ReAllot']" type="primary" @click="showDialogReAllot">重新分配</el-button>
         <el-button v-if="auth_button['Task.Require.Output']" type="primary" @click="outputRequireInfo">导出</el-button>
     </div>
     <div class='page-list'>
@@ -111,7 +112,7 @@
                 <template slot-scope="scope">
                     <el-checkbox v-if="scope.row.status=='01' && scope.row.xingzhi=='01'" :key="scope.row.id" v-model="checkListAllot[scope.row.id]"></el-checkbox>
                 </template>
-            </el-table-column>            
+            </el-table-column>        
             <el-table-column  
                 v-if="auth_button['Task.Require.Qa']" 
                 label="送测"
@@ -122,6 +123,16 @@
                     <el-checkbox v-if="scope.row.status=='03'" :key="scope.row.id" v-model="checkListQa[scope.row.id]"></el-checkbox>
                 </template>
             </el-table-column>
+            <el-table-column 
+                v-if="auth_button['Task.Require.ReAllot']" 
+                label="重新分配"
+                width="100"                
+                header-align="center"
+                align="center">
+                <template slot-scope="scope">
+                    <el-checkbox v-if="scope.row.status=='02'" :key="scope.row.id" v-model="checkListReAllot[scope.row.id]"></el-checkbox>
+                </template>
+            </el-table-column>    
             <el-table-column
                 label="需求名称"
                 :show-overflow-tooltip="true">
@@ -391,17 +402,101 @@
                             </div>
                         </div>
                     </el-tab-pane>
-                    <el-tab-pane v-for="item in round_arr" :label="'送测轮次'+item">
+                    <el-tab-pane v-for="item in round_arr" :key="item" :label="'送测轮次'+item">
                         <el-input v-model="dialog.require.require_info.change_file_qa[item]" :disabled="item!=dialog.require.require_info.round || !require_dialog_changefile_status" placeholder="请输入送测修改文件" type='textarea' resize='none' rows='10'></el-input>
                     </el-tab-pane>
                 </el-tabs>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="dialog.require.visible = false">取 消</el-button>
+                <el-button @click="dialog.require.visible = false">取消</el-button>
                 <el-button v-if="require_dialog_btnadd_status" type="primary" @click="addRequireInfo">新增</el-button>
                 <el-button v-if="require_dialog_btnsave_status" type="primary" @click="editRequireInfo">保存</el-button>
                 <el-button v-if="require_dialog_btndone_status" type="primary" @click="doneRequireInfo">完成</el-button>
                 <el-button v-if="require_dialog_btndelete_status" type="primary" @click="deleteRequireInfo">作废</el-button>
+            </span>
+        </el-dialog>
+        <el-dialog
+            :title="dialog.allot.title"
+            :visible.sync="dialog.allot.visible"
+            :append-to-body="true"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            custom-class=''
+            top="5vh">
+            <div class="dialog-content">
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        期望时间
+                    </div>
+                    <div class="dialog-item">
+                        <el-date-picker
+                            v-model="dialog.allot.allot_info.need_done_date.value"
+                            type="date"
+                            :editable="false"
+                            value-format="yyyy-MM-dd"
+                            placeholder="选择日期">
+                        </el-date-picker>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        开发人员
+                    </div>
+                    <div class="dialog-item">
+                        <el-select v-model="dialog.allot.allot_info.account_id.value" placeholder="请选择">
+                            <el-option-group
+                                v-for="group in base_info.account_allot"
+                                :key="group.label"
+                                :label="group.label">
+                                <el-option
+                                    v-for="item in group.options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-option-group>
+                        </el-select>
+                    </div>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialog.allot.visible = false">取消</el-button>
+                <el-button v-if="auth_button['Task.Require.Allot']" type="primary" @click="allotRequireInfo">分配</el-button>
+            </span>
+        </el-dialog>        
+        <el-dialog
+            :title="dialog.reallot.title"
+            :visible.sync="dialog.reallot.visible"
+            :append-to-body="true"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            custom-class=''
+            top="5vh">
+            <div class="dialog-content">
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        开发人员
+                    </div>
+                    <div class="dialog-item">
+                        <el-select v-model="dialog.reallot.reallot_info.account_id.value" placeholder="请选择">
+                            <el-option-group
+                                v-for="group in base_info.account_allot"
+                                :key="group.label"
+                                :label="group.label">
+                                <el-option
+                                    v-for="item in group.options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-option-group>
+                        </el-select>
+                    </div>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialog.reallot.visible = false">取消</el-button>
+                <el-button v-if="auth_button['Task.Require.ReAllot']" type="primary" @click="reallotRequireInfo">重新分配</el-button>
             </span>
         </el-dialog>
     </div>

@@ -12,7 +12,8 @@ return [
         'uri_empty' => 'http://dev2.beautymyth.cn/web/missing/pagemiss',
         'uri_wrong' => 'http://dev2.beautymyth.cn/web/missing/pagemiss',
         'auth_wrong' => 'http://dev2.beautymyth.cn/web/common/login',
-        'controller_wrong' => 'http://dev2.beautymyth.cn/web/missing/pagemiss'
+        'controller_wrong' => 'http://dev2.beautymyth.cn/web/missing/pagemiss',
+        'has_login' => 'http://dev2.beautymyth.cn/web/common/home'
     ],
     /**
      * 根域名
@@ -37,7 +38,7 @@ return [
          * 0:开发环境
          * 1:测试与线上环境
          */
-        'read_only' => 0
+        'read_only' => 1
     ],
     /**
      * css配置
@@ -56,7 +57,7 @@ return [
          * 0:开发环境
          * 1:测试与线上环境
          */
-        'read_only' => 0
+        'read_only' => 1
     ],
     /**
      * image地址

@@ -24,7 +24,7 @@ class LoginModel {
     // -------------------------------------- logOut -------------------------------------- //
     public function logOut(&$strErrMsg) {
         $strErrMsg = '';
-        Request::delCookie('DevLoginInfo', 'beautymyth.cn');
+        Request::delCookie('DevLoginInfo');
         return true;
     }
 

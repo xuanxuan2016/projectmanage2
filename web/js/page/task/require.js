@@ -18,6 +18,7 @@
                 app.$data.base_info.account = data.account;
                 app.$data.base_info.needer = data.needer;
                 app.$data.base_info.module = data.module;
+                app.$data.base_info.account_allot = data.account_allot;
             }).catch(function(error) {
                 bmplugin.showErrMsg(error);
             });
@@ -41,17 +42,17 @@
             }
         },
         /**
-         * 设置需求数据
+         * 设置弹框数据
          */
-        initRequireInfo: function(require_info) {
-            for (var objKey in require_info) {
-                if (typeof app.$data.dialog.require.require_info[objKey] === 'undefined') {
+        initDialogInfo: function(dialogName, dialogInfo) {
+            for (var objKey in dialogInfo) {
+                if (typeof app.$data.dialog[dialogName][dialogName + '_info'][objKey] === 'undefined') {
                     continue;
                 }
-                if (typeof app.$data.dialog.require.require_info[objKey].value !== 'undefined') {
-                    app.$data.dialog.require.require_info[objKey].value = require_info[objKey];
+                if (typeof app.$data.dialog[dialogName][dialogName + '_info'][objKey].value !== 'undefined') {
+                    app.$data.dialog[dialogName][dialogName + '_info'][objKey].value = dialogInfo[objKey];
                 } else {
-                    app.$data.dialog.require.require_info[objKey] = require_info[objKey];
+                    app.$data.dialog[dialogName][dialogName + '_info'][objKey] = dialogInfo[objKey];
                 }
             }
         },
@@ -60,13 +61,27 @@
          */
         loadRequireInfo: function(id) {
             //数据重置
-            require.initRequireInfo(app.$data.dialog.require.require_info_blank);
+            require.initDialogInfo('require', app.$data.dialog.require.require_info_blank);
             //后台请求
             if (id) {
                 return bmplugin.ajax.post('/web/task/require/loadrequireinfo', {id: id, project_id: app.$data.search.project_id}).then(function(data) {
-                    require.initRequireInfo(data.info);
+                    require.initDialogInfo('require', data.info);
                 });
             }
+        },
+        /**
+         * 加载需求分配数据
+         */
+        loadAllotInfo: function() {
+            //数据重置
+            require.initDialogInfo('allot', app.$data.dialog.allot.allot_info_blank);
+        },
+        /**
+         * 加载需求重新分配数据
+         */
+        loadReAllotInfo: function() {
+            //数据重置
+            require.initDialogInfo('reallot', app.$data.dialog.reallot.reallot_info_blank);
         },
         /**
          * 新增需求
@@ -90,11 +105,25 @@
             return bmplugin.ajax.post('/web/task/require/donerequireinfo', requireInfo);
         },
         /**
-         * 删除需求数据
+         * 删除需求
          */
         deleteRequireInfo: function(requireInfo) {
             requireInfo = Object.assign(requireInfo, {project_id: app.$data.search.project_id});
             return bmplugin.ajax.post('/web/task/require/deleterequireinfo', requireInfo);
+        },
+        /**
+         * 分配需求
+         */
+        allotRequireInfo: function(allotInfo) {
+            allotInfo = Object.assign(allotInfo, {project_id: app.$data.search.project_id});
+            return bmplugin.ajax.post('/web/task/require/allotrequireinfo', allotInfo);
+        },
+        /**
+         * 重新分配需求
+         */
+        reallotRequireInfo: function(allotInfo) {
+            allotInfo = Object.assign(allotInfo, {project_id: app.$data.search.project_id});
+            return bmplugin.ajax.post('/web/task/require/reallotrequireinfo', allotInfo);
         }
     };
 
@@ -159,7 +188,8 @@
                 ],
                 account: [],
                 needer: [],
-                module: []
+                module: [],
+                account_allot: []
             },
             /**
              * 查询条件
@@ -325,7 +355,54 @@
                     }
                 },
                 allot: {
-
+                    title: '需求分配',
+                    visible: false,
+                    allot_info_blank: {
+                        need_done_date: '',
+                        account_id: ''
+                    },
+                    allot_info: {
+                        need_done_date: {
+                            value: '',
+                            rules: {
+                                trim: {value: true},
+                                required: {value: true, err: {err_msg: '请设置期望完成时间'}}
+                            }
+                        },
+                        account_id: {
+                            value: '',
+                            rules: {
+                                required: {value: true, err: {err_msg: '请选择开发人员'}}
+                            }
+                        },
+                        task_id: {
+                            value: '',
+                            rules: {
+                                required: {value: true, err: {err_msg: '请选择需要分配的需求'}}
+                            }
+                        }
+                    }
+                },
+                reallot: {
+                    title: '需求重新分配',
+                    visible: false,
+                    reallot_info_blank: {
+                        account_id: ''
+                    },
+                    reallot_info: {
+                        account_id: {
+                            value: '',
+                            rules: {
+                                required: {value: true, err: {err_msg: '请选择开发人员'}}
+                            }
+                        },
+                        task_id: {
+                            value: '',
+                            rules: {
+                                required: {value: true, err: {err_msg: '请选择需要重新分配的需求'}}
+                            }
+                        }
+                    }
                 },
                 qa: {
 
@@ -335,6 +412,11 @@
              * 需求分配
              */
             checkListAllot: {
+            },
+            /**
+             * 需求重新分配
+             */
+            checkListReAllot: {
             },
             /**
              * 需求送测
@@ -708,7 +790,7 @@
                     //2.显示弹框
                     app.$data.dialog.require.visible = true;
                 }).then(function() {
-                    //require.initRequireInfo时包含被watch的属性，会触发vue的更新，所以需要在$nextTick中执行
+                    //require.initDialogInfo时包含被watch的属性，会触发vue的更新，所以需要在$nextTick中执行
                     //否则，第一次弹框不能被渲染
                     app.$nextTick(function() {
                         //3.editor需要在dialog生成后才能创建
@@ -825,12 +907,115 @@
 
                 });
             },
-            allotRequireInfo: function() {
-
+            /**
+             * 需求分配
+             */
+            showDialogAllot: function() {
+                new Promise(function(resolve, reject) {
+                    //1.获取需要分配的需求
+                    var arrTaskId = [];
+                    for (var taskId in app.$data.checkListAllot) {
+                        if (app.$data.checkListAllot[taskId]) {
+                            arrTaskId.push(taskId);
+                        }
+                    }
+                    if (arrTaskId.length == 0) {
+                        reject(new Error('请选择需要分配的需求'));
+                    } else {
+                        app.$data.dialog.allot.allot_info.task_id.value = arrTaskId.join();
+                        resolve();
+                    }
+                }).then(function() {
+                    //2.加载弹框信息
+                    require.loadAllotInfo();
+                }).then(function() {
+                    //3.显示弹框
+                    app.$data.dialog.allot.visible = true;
+                }).catch(function(error) {
+                    bmplugin.showErrMsg(error);
+                });
             },
+            /**
+             * 需求分配
+             */
+            allotRequireInfo: function() {
+                //1.数据检查
+                var allotInfo = validator.check(app.$data.dialog.allot.allot_info);
+                //2.后台请求
+                if (allotInfo) {
+                    new Promise(function(resolve) {
+                        //1.保存需求信息
+                        resolve(require.allotRequireInfo(allotInfo));
+                    }).then(function() {
+                        //2.关闭弹框
+                        app.$data.dialog.allot.visible = false
+                    }).then(function() {
+                        //3.列表刷新
+                        require.loadList();
+                    }).catch(function(error) {
+                        bmplugin.showErrMsg(error);
+                    });
+                }
+            },
+            /**
+             * 需求重新分配
+             */
+            showDialogReAllot: function() {
+                new Promise(function(resolve, reject) {
+                    //1.获取需要分配的需求
+                    var arrTaskId = [];
+                    for (var taskId in app.$data.checkListReAllot) {
+                        if (app.$data.checkListReAllot[taskId]) {
+                            arrTaskId.push(taskId);
+                        }
+                    }
+                    if (arrTaskId.length == 0) {
+                        reject(new Error('请选择需要重新分配的需求'));
+                    } else {
+                        app.$data.dialog.reallot.reallot_info.task_id.value = arrTaskId.join();
+                        resolve();
+                    }
+                }).then(function() {
+                    //2.加载弹框信息
+                    require.loadReAllotInfo();
+                }).then(function() {
+                    //3.显示弹框
+                    app.$data.dialog.reallot.visible = true;
+                }).catch(function(error) {
+                    bmplugin.showErrMsg(error);
+                });
+            },
+            /**
+             * 需求重新分配
+             */
+            reallotRequireInfo: function() {
+                //1.数据检查
+                var allotInfo = validator.check(app.$data.dialog.reallot.reallot_info);
+                //2.后台请求
+                if (allotInfo) {
+                    new Promise(function(resolve) {
+                        //1.保存需求信息
+                        resolve(require.reallotRequireInfo(allotInfo));
+                    }).then(function() {
+                        //2.关闭弹框
+                        app.$data.dialog.reallot.visible = false
+                    }).then(function() {
+                        //3.列表刷新
+                        require.loadList();
+                    }).catch(function(error) {
+                        bmplugin.showErrMsg(error);
+                    });
+                }
+            },
+            /**
+             * 需求送测
+             */
             qaRequireInfo: function() {
 
             },
+            /**
+             * 导出
+             */
             outputRequireInfo: function() {
 
             },

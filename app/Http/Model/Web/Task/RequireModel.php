@@ -103,6 +103,26 @@ class RequireModel {
     ];
 
     /**
+     * post参数校验配置(分配)
+     */
+    protected $arrRulesAllot = [
+        'project_id' => [
+            'type' => ['value' => 'posint', 'err_msg' => 'project_id格式不正确']
+        ],
+        'need_done_date' => [
+            'trim' => ['value' => true],
+            'type' => ['value' => 'date', 'err_msg' => '请设置期望完成时间']
+        ],
+        'account_id' => [
+            'type' => ['value' => 'posint', 'err_msg' => '请选择开发人员']
+        ],
+        'task_id' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请选择需要分配的需求']
+        ]
+    ];
+
+    /**
      * 构造方法
      */
     public function __construct(DB $objDB, ValidDBData $objValidDBData, ValidPostData $objValidPostData) {
@@ -258,6 +278,7 @@ class RequireModel {
         $arrData['account'] = $this->getAccountInfo();
         $arrData['needer'] = $this->getNeederInfo();
         $arrData['module'] = $this->getModuleInfo();
+        $arrData['account_allot'] = $this->getAccountAllotInfo();
         //4.结果返回        
         return true;
     }
@@ -361,6 +382,51 @@ class RequireModel {
                                 }))
             ];
         }
+        //返回
+        return $arrChildren;
+    }
+
+    /**
+     * 获取分配人员
+     */
+    protected function getAccountAllotInfo() {
+        //查询
+        $strSql = "select a.id value,CONCAT(a.cname,'(',ifnull(c.count,0),')') label,b.cname role 
+                    from account a
+                        join role b on a.role_id=b.id and b.cname in ('admin','manager','devloper')
+                        left join (select account_id,count(*) count from task where project_id=:project_id and status='02' group by account_id)c on a.id=c.account_id
+                        join projectperson d on a.id=d.account_id and d.project_id=:project_id and d.status='01'
+                        where a.status='01'
+                    order by convert(a.cname using gbk)";
+        $arrParams = [
+            ':project_id' => Request::getParam('project_id')
+        ];
+        $arrAccount = $this->objDB->setMainTable('account')->select($strSql, $arrParams);
+
+        //获取人员的树状结构
+        $arrRoot = $this->getChildrenAllot($arrAccount);
+
+        //返回
+        return $arrRoot;
+    }
+
+    /**
+     * 将数据处理为树状结构
+     */
+    protected function getChildrenAllot($arrModuleInfo) {
+        $arrChildren = [];
+        $arrChildren[] = [
+            'label' => '开发',
+            'options' => array_values(array_filter($arrModuleInfo, function($value) {
+                                return $value['role'] == 'devloper';
+                            }))
+        ];
+        $arrChildren[] = [
+            'label' => '主管',
+            'options' => array_values(array_filter($arrModuleInfo, function($value) {
+                                return in_array($value['role'], ['admin', 'manager']);
+                            }))
+        ];
         //返回
         return $arrChildren;
     }
@@ -711,6 +777,156 @@ class RequireModel {
         $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams);
         //返回
         return $intRet == 1 ? true : false;
+    }
+
+    // -------------------------------------- allotRequireInfo -------------------------------------- //
+
+    /**
+     * 分配需求
+     */
+    public function allotRequireInfo(&$strErrMsg) {
+        $arrParam = [];
+        //1.参数验证
+        $strErrMsg = $this->checkAllotRequireInfo($arrParam);
+        if (!empty($strErrMsg)) {
+            return false;
+        }
+        //2.记录操作日志(埋点)
+        //3.业务逻辑
+        $blnRet = $this->allotRequire($arrParam);
+        //4.结果返回
+        if (!$blnRet) {
+            $strErrMsg = '保存失败';
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 参数检查
+     */
+    protected function checkAllotRequireInfo(&$arrParam) {
+        //1.获取页面参数
+        $arrParam = Request::getAllParam();
+
+        //2.字段自定义配置检查
+        $arrRules = $this->arrRulesAllot;
+        $arrErrMsg = $this->objValidPostData->check($arrParam, ['project_id', 'need_done_date', 'account_id', 'task_id'], $arrRules);
+        if (!empty($arrErrMsg)) {
+            return join(';', $arrErrMsg);
+        }
+
+        //3.字段数据库配置检查
+        //4.业务检查
+        $arrTaskId = [];
+        foreach (explode(',', $arrParam['task_id']) as $strTmp) {
+            if (checkFormat($strTmp, Config::get('const.ValidFormat.FORMAT_POSINT'))) {
+                $arrTaskId[] = $strTmp;
+            }
+        }
+        if (empty($arrTaskId)) {
+            return '请选择需要分配的需求';
+        }
+        $arrParam['task_id'] = $arrTaskId;
+    }
+
+    /**
+     * 分配需求
+     */
+    protected function allotRequire($arrParam) {
+        //param
+        $arrParams = [
+            ':project_id' => $arrParam['project_id'],
+            ':need_done_date' => $arrParam['need_done_date'],
+            ':account_id' => $arrParam['account_id'],
+            ':status' => '02',
+            ':old_status' => '01'
+        ];
+        $strWhere = '';
+        foreach ($arrParam['task_id'] as $strTaskId) {
+            $arrParams[":task_id{$strTaskId}"] = $strTaskId;
+            $strWhere .= ":task_id{$strTaskId},";
+        }
+        $strWhere = trim($strWhere, ',');
+        //sql
+        $strSql = "update task set status=:status,account_id=:account_id,need_done_date=:need_done_date,update_date=now() where id in ({$strWhere}) and project_id=:project_id and status=:old_status";
+        $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams, true);
+        //返回
+        return $intRet > 0 ? true : false;
+    }
+
+    // -------------------------------------- reallotRequireInfo -------------------------------------- //
+
+    /**
+     * 重新分配需求
+     */
+    public function reallotRequireInfo(&$strErrMsg) {
+        $arrParam = [];
+        //1.参数验证
+        $strErrMsg = $this->checkReAllotRequireInfo($arrParam);
+        if (!empty($strErrMsg)) {
+            return false;
+        }
+        //2.记录操作日志(埋点)
+        //3.业务逻辑
+        $blnRet = $this->reallotRequire($arrParam);
+        //4.结果返回
+        if (!$blnRet) {
+            $strErrMsg = '保存失败';
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 参数检查
+     */
+    protected function checkReAllotRequireInfo(&$arrParam) {
+        //1.获取页面参数
+        $arrParam = Request::getAllParam();
+
+        //2.字段自定义配置检查
+        $arrRules = $this->arrRulesAllot;
+        $arrErrMsg = $this->objValidPostData->check($arrParam, ['project_id', 'account_id', 'task_id'], $arrRules);
+        if (!empty($arrErrMsg)) {
+            return join(';', $arrErrMsg);
+        }
+
+        //3.字段数据库配置检查
+        //4.业务检查
+        $arrTaskId = [];
+        foreach (explode(',', $arrParam['task_id']) as $strTmp) {
+            if (checkFormat($strTmp, Config::get('const.ValidFormat.FORMAT_POSINT'))) {
+                $arrTaskId[] = $strTmp;
+            }
+        }
+        if (empty($arrTaskId)) {
+            return '请选择需要重新分配的需求';
+        }
+        $arrParam['task_id'] = $arrTaskId;
+    }
+
+    /**
+     * 重新分配需求
+     */
+    protected function reallotRequire($arrParam) {
+        //param
+        $arrParams = [
+            ':project_id' => $arrParam['project_id'],
+            ':account_id' => $arrParam['account_id'],
+            ':status' => '02'
+        ];
+        $strWhere = '';
+        foreach ($arrParam['task_id'] as $strTaskId) {
+            $arrParams[":task_id{$strTaskId}"] = $strTaskId;
+            $strWhere .= ":task_id{$strTaskId},";
+        }
+        $strWhere = trim($strWhere, ',');
+        //sql
+        $strSql = "update task set account_id=:account_id,update_date=now() where id in ({$strWhere}) and project_id=:project_id and status=:status";
+        $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams, true);
+        //返回
+        return $intRet > 0 ? true : false;
     }
 
     // -------------------------------------- validator -------------------------------------- //

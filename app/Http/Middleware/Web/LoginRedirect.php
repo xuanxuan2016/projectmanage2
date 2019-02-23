@@ -41,7 +41,7 @@ class LoginRedirect {
      * 获取跳转url
      */
     protected function getRedirectUrl($objRequest) {
-        return !empty($objRequest->getParam('redirect')) ? $objRequest->getParam('redirect') : Config::get('web.redirect.uri_empty');
+        return !empty($objRequest->getParam('redirect')) ? $objRequest->getParam('redirect') : Config::get('web.redirect.has_login');
     }
 
 }

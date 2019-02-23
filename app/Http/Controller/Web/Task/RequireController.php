@@ -31,6 +31,7 @@ class RequireController extends BaseController {
         'deleteRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Delete'], CheckProject::class],
         'outputRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Output'], CheckProject::class],
         'allotRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Allot'], CheckProject::class],
+        'reallotRequireInfo' => [[CheckAuthButton::class, 'Task.Require.ReAllot'], CheckProject::class],
         'qaRequireInfo' => [[CheckAuthButton::class, 'Task.Require.Qa'], CheckProject::class]
     ];
 
@@ -172,6 +173,15 @@ class RequireController extends BaseController {
     public function allotRequireInfo() {
         $strErrMsg = '';
         $blnFlag = $this->objRequireModel->allotRequireInfo($strErrMsg);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
+    }
+
+    /**
+     * 重新分配需求
+     */
+    public function reallotRequireInfo() {
+        $strErrMsg = '';
+        $blnFlag = $this->objRequireModel->reallotRequireInfo($strErrMsg);
         return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
     }
 

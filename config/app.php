@@ -52,6 +52,7 @@ return [
         Framework\Provider\Database\HashCacheDBServiceProvider::class,
         Framework\Provider\Image\ImageServiceProvider::class,
         Framework\Provider\Sms\SmsServiceProvider::class,
+        Framework\Provider\File\FileServiceProvider::class,
         /**
          * 应用
          */

@@ -12,10 +12,11 @@ class ResponseFactory {
      */
     public function make($mixResponse) {
         if (is_array($mixResponse)) {
+            if (isset($mixResponse['attach_id']) && !empty($mixResponse['attach_id'])) {
+                return new FileResponse($mixResponse['attach_id']);
+            }
             //todo:目前没考虑header
             return new JsonResponse($mixResponse);
-        } else if (is_file($mixResponse)) {
-            return new FileResponse($mixResponse);
         } else {
             if (strpos($mixResponse, 'http') === 0) {
                 //匹配方法待更新

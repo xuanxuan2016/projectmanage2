@@ -158,12 +158,11 @@ class RequireController extends BaseController {
 
     /**
      * 导出需求
-     * todo:返回路径 or data中有attach_id标识处理
      */
     public function outputRequireInfo() {
         $strErrMsg = '';
         $arrData = [];
-        $blnFlag = $this->objRequireModel->loadRequireInfo($strErrMsg, $arrData);
+        $blnFlag = $this->objRequireModel->outputRequireInfo($strErrMsg, $arrData);
         return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
     }
 

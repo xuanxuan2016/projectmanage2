@@ -127,4 +127,57 @@ window.bmplugin = {};
     };
 }(Vue, window));
 
+/**
+ * 文件下载
+ */
+(function(Vue, window) {
+    /**
+     * 创建下载插件对象
+     */
+    function createDownloadObj() {
+        var downLoadDiv = document.createElement('div');
+        downLoadDiv.setAttribute('id', 'BMDownload');
+        downLoadDiv.setAttribute('class', 'download');
+
+        var downLoadForm = document.createElement('form');
+        downLoadForm.setAttribute('name', 'BMDownload_form');
+        downLoadForm.setAttribute('id', 'BMDownload_form');
+        downLoadForm.setAttribute('target', 'BMDownload_iframe');
+        downLoadForm.setAttribute('method', 'post');
+        downLoadForm.setAttribute('encType', 'multipart/form-data');
+        downLoadForm.setAttribute('action', '/web/common/common/downloadfile');
+
+        var downLoadInput = document.createElement('input');
+        downLoadInput.setAttribute('type', 'text');
+        downLoadInput.setAttribute('name', 'attach_id');
+
+        var downLoadIframe = document.createElement('iframe');
+        downLoadIframe.setAttribute('id', 'BMDownload_iframe');
+        downLoadIframe.setAttribute('name', 'BMDownload_iframe');
+
+        downLoadForm.append(downLoadInput);
+        downLoadDiv.append(downLoadForm);
+        downLoadDiv.append(downLoadIframe);
+        document.getElementsByTagName('body')[0].append(downLoadDiv);
+    }
+
+    /**
+     * 获取下载插件对象
+     */
+    function getDownloadObj(attachId) {
+        if (!document.getElementById('BMDownload')) {
+            createDownloadObj(attachId);
+        }
+        document.getElementById('BMDownload_form').children[0].setAttribute('value', attachId);
+    }
+
+    /**
+     * 添加方法到组件
+     */
+    window.bmplugin.downloadFile = function(attachId) {
+        getDownloadObj(attachId);
+        document.getElementById('BMDownload_form').submit();
+    };
+}(Vue, window));
+
 

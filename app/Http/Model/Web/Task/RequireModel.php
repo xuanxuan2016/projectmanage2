@@ -7,6 +7,7 @@ use Framework\Facade\User;
 use Framework\Facade\Config;
 use Framework\Facade\Request;
 use Framework\Service\Database\DB;
+use Framework\Service\File\Excel\ExcelWrite;
 use Framework\Service\Validation\ValidDBData;
 use Framework\Service\Validation\ValidPostData;
 
@@ -26,6 +27,11 @@ class RequireModel {
      * 字段数据库配置检查实例
      */
     protected $objValidPostData;
+
+    /**
+     * ExcelRead实例
+     */
+    protected $objExcelWrite;
 
     /**
      * post参数校验配置
@@ -125,10 +131,11 @@ class RequireModel {
     /**
      * 构造方法
      */
-    public function __construct(DB $objDB, ValidDBData $objValidDBData, ValidPostData $objValidPostData) {
+    public function __construct(DB $objDB, ValidDBData $objValidDBData, ValidPostData $objValidPostData, ExcelWrite $objExcelWrite) {
         $this->objDB = $objDB;
         $this->objValidDBData = $objValidDBData;
         $this->objValidPostData = $objValidPostData;
+        $this->objExcelWrite = $objExcelWrite;
     }
 
     // -------------------------------------- loadList -------------------------------------- //
@@ -930,6 +937,151 @@ class RequireModel {
     }
 
     // -------------------------------------- validator -------------------------------------- //
+    // -------------------------------------- outputRequireInfo -------------------------------------- //
+
+    /**
+     * 获取列表数据
+     */
+    public function outputRequireInfo(&$strErrMsg, &$arrData) {
+        $arrParam = [];
+        //1.参数验证
+        $strErrMsg = $this->checkOutputRequireInfo($arrParam);
+        if (!empty($strErrMsg)) {
+            return false;
+        }
+        //2.记录操作日志(埋点)
+        //3.业务逻辑
+        $strAttachId = $this->outputRequire($arrParam);
+        if (empty($strAttachId)) {
+            $strErrMsg = '导出失败';
+            return false;
+        }
+        //4.结果返回
+        $arrData['attach_id'] = $strAttachId;
+        return true;
+    }
+
+    /**
+     * 参数检查
+     */
+    protected function checkOutputRequireInfo(&$arrParam) {
+        //1.获取页面参数
+        $arrParam = [
+            'project_id' => Request::getParam('project_id')
+        ];
+
+        //2.字段自定义配置检查
+        $arrErrMsg = $this->objValidPostData->check($arrParam, ['project_id'], $this->arrRules);
+        if (!empty($arrErrMsg)) {
+            return join(';', $arrErrMsg);
+        }
+
+        //3.字段数据库配置检查
+        //4.业务检查
+        $arrSearchParam = json_decode(Request::getParam('search_param'), true);
+        $strWhereSql = '';
+        $arrWhereParam = [];
+        //project_id
+        $strWhereSql .= ' and a.project_id=:project_id';
+        $arrWhereParam[':project_id'] = $arrSearchParam['project_id'];
+        //task_name
+        if (!empty($arrSearchParam['task_name'])) {
+            $strWhereSql .= ' and locate(:task_name,a.task_name)>0';
+            $arrWhereParam[':task_name'] = $arrSearchParam['task_name'];
+        }
+        //status
+        if (!empty($arrSearchParam['status'])) {
+            $strWhereSqlTmp = '';
+            $arrWhereParamTmp = [];
+            for ($i = 0, $j = count($arrSearchParam['status']); $i < $j; $i++) {
+                if (in_array($arrSearchParam['status'][$i], $this->arrRules['status']['optional']['value'])) {
+                    $strWhereSqlTmp .= ":status{$i},";
+                    $arrWhereParamTmp[":status{$i}"] = $arrSearchParam['status'][$i];
+                }
+            }
+            if (!empty($arrWhereParamTmp)) {
+                $strWhereSqlTmp = trim($strWhereSqlTmp, ',');
+                $strWhereSql .= " and a.status in ($strWhereSqlTmp)";
+                $arrWhereParam = array_merge($arrWhereParam, $arrWhereParamTmp);
+            }
+        } else {
+            $strWhereSql .= ' and a.status=:status';
+            $arrWhereParam[':status'] = '-1';
+        }
+        //account_id
+        if (!empty($arrSearchParam['account_id']) && checkFormat($arrSearchParam['account_id'], Config::get('const.ValidFormat.FORMAT_POSINT'))) {
+            $strWhereSql .= ' and a.account_id=:account_id';
+            $arrWhereParam[':account_id'] = $arrSearchParam['account_id'];
+        }
+        //needer
+        if (!empty($arrSearchParam['needer'])) {
+            $strWhereSql .= ' and a.needer=:needer';
+            $arrWhereParam[':needer'] = $arrSearchParam['needer'];
+        }
+        //module
+        if (!empty($arrSearchParam['module_id']) && checkFormat($arrSearchParam['account_id'], Config::get('const.ValidFormat.FORMAT_POSINT'))) {
+            $strWhereSql .= ' and a.module_id=:module_id';
+            $arrWhereParam[':module_id'] = $arrSearchParam['module_id'];
+        } else {
+            if (!empty($arrSearchParam['module_type'])) {
+                $strWhereSql .= ' and b.type=:module_type';
+                $arrWhereParam[':module_type'] = $arrSearchParam['module_type'];
+            }
+        }
+
+        //5.其它参数
+        $arrParam['where'] = [
+            'sql' => $strWhereSql,
+            'param' => $arrWhereParam
+        ];
+    }
+
+    /**
+     * 导出数据
+     */
+    protected function outputRequire($arrParam) {
+        //查询
+        $strSql = "select a.task_name,b.type module_type,b.cname module_name,c.cname account_name,d.cname needer,a.status,a.xingzhi,a.create_date,a.send_date,a.need_done_date,a.done_date
+                    from task a
+                        join module b on a.module_id=b.id
+                        left join account c on a.account_id=c.id
+                        join account d on a.needer_id=d.id
+                    where 1=1 {$arrParam['where']['sql']}
+                    order by a.create_date desc";
+        $arrParams = $arrParam['where']['param'];
+        $intTotal = 0;
+        $arrRequireList = $this->objDB->setMainTable('task')->select($strSql, $arrParams);
+
+        //翻译
+        $arrModuleType = ['01' => '系统', '02' => '业务'];
+        $arrXingZhi = ['01' => '确定', '02' => '待定'];
+        $arrStatus = ['00' => '作废', '01' => '需求', '02' => '开发', '03' => '就绪', '04' => '送测', '05' => '上线'];
+        foreach ($arrRequireList as &$arrRow) {
+            $arrRow['module_type'] = $arrModuleType[$arrRow['module_type']];
+            $arrRow['xingzhi'] = $arrXingZhi[$arrRow['xingzhi']];
+            $arrRow['status'] = $arrStatus[$arrRow['status']];
+        }
+
+        //生成下载文件
+        $arrColumnMap = [
+            'task_name' => ['cname' => '需求名称', 'is_output' => 1],
+            'module_type' => ['cname' => '模块类型', 'is_output' => 1],
+            'module_name' => ['cname' => '模块名称', 'is_output' => 1],
+            'account_name' => ['cname' => '开发人员', 'is_output' => 1],
+            'needer' => ['cname' => '提出人', 'is_output' => 1],
+            'status' => ['cname' => '状态', 'is_output' => 1],
+            'xingzhi' => ['cname' => '性质', 'is_output' => 1],
+            'create_date' => ['cname' => '需求时间', 'is_output' => 1],
+            'send_date' => ['cname' => '分配时间', 'is_output' => 1],
+            'need_done_date' => ['cname' => '期望时间', 'is_output' => 1],
+            'done_date' => ['cname' => '完成时间', 'is_output' => 1]
+        ];
+        $strAttachId = $this->objExcelWrite->init('需求明细')->createExcel(['需求明细' => $arrRequireList], ['需求明细' => $arrColumnMap]);
+
+        //返回
+        return $strAttachId;
+    }
+
     // -------------------------------------- common -------------------------------------- //
 
     /**

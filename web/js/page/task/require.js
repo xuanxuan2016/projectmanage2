@@ -124,6 +124,14 @@
         reallotRequireInfo: function(allotInfo) {
             allotInfo = Object.assign(allotInfo, {project_id: app.$data.search.project_id});
             return bmplugin.ajax.post('/web/task/require/reallotrequireinfo', allotInfo);
+        },
+        /**
+         * 导出需求
+         */
+        outputRequireInfo: function() {
+            var downloadInfo = Object.assign({}, {project_id: app.$data.search.project_id});
+            downloadInfo.search_param = JSON.stringify(app.$data.search);
+            return bmplugin.ajax.post('/web/task/require/outputrequireinfo', downloadInfo);
         }
     };
 
@@ -1017,7 +1025,15 @@
              * 导出
              */
             outputRequireInfo: function() {
-
+                new Promise(function(resolve) {
+                    //1.导出需求
+                    resolve(require.outputRequireInfo());
+                }).then(function(data) {
+                    //2.下载
+                    bmplugin.downloadFile(data['attach_id']);
+                }).catch(function(error) {
+                    bmplugin.showErrMsg(error);
+                });
             },
             /**
              * 查询条件变化

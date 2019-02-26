@@ -50,7 +50,7 @@ class File {
     }
 
     /**
-     * 保存附件信息
+     * 获取附件信息
      * @param string $strAttachId 附件id
      */
     public function getAttach($strAttachId) {

@@ -355,11 +355,12 @@ class ExcelWrite {
         //1.获取表头数据
         $arrHeader = [];
         foreach ($arrData[0] as $key => $value) {
-            $arrColumnInfo = $arrColumnMap[$key];
-            if (empty($arrColumnInfo) || (!empty($arrColumnInfo) && $arrColumnInfo['is_output'] == 1)) {
-                $strHeaderValue = trim((!empty($arrColumnInfo) ? $arrColumnInfo['cname'] : $key));
-                $arrHeader[] = $strHeaderValue;
+            if (isset($arrColumnMap[$key]) && $arrColumnMap[$key]['is_output'] == 1) {
+                $strHeaderValue = $arrColumnMap[$key]['cname'];
+            } else {
+                $strHeaderValue = $key;
             }
+            $arrHeader[] = $strHeaderValue;
         }
         $this->objSheetAtt['row_count'] = count($arrData);
         $this->objSheetAtt['column_count'] = count($arrHeader);
@@ -401,7 +402,7 @@ class ExcelWrite {
             $intPColumn = 0;
             foreach ($arrData[$i] as $key => $value) {
                 $value = htmlspecialchars_decode($value, ENT_QUOTES);
-                $arrColumnInfo = $arrColumnMap[$key];
+                $arrColumnInfo = isset($arrColumnMap[$key]) ? $arrColumnMap[$key] : [];
                 if (empty($arrColumnInfo) || (!empty($arrColumnInfo) && $arrColumnInfo['is_output'] == 1)) {
                     $objCell = $this->objSheet->getCellByColumnAndRow($this->objSheetAtt['header_column_start'] + $intPColumn, $intPRow);
                     $value = trim($value);
@@ -496,9 +497,9 @@ class ExcelWrite {
                 //1.获取sheet配置
                 $this->setSheetOption(isset($arrOptions[$strSheetName]) ? $arrOptions[$strSheetName] : []);
                 //2.设置表头
-                $this->createHeader($arrData, $arrColumnMaps[$strSheetName]);
+                $this->createHeader($arrData, isset($arrColumnMaps[$strSheetName]) ? $arrColumnMaps[$strSheetName] : []);
                 //3.写具体数据
-                $this->createDetail($arrData, $arrColumnMaps[$strSheetName]);
+                $this->createDetail($arrData, isset($arrColumnMaps[$strSheetName]) ? $arrColumnMaps[$strSheetName] : []);
                 //4.设置sheet样式
                 $this->setSheetStyle();
                 $intSheetIndex++;

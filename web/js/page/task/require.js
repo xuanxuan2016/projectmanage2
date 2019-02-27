@@ -84,6 +84,13 @@
             require.initDialogInfo('reallot', app.$data.dialog.reallot.reallot_info_blank);
         },
         /**
+         * 加载需求送测数据
+         */
+        loadQaInfo: function() {
+            //数据重置
+            require.initDialogInfo('qa', app.$data.dialog.qa.qa_info_blank);
+        },
+        /**
          * 新增需求
          */
         addRequireInfo: function(requireInfo) {
@@ -124,6 +131,13 @@
         reallotRequireInfo: function(allotInfo) {
             allotInfo = Object.assign(allotInfo, {project_id: app.$data.search.project_id});
             return bmplugin.ajax.post('/web/task/require/reallotrequireinfo', allotInfo);
+        },
+        /**
+         * 送测需求
+         */
+        qaRequireInfo: function(qaInfo) {
+            qaInfo = Object.assign(qaInfo, {project_id: app.$data.search.project_id});
+            return bmplugin.ajax.post('/web/task/require/qarequireinfo', qaInfo);
         },
         /**
          * 导出需求
@@ -413,7 +427,28 @@
                     }
                 },
                 qa: {
-
+                    title: '需求送测',
+                    visible: false,
+                    conflict: [],
+                    qa_info_blank: {
+                        qa_name: ''
+                    },
+                    qa_info: {
+                        qa_name: {
+                            value: '',
+                            rules: {
+                                required: {value: true, err: {err_msg: '请输入送测名称'}}
+                            }
+                        },
+                        qa_tip: '',
+                        task_id: {
+                            value: '',
+                            rules: {
+                                required: {value: true, err: {err_msg: '请选择需要送测的需求'}}
+                            }
+                        },
+                        is_force: 0
+                    }
                 }
             },
             /**
@@ -461,6 +496,12 @@
                     this.dialog.require.require_info.change_file5.value = this.dialog.require.require_info.change_file_qa['5'] || '';
                 },
                 deep: true
+            },
+            /**
+             * 送测弹框，是否强制送测
+             */
+            'qa_dialog_conflict_status': function() {
+                this.dialog.qa.qa_info.is_force = this.qa_dialog_conflict_status ? 1 : 0;
             }
         },
         created: function() {
@@ -688,6 +729,13 @@
                         return false;
                         break
                 }
+            },
+            /**
+             * 送测弹框
+             * 文件冲突状态
+             */
+            qa_dialog_conflict_status: function() {
+                return this.dialog.qa.conflict.length > 0;
             }
         },
         methods: {
@@ -1016,10 +1064,64 @@
                 }
             },
             /**
+             * 送测
+             */
+            showDialogQa: function() {
+                new Promise(function(resolve, reject) {
+                    //1.获取需要送测的需求
+                    var arrTaskId = [];
+                    for (var taskId in app.$data.checkListQa) {
+                        if (app.$data.checkListQa[taskId]) {
+                            arrTaskId.push(taskId);
+                        }
+                    }
+                    if (arrTaskId.length == 0) {
+                        reject(new Error('请选择需要送测的需求'));
+                    } else {
+                        app.$data.dialog.qa.qa_info.task_id.value = arrTaskId.join();
+                        app.$data.dialog.qa.conflict = [];
+                        resolve();
+                    }
+                }).then(function() {
+                    //2.加载弹框信息
+                    require.loadQaInfo();
+                }).then(function() {
+                    //3.显示弹框
+                    app.$data.dialog.qa.visible = true;
+                }).catch(function(error) {
+                    bmplugin.showErrMsg(error);
+                });
+            },
+            /**
              * 需求送测
              */
             qaRequireInfo: function() {
-
+                this.$confirm('确定要送测需求吗?', {
+                    type: 'warning',
+                    dangerouslyUseHTMLString: true
+                }).then(function() {
+                    //1.数据检查
+                    var qaInfo = validator.check(app.$data.dialog.qa.qa_info);
+                    //2.后台请求
+                    if (qaInfo) {
+                        new Promise(function(resolve) {
+                            //1.保存需求信息
+                            resolve(require.qaRequireInfo(qaInfo));
+                        }).then(function() {
+                            //2.关闭弹框
+                            app.$data.dialog.qa.visible = false
+                        }).then(function() {
+                            //3.列表刷新
+                            require.loadList();
+                        }).catch(function(error) {
+                            if (error.data && error.data.conflict) {
+                                app.$data.dialog.qa.conflict = error.data.conflict;
+                            }
+                            bmplugin.showErrMsg(error);
+                        });
+                    }
+                }).catch(function() {
+                });
             },
             /**
              * 导出

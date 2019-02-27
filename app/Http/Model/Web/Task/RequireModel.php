@@ -129,6 +129,26 @@ class RequireModel {
     ];
 
     /**
+     * post参数校验配置(送测)
+     */
+    protected $arrRulesQa = [
+        'project_id' => [
+            'type' => ['value' => 'posint', 'err_msg' => 'project_id格式不正确']
+        ],
+        'qa_name' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请输入送测名称']
+        ],
+        'task_id' => [
+            'trim' => ['value' => true],
+            'required' => ['value' => true, 'err_msg' => '请选择需要送测的需求']
+        ],
+        'is_force' => [
+            'type' => ['value' => 'int', 'err_msg' => 'is_force格式不正确']
+        ],
+    ];
+
+    /**
      * 构造方法
      */
     public function __construct(DB $objDB, ValidDBData $objValidDBData, ValidPostData $objValidPostData, ExcelWrite $objExcelWrite) {
@@ -214,8 +234,8 @@ class RequireModel {
         }
         //needer
         if (!empty($arrSearchParam['needer'])) {
-            $strWhereSql .= ' and a.needer=:needer';
-            $arrWhereParam[':needer'] = $arrSearchParam['needer'];
+            $strWhereSql .= ' and a.needer_id=:needer_id';
+            $arrWhereParam[':needer_id'] = $arrSearchParam['needer'];
         }
         //module
         if (!empty($arrSearchParam['module_id']) && checkFormat($arrSearchParam['account_id'], Config::get('const.ValidFormat.FORMAT_POSINT'))) {
@@ -936,7 +956,6 @@ class RequireModel {
         return $intRet > 0 ? true : false;
     }
 
-    // -------------------------------------- validator -------------------------------------- //
     // -------------------------------------- outputRequireInfo -------------------------------------- //
 
     /**
@@ -1015,8 +1034,8 @@ class RequireModel {
         }
         //needer
         if (!empty($arrSearchParam['needer'])) {
-            $strWhereSql .= ' and a.needer=:needer';
-            $arrWhereParam[':needer'] = $arrSearchParam['needer'];
+            $strWhereSql .= ' and a.needer_id=:needer_id';
+            $arrWhereParam[':needer_id'] = $arrSearchParam['needer'];
         }
         //module
         if (!empty($arrSearchParam['module_id']) && checkFormat($arrSearchParam['account_id'], Config::get('const.ValidFormat.FORMAT_POSINT'))) {
@@ -1082,6 +1101,160 @@ class RequireModel {
         return $strAttachId;
     }
 
+    // -------------------------------------- qaRequireInfo -------------------------------------- //
+
+    /**
+     * 送测需求
+     */
+    public function qaRequireInfo(&$strErrMsg, &$arrData) {
+        $arrParam = [];
+        //1.参数验证
+        $strErrMsg = $this->checkQaRequireInfo($arrParam, $arrConflict);
+        if (!empty($strErrMsg)) {
+            $arrData['conflict'] = $arrConflict;
+            return false;
+        }
+        //2.记录操作日志(埋点)
+        //3.业务逻辑
+        $blnRet = $this->qaRequire($arrParam);
+        //4.结果返回
+        if (!$blnRet) {
+            $strErrMsg = '保存失败';
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 参数检查
+     */
+    protected function checkQaRequireInfo(&$arrParam, &$arrConflict) {
+        //1.获取页面参数
+        $arrParam = Request::getAllParam();
+
+        //2.字段自定义配置检查
+        $arrRules = $this->arrRulesQa;
+        $arrErrMsg = $this->objValidPostData->check($arrParam, ['project_id', 'qa_name', 'task_id', 'is_force'], $arrRules);
+        if (!empty($arrErrMsg)) {
+            return join(';', $arrErrMsg);
+        }
+
+        //3.字段数据库配置检查
+        //4.业务检查
+        //4.1.参数检查
+        $arrTaskId = [];
+        foreach (explode(',', $arrParam['task_id']) as $strTmp) {
+            if (checkFormat($strTmp, Config::get('const.ValidFormat.FORMAT_POSINT'))) {
+                $arrTaskId[] = $strTmp;
+            }
+        }
+        if (empty($arrTaskId)) {
+            return '请选择需要送测的需求';
+        }
+        $arrParam['task_id'] = $arrTaskId;
+        //4.2.文件冲突
+        if ($arrParam['is_force'] != 1) {
+            $arrConflict = $this->getConflictFile($arrParam);
+            if (!empty($arrConflict)) {
+                return '送测需求存在文件冲突，请确认';
+            }
+        } else {
+            $arrConflict = [];
+        }
+    }
+
+    /**
+     * 获取冲突文件
+     */
+    protected function getConflictFile($arrParam) {
+        //param
+        $strWhere = '';
+        foreach ($arrParam['task_id'] as $strTaskId) {
+            $arrParams[":task_id{$strTaskId}"] = $strTaskId;
+            $strWhere .= ":task_id{$strTaskId},";
+        }
+        $strWhere = trim($strWhere, ',');
+        //sql
+        $strSql1 = "select task_name,change_file,status from task where status in ('02','03','04') and id in ({$strWhere})";
+        $strSql2 = "select task_name,change_file,status from task where status in ('02','03','04') and not id in ({$strWhere})";
+        $arrTask1 = $this->objDB->setMainTable('task')->select($strSql1, $arrParams);
+        $arrTask2 = $this->objDB->setMainTable('task')->select($strSql2, $arrParams);
+
+        //冲突获取
+        $arrConflict = [];
+        $arrStatus = ['00' => '作废', '01' => '需求', '02' => '开发', '03' => '就绪', '04' => '送测', '05' => '上线'];
+        foreach ($arrTask1 as $value1) {
+            $arr1 = explode("\n", $value1['change_file']);
+            array_walk($arr1, function(&$value) {
+                $value = trim($value);
+            });
+            foreach ($arrTask2 as $value2) {
+                $arr2 = explode("\n", $value2['change_file']);
+                array_walk($arr2, function(&$value) {
+                    $value = trim($value);
+                });
+                $arrTmp = array_intersect($arr1, $arr2);
+                $arrTmp = array_values(array_filter($arrTmp, function($value) {
+                            return !empty($value);
+                        }));
+                if (!empty($arrTmp)) {
+                    $arrConflict[] = [
+                        'task_name' => "{$value1['task_name']}({$arrStatus[$value1['status']]})===>{$value2['task_name']}({$arrStatus[$value2['status']]})",
+                        'file' => $arrTmp
+                    ];
+                }
+            }
+        }
+
+        //返回
+        return $arrConflict;
+    }
+
+    /**
+     * 送测需求
+     */
+    protected function qaRequire($arrParam) {
+        $this->objDB->setMainTable('task')->beginTran();
+        //qa
+        $strBatchId = getGUID();
+        $arrParams = [
+            ':qa_name' => $arrParam['qa_name'],
+            ':batch_id' => $strBatchId,
+            ':qa_tip' => $arrParam['qa_tip'],
+            ':project_id' => $arrParam['project_id'],
+            ':task_id' => implode(',', $arrParam['task_id'])
+        ];
+        $strSql = 'insert into qa(qa_name,batch_id,qa_tip,project_id,task_id) values(:qa_name,:batch_id,:qa_tip,:project_id,:task_id)';
+        $intRet = $this->objDB->setMainTable('task')->insert($strSql, $arrParams);
+        if ($intRet <= 0) {
+            $this->objDB->setMainTable('task')->rollbackTran();
+            return false;
+        }
+        //task
+        $arrParams = [
+            ':project_id' => $arrParam['project_id'],
+            ':qa_batch_id' => $strBatchId,
+            ':status' => '04',
+            ':old_status' => '03'
+        ];
+        $strWhere = '';
+        foreach ($arrParam['task_id'] as $strTaskId) {
+            $arrParams[":task_id{$strTaskId}"] = $strTaskId;
+            $strWhere .= ":task_id{$strTaskId},";
+        }
+        $strWhere = trim($strWhere, ',');
+        $strSql = "update task set status=:status,qa_batch_id=:qa_batch_id,update_date=now(),qa_date=now() where id in ({$strWhere}) and project_id=:project_id and status=:old_status";
+        $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams, true);
+        if ($intRet <= 0) {
+            $this->objDB->setMainTable('task')->rollbackTran();
+            return false;
+        }
+        //返回
+        $this->objDB->setMainTable('task')->commitTran();
+        return true;
+    }
+
+    // -------------------------------------- validator -------------------------------------- //
     // -------------------------------------- common -------------------------------------- //
 
     /**

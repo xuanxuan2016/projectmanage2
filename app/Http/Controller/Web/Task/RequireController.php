@@ -189,8 +189,9 @@ class RequireController extends BaseController {
      */
     public function qaRequireInfo() {
         $strErrMsg = '';
-        $blnFlag = $this->objRequireModel->qaRequireInfo($strErrMsg);
-        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
+        $arrData = [];
+        $blnFlag = $this->objRequireModel->qaRequireInfo($strErrMsg, $arrData);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
     }
 
 }

@@ -69,5 +69,36 @@ and open the template in the editor.
 
 .dialog-require .el-tabs__content::-webkit-scrollbar,
 .dialog-require textarea::-webkit-scrollbar{
-    width: 10px;/*滚动条宽度设置为0*/
+    width: 10px;
+}
+
+.dialog-qa{
+    width: 700px;
+}
+
+.dialog-qa .el-textarea,.dialog-qa .el-input{
+    width:500px;
+}
+
+.dialog-qa .conflict::-webkit-scrollbar{
+    width: 10px;
+}
+
+.dialog-qa .conflict{
+    width: 100%;
+    border:1px solid #f56c6c;    
+    border-radius: 4px;
+    max-height: 400px;
+    overflow: auto;
+    padding: 10px;
+}
+
+.dialog-qa .conflict-item{
+    border-bottom: 1px solid #efeaea;
+    padding: 5px 0;
+}
+
+.dialog-qa .task-name,.dialog-qa .file{
+    color:#f56c6c;
+    word-break: break-all;
 }

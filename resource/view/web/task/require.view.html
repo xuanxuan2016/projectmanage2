@@ -92,7 +92,7 @@
     <div class='page-button'>
         <el-button v-if="auth_button['Task.Require.Add']" type="primary" @click="showDialogRequire(0)">新增</el-button>
         <el-button v-if="auth_button['Task.Require.Allot']" type="primary" @click="showDialogAllot">分配</el-button>
-        <el-button v-if="auth_button['Task.Require.Qa']" type="primary" @click="qaRequireInfo">送测</el-button>
+        <el-button v-if="auth_button['Task.Require.Qa']" type="primary" @click="showDialogQa">送测</el-button>
         <el-button v-if="auth_button['Task.Require.ReAllot']" type="primary" @click="showDialogReAllot">重新分配</el-button>
         <el-button v-if="auth_button['Task.Require.Output']" type="primary" @click="outputRequireInfo">导出</el-button>
     </div>
@@ -465,38 +465,47 @@
             </span>
         </el-dialog>        
         <el-dialog
-            :title="dialog.reallot.title"
-            :visible.sync="dialog.reallot.visible"
+            :title="dialog.qa.title"
+            :visible.sync="dialog.qa.visible"
             :append-to-body="true"
             :close-on-click-modal="false"
             :close-on-press-escape="false"
-            custom-class=''
+            custom-class='dialog-qa'
             top="5vh">
             <div class="dialog-content">
                 <div class="dialog-row">
                     <div class="dialog-item dialog-label require">
-                        开发人员
+                        送测名称
                     </div>
                     <div class="dialog-item">
-                        <el-select v-model="dialog.reallot.reallot_info.account_id.value" placeholder="请选择">
-                            <el-option-group
-                                v-for="group in base_info.account_allot"
-                                :key="group.label"
-                                :label="group.label">
-                                <el-option
-                                    v-for="item in group.options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                </el-option>
-                            </el-option-group>
-                        </el-select>
+                        <el-input v-model="dialog.qa.qa_info.qa_name.value"  placeholder="请输入送测名称" maxlength="100"></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label">
+                        送测备注
+                    </div>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.qa.qa_info.qa_tip"  placeholder="请输入送测备注，用于在送测文档中进行红字提醒" type='textarea' resize='none' rows='3'></el-input>
+                    </div>
+                </div>
+                <div v-if="qa_dialog_conflict_status" class="dialog-row">
+                    <div class="conflict">
+                        <div v-for="item in dialog.qa.conflict" class="conflict-item">
+                            <div>需求名称（当前送测===>开发+就绪+送测）：</div>
+                            <div class="task-name">{{item.task_name}}</div>
+                            <div>冲突文件：</div>
+                            <div v-for="file in item.file" class="file">
+                                {{file}}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="dialog.reallot.visible = false">取消</el-button>
-                <el-button v-if="auth_button['Task.Require.ReAllot']" type="primary" @click="reallotRequireInfo">重新分配</el-button>
+                <el-button @click="dialog.qa.visible = false">取消</el-button>
+                <el-button v-if="auth_button['Task.Require.Qa'] && !qa_dialog_conflict_status" type="primary" @click="qaRequireInfo">送测</el-button>
+                <el-button v-if="auth_button['Task.Require.Qa'] && qa_dialog_conflict_status" type="primary" @click="qaRequireInfo">继续送测</el-button>
             </span>
         </el-dialog>
     </div>

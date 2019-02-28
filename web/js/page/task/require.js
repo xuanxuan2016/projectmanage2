@@ -805,7 +805,7 @@
                         break;
                 }
                 //提取信息
-                var arrRequireInfo = []
+                var arrRequireInfo = [];
                 for (var index in arrCol) {
                     arrRequireInfo[arrCol[index]] = this.dialog.require.require_info[arrCol[index]];
                 }
@@ -821,7 +821,7 @@
                     arrCol.push('dev_dealy_reason');
                 }
                 //提取信息
-                var arrRequireInfo = []
+                var arrRequireInfo = [];
                 for (var index in arrCol) {
                     arrRequireInfo[arrCol[index]] = this.dialog.require.require_info[arrCol[index]];
                 }

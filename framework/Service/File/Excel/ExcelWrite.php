@@ -3,7 +3,6 @@
 namespace Framework\Service\File\Excel;
 
 use Exception;
-use ZipArchive;
 use Framework\Facade\App;
 use Framework\Facade\Log;
 use Framework\Facade\File;
@@ -422,46 +421,6 @@ class ExcelWrite {
     }
 
     /**
-     * 创建压缩文件
-     * @param array $arrSourceFile 需要压缩的文件数组，key为文件在压缩包里的文件名，value为被压缩的文件路径。['导出文件.xlsx'=>'\www\导出文件.xlsx']
-     * @param string $strDestination 压缩到的位置
-     */
-    public function createZip($arrSourceFile = [], $strDestination = '') {
-        //得到有效的文件路径
-        $arrValidFiles = [];
-        if (is_array($arrSourceFile)) {
-            foreach ($arrSourceFile as $zipfilename => $filename) {
-                if (file_exists($filename)) {
-                    $arrValidFiles[$zipfilename] = $filename;
-                }
-            }
-        }
-        //将有效文件添加到压缩文件中
-        if (count($arrValidFiles)) {
-            $objZip = new ZipArchive();
-            if ($objZip->open($strDestination, file_exists($strDestination) ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE) !== true) {
-                return false;
-            }
-            //添加文件
-            foreach ($arrValidFiles as $zipfilename => $filename) {
-                $objZip->addFile($filename, $zipfilename);
-            }
-            $objZip->close();
-            //检查是否压缩成功
-            $blnZipSuccess = file_exists($strDestination);
-            //压缩成功删除文件
-            if ($blnZipSuccess) {
-                foreach ($arrValidFiles as $filename) {
-                    unlink($filename);
-                }
-            }
-            return $blnZipSuccess;
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * 生成excel文件
      * @param array $arrDatas 数据源集<br/>
      * $arrDatas=['员工信息'=>[['xingming'=>'张三','score'=>'98'],['xingming'=>'李四','score'=>'98']]]<br/>
@@ -518,7 +477,7 @@ class ExcelWrite {
             if ($blnZip) {
                 $strZipFileName = $strAttPath . $strGuid . '.zip';
                 $strAttachName = $this->arrInit['cname'] . '.zip';
-                $blnZipFlag = $this->createZip(array(iconv('utf-8', 'gb2312', $this->arrInit['cname'] . '.xlsx') => $strFileName), $strZipFileName);
+                $blnZipFlag = File::createZip(array(iconv('utf-8', 'gb2312', $this->arrInit['cname'] . '.xlsx') => $strFileName), $strZipFileName);
                 if (!$blnZipFlag) {
                     $strZipFileName = $strFileName;
                     $strAttachName = $this->arrInit['cname'] . '.xlsx';

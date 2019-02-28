@@ -72,7 +72,7 @@ class RequireController extends BaseController {
              */
             'js' => [
                     ['path' => 'plugin/ckeditor/ckeditor.js', 'is_pack' => 0, 'is_remote' => 0, 'is_addhead' => 1],
-                    ['path' => 'page/task/require.js', 'is_pack' => 0, 'is_remote' => 0]
+                    ['path' => 'page/task/require.js', 'is_pack' => 1, 'is_remote' => 0]
             ],
             /**
              * css

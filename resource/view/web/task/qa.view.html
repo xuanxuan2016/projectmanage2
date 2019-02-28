@@ -1,54 +1,86 @@
-<div id="app" >
+<div id="app"  v-cloak>
     <div class='page-search'>
-
+        <el-collapse>
+            <el-collapse-item title="查询条件">
+                <div class="search">
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <span>送测名称：</span>
+                            <el-input v-model="search.qa_name" placeholder="输入送测名称进行模糊查询"></el-input>
+                        </div>
+                    </div>
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <el-button  type="primary" @click="searchChange">查询</el-button>
+                        </div>
+                    </div>
+                </div>
+            </el-collapse-item>
+        </el-collapse>
     </div>
     <div class='page-button'>
-        <el-button-group>
-            <el-button type="primary" icon="el-icon-edit"></el-button>
-            <el-button type="primary" icon="el-icon-share"></el-button>
-            <el-button type="primary" icon="el-icon-delete"></el-button>
-        </el-button-group>
     </div>
     <div class='page-list'>
         <el-table
-            :data="tableData"
+            :data="list.data"
             border
             stripe
-            row-key="date"
-            style="width: 100%"
-            :row-style="handleRowStyle">
-            <el-table-column
-                label="分配"
-                width="50"                
+            style="width: 100%">
+            <el-table-column 
+                label="操作"
+                width="200"                
                 header-align="center"
                 align="center">
                 <template slot-scope="scope">
-                    <el-checkbox v-if="scope.row.date!='2016-05-04'" :key="scope.row.id" v-model="checkListFenPei[scope.row.id]"></el-checkbox>
+                    <div class="operator">
+                        <a v-if="auth_button['Task.Qa.Qa'] && scope.row.status=='01'" @click="qaQaInfo(scope.row.id)">送测</a>
+                        <a v-if="auth_button['Task.Qa.Online'] && scope.row.status=='01'" @click="onlineQaInfo(scope.row.id)">上线</a>
+                        <a v-if="auth_button['Task.Qa.Revoke'] && scope.row.status=='01'" @click="revokeQaInfo(scope.row.id)">撤销</a>
+                        <a v-if="auth_button['Task.Qa.Down']" @click="downQaInfo(scope.row.id)">下载</a>
+                    </div>
                 </template>
-            </el-table-column>            
+            </el-table-column>      
             <el-table-column
-                label="送测"
-                width="50"                
-                header-align="center"
-                align="center">
-                <template slot-scope="scope">
-                    <el-checkbox v-if="scope.row.date!='2016-05-03'" :key="scope.row.id" v-model="checkListQa[scope.row.id]"></el-checkbox>
-                </template>
+                prop="qa_name"
+                label="送测名称">
             </el-table-column>
             <el-table-column
-                prop="date"
-                label="日期"
-                width="180">
+                prop="round"
+                label="轮数">
             </el-table-column>
             <el-table-column
-                prop="name"
-                label="姓名"
-                width="180">
+                prop="status"
+                label="状态"
+                :formatter="formatStatus">
             </el-table-column>
             <el-table-column
-                prop="address"
-                label="地址">
+                prop="qa_date"
+                label="送测时间"
+                :formatter="formatDate">
+            </el-table-column>
+            <el-table-column
+                prop="online_date"
+                label="上线时间"
+                :formatter="formatDate">
             </el-table-column>
         </el-table>
+    </div>
+    <div class='page-pagination'>
+        <el-pagination
+            background
+            layout="total,prev, pager, next"
+            :current-page=list.page.page_index
+            :total=list.page.total
+            :page-size=list.page.page_size
+            @current-change="pageIndexChange"
+            @prev-click="pageIndexChange"
+            @next-click="pageIndexChange">
+        </el-pagination>
+    </div>
+    <div class='dialog'>
+    </div>
+    <div class="auth-button">
+        <!--用于页面上的按钮与弹框按钮-->
+        {{auth_button}}
     </div>
 </div>

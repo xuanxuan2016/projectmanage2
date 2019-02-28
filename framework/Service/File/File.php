@@ -2,6 +2,7 @@
 
 namespace Framework\Service\File;
 
+use ZipArchive;
 use Framework\Service\Database\DB;
 
 /**
@@ -46,7 +47,7 @@ class File {
             ':path' => $arrParam['path'],
             ':down_del' => $arrParam['down_del']
         ];
-        return $this->objDB->setMainTable('attach')->insert($strSql, $arrParams);
+        return $this->objDB->setMainTable('attach')->insert($strSql, $arrParams) > 0 ? true : false;
     }
 
     /**
@@ -61,6 +62,46 @@ class File {
         ];
         $arrAttachInfo = $this->objDB->setMainTable('attach')->select($strSql, $arrParams);
         return !empty($arrAttachInfo) ? $arrAttachInfo[0] : [];
+    }
+
+    /**
+     * 创建压缩文件
+     * @param array $arrSourceFile 需要压缩的文件数组，key为文件在压缩包里的文件名，value为被压缩的文件路径。['导出文件.xlsx'=>'\www\导出文件.xlsx']
+     * @param string $strDestination 压缩到的位置
+     */
+    public function createZip($arrSourceFile = [], $strDestination = '') {
+        //得到有效的文件路径
+        $arrValidFiles = [];
+        if (is_array($arrSourceFile)) {
+            foreach ($arrSourceFile as $zipfilename => $filename) {
+                if (file_exists($filename)) {
+                    $arrValidFiles[$zipfilename] = $filename;
+                }
+            }
+        }
+        //将有效文件添加到压缩文件中
+        if (count($arrValidFiles)) {
+            $objZip = new ZipArchive();
+            if ($objZip->open($strDestination, file_exists($strDestination) ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE) !== true) {
+                return false;
+            }
+            //添加文件
+            foreach ($arrValidFiles as $zipfilename => $filename) {
+                $objZip->addFile($filename, $zipfilename);
+            }
+            $objZip->close();
+            //检查是否压缩成功
+            $blnZipSuccess = file_exists($strDestination);
+            //压缩成功删除文件
+            if ($blnZipSuccess) {
+                foreach ($arrValidFiles as $filename) {
+                    unlink($filename);
+                }
+            }
+            return $blnZipSuccess;
+        } else {
+            return false;
+        }
     }
 
 }

@@ -741,7 +741,7 @@ class RequireModel {
         }
         $strSql = trim($strSql, ',');
         //sql
-        $strSql = "update task set {$strSql},update_date=now() where id=:id and project_id=:project_id";
+        $strSql = "update task set {$strSql},done_date=now(),update_date=now() where id=:id and project_id=:project_id";
         //exec
         $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams);
         //返回
@@ -876,7 +876,7 @@ class RequireModel {
         }
         $strWhere = trim($strWhere, ',');
         //sql
-        $strSql = "update task set status=:status,account_id=:account_id,need_done_date=:need_done_date,update_date=now() where id in ({$strWhere}) and project_id=:project_id and status=:old_status";
+        $strSql = "update task set status=:status,account_id=:account_id,need_done_date=:need_done_date,send_date=now(),update_date=now() where id in ({$strWhere}) and project_id=:project_id and status=:old_status";
         $intRet = $this->objDB->setMainTable('task')->update($strSql, $arrParams, true);
         //返回
         return $intRet > 0 ? true : false;

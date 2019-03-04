@@ -292,7 +292,7 @@ class ModuleModel {
             //exec
             $intRet = $this->objDB->setMainTable('module')->insert($strSql, $arrParams, false);
         } else {
-            $strSql = "update module set cname=:cname,project_id=:project_id,type=:type where id=:id";
+            $strSql = "update module set cname=:cname,project_id=:project_id,type=:type,update_date=now() where id=:id";
             //exec
             $intRet = $this->objDB->setMainTable('module')->update($strSql, $arrParams);
         }
@@ -352,7 +352,7 @@ class ModuleModel {
             ':status' => '06'
         ];
         //sql
-        $strSql = "update module set status=:status where id=:id";
+        $strSql = "update module set status=:status,update_date=now() where id=:id";
         //exec
         $intRet = $this->objDB->setMainTable('module')->update($strSql, $arrParams);
         //返回

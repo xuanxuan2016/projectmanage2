@@ -5,12 +5,14 @@ namespace App\Http\Model\Web\Test;
 use Framework\Facade\App;
 use Framework\Facade\Log;
 use Framework\Facade\Des;
+use Framework\Facade\File;
 use Framework\Facade\Cache;
 use Framework\Facade\Config;
 use Framework\Facade\Request;
 use Framework\Service\Database\DB;
 use Framework\Service\Database\HashCacheDB;
 use Framework\Service\File\Excel\ExcelRead;
+use Framework\Service\File\Excel\ExcelWrite;
 
 class TestModel {
 
@@ -30,19 +32,32 @@ class TestModel {
     protected $objExcelRead;
 
     /**
+     * ExcelRead实例
+     */
+    protected $objExcelWrite;
+
+    /**
      * 构造函数
      */
-    public function __construct(DB $objDB, HashCacheDB $objHashCacheDB, ExcelRead $objExcelRead) {
+    public function __construct(DB $objDB, HashCacheDB $objHashCacheDB, ExcelRead $objExcelRead, ExcelWrite $objExcelWrite) {
         $this->objDB = $objDB;
         $this->objHashCacheDB = $objHashCacheDB;
         $this->objExcelRead = $objExcelRead;
+        $this->objExcelWrite = $objExcelWrite;
     }
 
     public function testone() {
+        $arr=[];
+        $str='arr';
+        $$str=['11'];     
+        $$str['22']='22';
+        var_dump($$str);
 //        var_dump(Des::encrypt('xiaopangzi'));
-     //   var_dump(Des::passwordHash('qwe123'));
-        var_dump($this->objExcelRead->init(App::make('path.storage') . '/cache/file/test.xlsx')->getSheets());
-        var_dump($this->objExcelRead->init(App::make('path.storage') . '/cache/file/test.xlsx')->getSheetData(0));
+        //   var_dump(Des::passwordHash('qwe123'));
+//        var_dump($this->objExcelRead->init(App::make('path.storage') . '/cache/file/test.xlsx')->getSheets());
+//        var_dump($this->objExcelRead->init(App::make('path.storage') . '/cache/file/test.xlsx')->getSheetData(0));
+//        var_dump(File::getDirPath(App::make('path.storage') . '/cache/file/b'));
+//        var_dump($this->objExcelWrite->init('成绩单')->createExcel(['成绩单1' => [['xingming' => '张三', 'score' => '98'], ['xingming' => '李四', 'score' => '98']], '成绩单2' => [['xingming' => '张三', 'score' => '1001'], ['xingming' => '李四', 'score' => '1001']]], ['成绩单1' => ['xingming' => ['cname' => '姓名', 'data_type' => '1', 'sql_type' => 'varchar', 'is_output' => '1'], 'score' => ['cname' => '成绩', 'data_type' => '2', 'sql_type' => 'float', 'is_output' => '1']]]));
 //        var_dump(json_decode(Request::getCookie('interview|LoginInfo'),true));
 //        var_dump(Request::delCookie('a'));
         //var_dump(Request::setCookie('a', 'ffff', time() + 1000));

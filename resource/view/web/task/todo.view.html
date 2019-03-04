@@ -1,54 +1,117 @@
-<div id="app" >
+<div id="app"  v-cloak>
     <div class='page-search'>
-
+        <el-collapse>
+            <el-collapse-item title="查询条件">
+                <div class="search">
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <span>标题内容：</span>
+                            <el-input v-model="search.title" placeholder="输入待办事项的标题或内容进行模糊查询"></el-input>
+                        </div>
+                    </div>
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <span>待办状态：</span>
+                            <el-checkbox-group v-model="search.status">
+                                <el-checkbox label="01" key="01">待办</el-checkbox>
+                                <el-checkbox label="02" key="02">已办</el-checkbox>
+                                <el-checkbox label="06" key="06">删除</el-checkbox>
+                            </el-checkbox-group>
+                        </div>
+                    </div>
+                    <div class="search-row">
+                        <div class='search-item'>
+                            <el-button  type="primary" @click="searchChange">查询</el-button>
+                        </div>
+                    </div>
+                </div>
+            </el-collapse-item>
+        </el-collapse>
     </div>
     <div class='page-button'>
-        <el-button-group>
-            <el-button type="primary" icon="el-icon-edit"></el-button>
-            <el-button type="primary" icon="el-icon-share"></el-button>
-            <el-button type="primary" icon="el-icon-delete"></el-button>
-        </el-button-group>
     </div>
-    <div class='page-list'>
-        <el-table
-            :data="tableData"
-            border
-            stripe
-            row-key="date"
-            style="width: 100%"
-            :row-style="handleRowStyle">
-            <el-table-column
-                label="分配"
-                width="50"                
-                header-align="center"
-                align="center">
-                <template slot-scope="scope">
-                    <el-checkbox v-if="scope.row.date!='2016-05-04'" :key="scope.row.id" v-model="checkListFenPei[scope.row.id]"></el-checkbox>
-                </template>
-            </el-table-column>            
-            <el-table-column
-                label="送测"
-                width="50"                
-                header-align="center"
-                align="center">
-                <template slot-scope="scope">
-                    <el-checkbox v-if="scope.row.date!='2016-05-03'" :key="scope.row.id" v-model="checkListQa[scope.row.id]"></el-checkbox>
-                </template>
-            </el-table-column>
-            <el-table-column
-                prop="date"
-                label="日期"
-                width="180">
-            </el-table-column>
-            <el-table-column
-                prop="name"
-                label="姓名"
-                width="180">
-            </el-table-column>
-            <el-table-column
-                prop="address"
-                label="地址">
-            </el-table-column>
-        </el-table>
+    <div class='todo'>
+        <el-card v-for="todo in list.data" class="box-card" :class="'priority-'+todo.priority">
+            <div slot="header" class="title">
+                <span>{{todo.title}}</span>
+                <div v-if="todo.status=='01'" class='operator'>
+                    <el-tooltip class="item" effect="dark" content="完成待办事项" placement="top">
+                        <i class="el-icon-circle-check-outline" @click="doneTodoInfo(todo.id)"></i>
+                    </el-tooltip>
+                    <el-tooltip class="item" effect="dark" content="删除待办事项" placement="top">
+                        <i class="el-icon-circle-close-outline" @click="deleteTodoInfo(todo.id)"></i>
+                    </el-tooltip>
+                    <el-tooltip class="item" effect="dark" content="修改待办事项" placement="top">
+                        <i class="el-icon-edit-outline" @click="showDialogTodo(todo.id)"></i>
+                    </el-tooltip>
+                </div>
+                <div v-else>
+                    {{formatStatus(todo.status)}}
+                </div>
+            </div>
+            <div class="text item todo-content" v-html="formatContent(todo.content)">
+            </div>
+            <div class='create-date'>
+                created：{{todo.create_date}}
+            </div>
+        </el-card>
+        <el-card class="box-card todo-add">
+            <div class="text item" @click="showDialogTodo()">
+                <i class="el-icon-plus"></i>
+            </div>
+        </el-card>
+    </div>
+    <div class='dialog'>
+        <el-dialog
+            :title="dialog.todo.title"
+            :visible.sync="dialog.todo.visible"
+            :append-to-body="true"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            custom-class='dialog-todo'
+            top="5vh">
+            <div class="dialog-content">
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        事项标题
+                    </div>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.todo.todo_info.title.value"  placeholder="请输入待办事项" maxlength="10"></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        重要级别
+                    </div>
+                    <div class="dialog-item">
+                        <el-select v-model="dialog.todo.todo_info.priority"  placeholder="请选择">
+                            <el-option label="低" value="1"></el-option>
+                            <el-option label="中" value="2"></el-option>
+                            <el-option label="高" value="3"></el-option>
+                        </el-select>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        事项内容
+                    </div>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.todo.todo_info.content.value"  placeholder="请输入待办事项内容" type='textarea' resize='none' rows='3' maxlength="500"></el-input>
+                    </div>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialog.todo.visible = false">取消</el-button>
+                <el-button v-if="auth_button['Task.ToDo.Edit']" type="primary" @click="editTodoInfo">保存</el-button>
+            </span>
+        </el-dialog>
+    </div>
+    <div class="auth-button">
+        <!--用于页面上的按钮与弹框按钮-->
+        {{auth_button}}
+    </div>
+    <div class="auth-role">
+        <!--用于页面上的按钮与弹框按钮-->
+        {{auth_role}}
     </div>
 </div>

@@ -3,37 +3,36 @@
 namespace App\Http\Controller\Web\Task;
 
 use App\Facade\Menu;
-use App\Http\Model\Web\Task\QaModel;
-use App\Http\Middleware\Web\CheckProject;
+use Framework\Facade\User;
+use App\Http\Model\Web\Task\TodoModel;
 use App\Http\Middleware\Web\CheckAuthButton;
 use App\Http\Controller\Web\Template\LayoutPcMainController;
 use Framework\Service\Foundation\Controller as BaseController;
 
-class QaController extends BaseController {
+class TodoController extends BaseController {
 
     /**
      * 功能点实例
      */
-    protected $objQaModel;
+    protected $objTodoModel;
 
     /**
      * 控制器方法对应的中间件
      * 方法名:方法对应的中间件
      */
     protected $arrMiddleware = [
-        'loadList' => [[CheckAuthButton::class, 'Task.Qa'], CheckProject::class],
-        'loadBaseInfo' => [[CheckAuthButton::class, 'Task.Qa']],
-        'qaQaInfo' => [[CheckAuthButton::class, 'Task.Qa.Qa'], CheckProject::class],
-        'onlineQaInfo' => [[CheckAuthButton::class, 'Task.Qa.Online'], CheckProject::class],
-        'revokeQaInfo' => [[CheckAuthButton::class, 'Task.Qa.Revoke'], CheckProject::class],
-        'downQaInfo' => [[CheckAuthButton::class, 'Task.Qa.Down'], CheckProject::class]
+        'loadList' => [[CheckAuthButton::class, 'Task.ToDo']],
+        'loadBaseInfo' => [[CheckAuthButton::class, 'Task.ToDo']],
+        'editTodoInfo' => [[CheckAuthButton::class, 'Task.ToDo.Edit']],
+        'deleteTodoInfo' => [[CheckAuthButton::class, 'Task.ToDo.Edit']],
+        'doneTodoInfo' => [[CheckAuthButton::class, 'Task.ToDo.Edit']]
     ];
 
     /**
      * 依赖注入，使用外部类
      */
-    public function __construct(QaModel $objQaModel) {
-        $this->objQaModel = $objQaModel;
+    public function __construct(TodoModel $objTodoModel) {
+        $this->objTodoModel = $objTodoModel;
     }
 
     /**
@@ -53,8 +52,9 @@ class QaController extends BaseController {
              * 文档内容
              */
             'content' => [
-                'title' => '送测-' . Menu::getProjectName(),
-                'auth_button' => $this->getAuthButton()
+                'title' => '待办事项',
+                'auth_button' => $this->getAuthButton(),
+                'auth_role' => User::getAccountRoleName()
             ],
             /**
              * js
@@ -64,13 +64,13 @@ class QaController extends BaseController {
              * is_addhead:文件加载位置，1:head 0:body，默认0
              */
             'js' => [
-                    ['path' => 'page/task/qa.js', 'is_pack' => 0, 'is_remote' => 0]
+                    ['path' => 'page/task/todo.js', 'is_pack' => 1, 'is_remote' => 0]
             ],
             /**
              * css
              */
             'css' => [
-                    ['path' => 'page/task/qa.css', 'is_pack' => 1, 'is_remote' => 0]
+                    ['path' => 'page/task/todo.css', 'is_pack' => 1, 'is_remote' => 0]
             ]
         ];
     }
@@ -79,7 +79,7 @@ class QaController extends BaseController {
      * 获取页面上的按钮与弹框按钮
      */
     protected function getAuthButton() {
-        return json_encode(Menu::getAuthButton('Task.Qa'));
+        return json_encode(Menu::getAuthButton('Task.ToDo'));
     }
 
     /**
@@ -88,7 +88,7 @@ class QaController extends BaseController {
     public function loadList() {
         $strErrMsg = '';
         $arrData = [];
-        $blnFlag = $this->objQaModel->loadList($strErrMsg, $arrData);
+        $blnFlag = $this->objTodoModel->loadList($strErrMsg, $arrData);
         return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
     }
 
@@ -98,45 +98,45 @@ class QaController extends BaseController {
     public function loadBaseInfo() {
         $strErrMsg = '';
         $arrData = [];
-        $blnFlag = $this->objQaModel->loadBaseInfo($strErrMsg, $arrData);
+        $blnFlag = $this->objTodoModel->loadBaseInfo($strErrMsg, $arrData);
         return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
     }
 
     /**
-     * 送测
+     * 加载事项
      */
-    public function qaQaInfo() {
-        $strErrMsg = '';
-        $blnFlag = $this->objQaModel->qaQaInfo($strErrMsg);
-        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
-    }
-
-    /**
-     * 上线
-     */
-    public function onlineQaInfo() {
-        $strErrMsg = '';
-        $blnFlag = $this->objQaModel->onlineQaInfo($strErrMsg);
-        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
-    }
-
-    /**
-     * 撤销
-     */
-    public function revokeQaInfo() {
-        $strErrMsg = '';
-        $blnFlag = $this->objQaModel->revokeQaInfo($strErrMsg);
-        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
-    }
-
-    /**
-     * 下载
-     */
-    public function downQaInfo() {
+    public function loadTodoInfo() {
         $strErrMsg = '';
         $arrData = [];
-        $blnFlag = $this->objQaModel->downQaInfo($strErrMsg, $arrData);
+        $blnFlag = $this->objTodoModel->loadTodoInfo($strErrMsg, $arrData);
         return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
+    }
+
+    /**
+     * 编辑事项
+     */
+    public function editTodoInfo() {
+        $strErrMsg = '';
+        $blnFlag = $this->objTodoModel->editTodoInfo($strErrMsg);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
+    }
+
+    /**
+     * 删除事项
+     */
+    public function deleteTodoInfo() {
+        $strErrMsg = '';
+        $blnFlag = $this->objTodoModel->deleteTodoInfo($strErrMsg);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
+    }
+
+    /**
+     * 完成事项
+     */
+    public function doneTodoInfo() {
+        $strErrMsg = '';
+        $blnFlag = $this->objTodoModel->doneTodoInfo($strErrMsg);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
     }
 
 }

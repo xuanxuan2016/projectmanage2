@@ -28,6 +28,7 @@
     var appMenu = new Vue({
         el: '#menu',
         data: {
+            menu_collapse: false
         },
         created: function() {
         },
@@ -62,16 +63,26 @@
     var appHeader = new Vue({
         el: '#header',
         data: {
+            menu_collapse: false
         },
         created: function() {
         },
         methods: {
+            menuCollapse: function() {
+                this.menu_collapse = !this.menu_collapse;
+            },
             handleCommand: function(command) {
                 switch (command) {
                     case 'logout':
                         layout.logout();
                         break;
                 }
+            }
+        },
+        watch: {
+            'menu_collapse': function(isCollapse) {
+                appMenu.$data.menu_collapse = isCollapse;
+                document.getElementsByClassName('content')[0].style.left = isCollapse ? '64px' : '';
             }
         },
         mounted: function() {

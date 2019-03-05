@@ -45,6 +45,17 @@ and open the template in the editor.
     padding-left: 220px;
 }
 
+.header .left .spread span{
+    display: block;
+    background-image: url(/images/common/spread1.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 20px;
+    height: 20px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
 .header .right{
     padding-right: 30px;
 }
@@ -116,6 +127,40 @@ and open the template in the editor.
 
 .content::-webkit-scrollbar{
     width: 10px;
+}
+
+/************菜单折叠************/
+.el-menu--popup-right-start {
+    margin-left: 1px;
+    margin-right: 5px;
+}
+
+.menu-collapse.side,
+.menu-collapse .menu>ul>li,
+.menu-collapse .logo{
+    width: 64px;
+}
+
+.menu-collapse .logo{
+    background-image: url(/images/common/logo.png);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.menu-collapse .logo span:nth-of-type(1){
+    display:none;
+}
+
+.menu-collapse.content{
+    left:64px;
+}
+
+.menu-collapse .left{
+    padding-left: 64px;
+}
+
+.menu-collapse .left .spread span{
+    background-image: url(/images/common/spread2.png);
 }
 /********************************************************菜单样式 end********************************************************/
 

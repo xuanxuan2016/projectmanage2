@@ -170,12 +170,15 @@ class Menu {
         //3.最终菜单
         $strOpenRoute = json_encode($arrRoute);
         $strMenu = "<el-menu
-                    v-bind:default-openeds='{$strOpenRoute}'
+                    :default-openeds='{$strOpenRoute}'
                     default-active='{$this->getUri()}'
                     background-color='#545c64'
                     text-color='#fff'
-                    v-bind:unique-opened='true'
-                    active-text-color='#ffd04b' @select='selectMenu'>{$strMenu}
+                    :unique-opened='true'
+                    :collapse='menu_collapse'
+                    :collapse-transition='false'
+                    active-text-color='#ffd04b' 
+                    @select='selectMenu'>{$strMenu}
                 </el-menu>";
         //4.返回
         return $strMenu;

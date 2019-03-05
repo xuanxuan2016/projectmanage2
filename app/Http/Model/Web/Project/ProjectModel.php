@@ -40,7 +40,6 @@ class ProjectModel {
             'type' => ['value' => 'posint', 'err_msg' => 'page_size格式不正确']
         ],
         'cname' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入项目名称']
         ],
         'status' => [
@@ -100,7 +99,7 @@ class ProjectModel {
         $arrWhereParam = [];
         //status
         if (in_array($arrSearchParam['status'], ['01', '06'])) {
-            $strWhereSql.=' and a.status=:status';
+            $strWhereSql .= ' and a.status=:status';
             $arrWhereParam[':status'] = $arrSearchParam['status'];
         }
 
@@ -370,7 +369,7 @@ class ProjectModel {
         $strAuth = '';
         for ($i = 0, $j = count($arrParam['person']); $i < $j; $i++) {
             if (is_numeric($arrParam['person'][$i])) {
-                $strAuth.=":personid{$i},";
+                $strAuth .= ":personid{$i},";
                 $arrParams[":personid{$i}"] = $arrParam['person'][$i];
             }
         }

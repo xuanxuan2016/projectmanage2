@@ -19,6 +19,12 @@
          */
         selectMenu: function(index) {
             window.location.href = index;
+        },
+        /**
+         * 修改密码
+         */
+        changePwd: function() {
+            window.location.href = '/web/auth/password';
         }
     };
 
@@ -75,6 +81,9 @@
                 switch (command) {
                     case 'logout':
                         layout.logout();
+                        break;
+                    case 'changepwd':
+                        layout.changePwd();
                         break;
                 }
             }

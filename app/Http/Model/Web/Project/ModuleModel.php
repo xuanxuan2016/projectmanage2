@@ -40,7 +40,6 @@ class ModuleModel {
             'type' => ['value' => 'posint', 'err_msg' => 'page_size格式不正确']
         ],
         'cname' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入模块名称']
         ],
         'project_id' => [
@@ -104,11 +103,11 @@ class ModuleModel {
         $arrWhereParam = [];
         //type
         if (in_array($arrSearchParam['type'], ['01', '02'])) {
-            $strWhereSql.=' and a.type=:type';
+            $strWhereSql .= ' and a.type=:type';
             $arrWhereParam[':type'] = $arrSearchParam['type'];
         }
         //project_id
-        $strWhereSql.=' and a.project_id=:project_id';
+        $strWhereSql .= ' and a.project_id=:project_id';
         $arrWhereParam[':project_id'] = $arrSearchParam['project_id'];
 
         //5.其它参数

@@ -39,15 +39,12 @@ class AccountModel {
             'type' => ['value' => 'posint', 'err_msg' => 'page_size格式不正确']
         ],
         'cname' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入用户昵称']
         ],
         'username' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入账号名称']
         ],
         'password' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入账号密码']
         ],
         'status' => [
@@ -113,12 +110,12 @@ class AccountModel {
         $arrWhereParam = [];
         //status
         if (in_array($arrSearchParam['status'], ['01', '06'])) {
-            $strWhereSql.=' and a.status=:status';
+            $strWhereSql .= ' and a.status=:status';
             $arrWhereParam[':status'] = $arrSearchParam['status'];
         }
         //is_can_search
         if (in_array($arrSearchParam['is_can_search'], ['1', '0'])) {
-            $strWhereSql.=' and a.is_can_search=:is_can_search';
+            $strWhereSql .= ' and a.is_can_search=:is_can_search';
             $arrWhereParam[':is_can_search'] = $arrSearchParam['is_can_search'];
         }
 

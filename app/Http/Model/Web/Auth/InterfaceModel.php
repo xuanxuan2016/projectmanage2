@@ -38,26 +38,21 @@ class InterfaceModel {
             'type' => ['value' => 'posint', 'err_msg' => 'page_size格式不正确']
         ],
         'cname' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入权限名称']
         ],
         'code' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入权限code']
         ],
         'icode' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入权限key']
         ],
         'itype' => [
             'optional' => ['value' => ['0', '1', '2'], 'err_msg' => '请设置权限类别']
         ],
         'url' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入页面地址']
         ],
         'icon' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入页面图标']
         ],
         'status' => [
@@ -117,12 +112,12 @@ class InterfaceModel {
         $arrWhereParam = [];
         //status
         if (in_array($arrSearchParam['status'], ['01', '06'])) {
-            $strWhereSql.=' and a.status=:status';
+            $strWhereSql .= ' and a.status=:status';
             $arrWhereParam[':status'] = $arrSearchParam['status'];
         }
         //is_can_search
         if (in_array($arrSearchParam['itype'], ['0', '1', '2'])) {
-            $strWhereSql.=' and a.itype=:itype';
+            $strWhereSql .= ' and a.itype=:itype';
             $arrWhereParam[':itype'] = $arrSearchParam['itype'];
         }
 

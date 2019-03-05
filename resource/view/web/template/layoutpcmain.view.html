@@ -14,12 +14,12 @@
                 </div>
                 <div class="right">
                     <div>
-                        <el-dropdown @command="handleCommand">
+                        <el-dropdown @command="handleCommand" v-cloak>
                             <span class="el-dropdown-link">
                                 {{account_name}}<i class="el-icon-arrow-down el-icon--right"></i>
                             </span>
                             <el-dropdown-menu slot="dropdown">
-                                <el-dropdown-item command="a">修改密码</el-dropdown-item>
+                                <el-dropdown-item command="changepwd">修改密码</el-dropdown-item>
                                 <el-dropdown-item command="logout" divided>退出</el-dropdown-item>
                             </el-dropdown-menu>
                         </el-dropdown>
@@ -36,11 +36,11 @@
                     </el-breadcrumb>
                 </div>
             </div>
-            <div id="menu" class="side" v-cloak :class="{'menu-collapse':menu_collapse}">
+            <div id="menu" class="side" :class="{'menu-collapse':menu_collapse}">
                  <div class="logo">
                      <span>开发管理系统</span>
                 </div>
-                <div class="menu">
+                <div class="menu" v-cloak>
                     {{menu}}
                 </div>
             </div>

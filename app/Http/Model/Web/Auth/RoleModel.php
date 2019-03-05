@@ -39,7 +39,6 @@ class RoleModel {
             'type' => ['value' => 'posint', 'err_msg' => 'page_size格式不正确']
         ],
         'cname' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入角色名称']
         ],
         'status' => [

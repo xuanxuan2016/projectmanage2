@@ -64,7 +64,7 @@ class QaController extends BaseController {
              * is_addhead:文件加载位置，1:head 0:body，默认0
              */
             'js' => [
-                    ['path' => 'page/task/qa.js', 'is_pack' => 0, 'is_remote' => 0]
+                    ['path' => 'page/task/qa.js', 'is_pack' => 1, 'is_remote' => 0]
             ],
             /**
              * css

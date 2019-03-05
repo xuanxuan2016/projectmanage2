@@ -36,11 +36,9 @@ class TodoModel {
             'type' => ['value' => 'posint', 'err_msg' => 'page_size格式不正确']
         ],
         'title' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入事项标题']
         ],
         'content' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入事项内容']
         ],
         'priority' => [

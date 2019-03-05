@@ -56,54 +56,42 @@ class RequireModel {
             'optional' => ['value' => ['01', '02'], 'err_msg' => '请设置需求性质']
         ],
         'needer' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入需求提出人']
         ],
         'task_name' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入需求名称']
         ],
         'module_id' => [
             'type' => ['value' => 'posint', 'err_msg' => '请选择需求模块']
         ],
         'need_memo' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入需求明细']
         ],
         'page_enter' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入页面入口']
         ],
         'dev_memo' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入逻辑说明']
         ],
         'change_file' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入修改文件']
         ],
         'dev_dealy_reason' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入开发延迟原因']
         ],
         'change_file1' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入送测修改文件']
         ],
         'change_file2' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入送测修改文件']
         ],
         'change_file3' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入送测修改文件']
         ],
         'change_file4' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入送测修改文件']
         ],
         'change_file5' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入送测修改文件']
         ]
     ];
@@ -116,14 +104,12 @@ class RequireModel {
             'type' => ['value' => 'posint', 'err_msg' => 'project_id格式不正确']
         ],
         'need_done_date' => [
-            'trim' => ['value' => true],
             'type' => ['value' => 'date', 'err_msg' => '请设置期望完成时间']
         ],
         'account_id' => [
             'type' => ['value' => 'posint', 'err_msg' => '请选择开发人员']
         ],
         'task_id' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请选择需要分配的需求']
         ]
     ];
@@ -136,11 +122,9 @@ class RequireModel {
             'type' => ['value' => 'posint', 'err_msg' => 'project_id格式不正确']
         ],
         'qa_name' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请输入送测名称']
         ],
         'task_id' => [
-            'trim' => ['value' => true],
             'required' => ['value' => true, 'err_msg' => '请选择需要送测的需求']
         ],
         'is_force' => [

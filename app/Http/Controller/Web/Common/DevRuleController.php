@@ -2,29 +2,31 @@
 
 namespace App\Http\Controller\Web\Common;
 
-use App\Http\Model\Web\Common\EntryGuideModel;
+use App\Http\Middleware\Web\CheckAuthButton;
+use App\Http\Model\Web\Common\DevRuleModel;
 use App\Http\Controller\Web\Template\LayoutPcMainController;
 use Framework\Service\Foundation\Controller as BaseController;
 
-class EntryGuideController extends BaseController {
+class DevRuleController extends BaseController {
 
     /**
      * 功能点实例
      */
-    protected $objEntryGuideModel;
+    protected $objDevRuleModel;
 
     /**
      * 控制器方法对应的中间件
      * 方法名:方法对应的中间件
      */
     protected $arrMiddleware = [
+        'loadlist' => [[CheckAuthButton::class, 'Home.DevRule']]
     ];
 
     /**
      * 依赖注入，使用外部类
      */
-    public function __construct(EntryGuideModel $objEntryGuideModel) {
-        $this->objEntryGuideModel = $objEntryGuideModel;
+    public function __construct(DevRuleModel $objDevRuleModel) {
+        $this->objDevRuleModel = $objDevRuleModel;
     }
 
     /**
@@ -44,8 +46,7 @@ class EntryGuideController extends BaseController {
              * 文档内容
              */
             'content' => [
-                'title' => '入职指南',
-                'markdown' => $this->objEntryGuideModel->getHtml()
+                'title' => '开发规则'
             ],
             /**
              * js
@@ -55,16 +56,36 @@ class EntryGuideController extends BaseController {
              * is_addhead:文件加载位置，1:head 0:body，默认0
              */
             'js' => [
-                    ['path' => 'page/common/entryguide.js', 'is_pack' => 1, 'is_remote' => 0]
+                    ['path' => 'page/common/devrule.js', 'is_pack' => 1, 'is_remote' => 0]
             ],
             /**
              * css
              */
             'css' => [
-                    ['path' => 'page/common/entryguide.css', 'is_pack' => 1, 'is_remote' => 0],
+                    ['path' => 'page/common/devrule.css', 'is_pack' => 1, 'is_remote' => 0],
                     ['path' => 'plugin/markdown.css', 'is_pack' => 0, 'is_remote' => 0]
             ]
         ];
+    }
+
+    /**
+     * 获取列表数据
+     */
+    public function loadList() {
+        $strErrMsg = '';
+        $arrData = [];
+        $blnFlag = $this->objDevRuleModel->loadList($strErrMsg, $arrData);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
+    }
+
+    /**
+     * 加载规则
+     */
+    public function loadDevRuleInfo() {
+        $strErrMsg = '';
+        $arrData = [];
+        $blnFlag = $this->objDevRuleModel->loadDevRuleInfo($strErrMsg, $arrData);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
     }
 
 }

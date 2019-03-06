@@ -10,6 +10,7 @@ use Framework\Facade\Cache;
 use Framework\Facade\Config;
 use Framework\Facade\Request;
 use Framework\Service\Database\DB;
+use Framework\Service\MarkDown\HyperDown;
 use Framework\Service\Database\HashCacheDB;
 use Framework\Service\File\Excel\ExcelRead;
 use Framework\Service\File\Excel\ExcelWrite;
@@ -37,21 +38,25 @@ class TestModel {
     protected $objExcelWrite;
 
     /**
+     * HyperDown实例
+     */
+    protected $objHyperDown;
+
+    /**
      * 构造函数
      */
-    public function __construct(DB $objDB, HashCacheDB $objHashCacheDB, ExcelRead $objExcelRead, ExcelWrite $objExcelWrite) {
+    public function __construct(DB $objDB, HashCacheDB $objHashCacheDB, ExcelRead $objExcelRead, ExcelWrite $objExcelWrite, HyperDown $objHyperDown) {
         $this->objDB = $objDB;
         $this->objHashCacheDB = $objHashCacheDB;
         $this->objExcelRead = $objExcelRead;
         $this->objExcelWrite = $objExcelWrite;
+        $this->objHyperDown = $objHyperDown;
     }
 
     public function testone() {
-        $arr=[];
-        $str='arr';
-        $$str=['11'];     
-        $$str['22']='22';
-        var_dump($$str);
+        $strFilePath = App::make('path.resource') . '/markdown/入职指南.md';
+        //return $this->objHyperDown->makeHtml(file_get_contents($strFilePath));
+        $this->objHyperDown->makeHtml('# <div>1234</div>');
 //        var_dump(Des::encrypt('xiaopangzi'));
         //   var_dump(Des::passwordHash('qwe123'));
 //        var_dump($this->objExcelRead->init(App::make('path.storage') . '/cache/file/test.xlsx')->getSheets());

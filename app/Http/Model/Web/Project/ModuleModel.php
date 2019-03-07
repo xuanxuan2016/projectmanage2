@@ -307,7 +307,7 @@ class ModuleModel {
     public function deleteModuleInfo(&$strErrMsg) {
         $arrParam = [];
         //1.参数验证
-        $strErrMsg = $this->checkSaveModuleInfo($arrParam);
+        $strErrMsg = $this->checkDeleteModuleInfo($arrParam);
         if (!empty($strErrMsg)) {
             return false;
         }

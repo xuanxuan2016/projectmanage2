@@ -209,7 +209,10 @@
              * 删除模块信息
              */
             deleteModuleInfo: function() {
-                this.$confirm('确定删除此模块吗?').then(function() {
+                this.$confirm('确定删除此模块吗?', {
+                    type: 'warning',
+                    dangerouslyUseHTMLString: true
+                }).then(function() {
                     //1.数据检查
                     var moduleInfo = {id: app.$data.dialog.module_info.id, project_id: app.$data.dialog.module_info.project_id.value};
                     //2.后台请求

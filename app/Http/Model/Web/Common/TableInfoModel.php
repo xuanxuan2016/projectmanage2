@@ -8,7 +8,7 @@ use Framework\Service\Database\DB;
 use Framework\Service\MarkDown\HyperDown;
 use Framework\Service\Validation\ValidPostData;
 
-class DevRuleModel {
+class TableInfoModel {
 
     /**
      * 数据实例
@@ -76,10 +76,9 @@ class DevRuleModel {
         //查询
         $strSql = "select a.id,a.cname
                     from article a
-                    where 1=1 and a.type=:type and  a.status=:status
+                    where 1=1 and a.status=:status
                     order by a.list_index";
         $arrParams = [
-            ':type' => 'devrule',
             ':status' => '01'
         ];
         $arrArticle = $this->objDB->setMainTable('article')->select($strSql, $arrParams);
@@ -90,21 +89,21 @@ class DevRuleModel {
         ];
     }
 
-    // -------------------------------------- loadDevRuleInfo -------------------------------------- //
+    // -------------------------------------- loadTableInfoInfo -------------------------------------- //
 
     /**
      * 加载信息
      */
-    public function loadDevRuleInfo(&$strErrMsg, &$arrData) {
+    public function loadTableInfoInfo(&$strErrMsg, &$arrData) {
         $arrParam = [];
         //1.参数验证
-        $strErrMsg = $this->checkLoadDevRuleInfo($arrParam);
+        $strErrMsg = $this->checkLoadTableInfoInfo($arrParam);
         if (!empty($strErrMsg)) {
             return false;
         }
         //2.记录操作日志(埋点)
         //3.业务逻辑
-        $strArticle = $this->getDevRuleInfo($arrParam);
+        $strArticle = $this->getTableInfoInfo($arrParam);
         //4.结果返回
         $arrData['info'] = $strArticle;
         return true;
@@ -113,7 +112,7 @@ class DevRuleModel {
     /**
      * 参数检查
      */
-    protected function checkLoadDevRuleInfo(&$arrParam) {
+    protected function checkLoadTableInfoInfo(&$arrParam) {
         //1.获取页面参数
         $arrParam = [
             'id' => Request::getParam('id')
@@ -131,7 +130,7 @@ class DevRuleModel {
     /**
      * 获取数据
      */
-    protected function getDevRuleInfo($arrParam) {
+    protected function getTableInfoInfo($arrParam) {
         //查询
         $strSql = 'select a.cname
                     from article a

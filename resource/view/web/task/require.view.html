@@ -508,6 +508,41 @@
                 <el-button v-if="auth_button['Task.Require.Qa'] && qa_dialog_conflict_status" type="primary" @click="qaRequireInfo">继续送测</el-button>
             </span>
         </el-dialog>
+        <el-dialog
+            :title="dialog.reallot.title"
+            :visible.sync="dialog.reallot.visible"
+            :append-to-body="true"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            custom-class=''
+            top="5vh">
+            <div class="dialog-content">
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        开发人员
+                    </div>
+                    <div class="dialog-item">
+                        <el-select v-model="dialog.reallot.reallot_info.account_id.value" placeholder="请选择">
+                            <el-option-group
+                                v-for="group in base_info.account_allot"
+                                :key="group.label"
+                                :label="group.label">
+                                <el-option
+                                    v-for="item in group.options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                </el-option>
+                            </el-option-group>
+                        </el-select>
+                    </div>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialog.reallot.visible = false">取消</el-button>
+                <el-button v-if="auth_button['Task.Require.ReAllot']" type="primary" @click="reallotRequireInfo">重新分配</el-button>
+            </span>
+        </el-dialog>
     </div>
     <div class="auth-button">
         <!--用于页面上的按钮与弹框按钮-->

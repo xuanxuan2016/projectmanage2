@@ -405,7 +405,7 @@ class ExcelWrite {
                 if (empty($arrColumnInfo) || (!empty($arrColumnInfo) && $arrColumnInfo['is_output'] == 1)) {
                     $objCell = $this->objSheet->getCellByColumnAndRow($this->objSheetAtt['header_column_start'] + $intPColumn, $intPRow);
                     $value = trim($value);
-                    if (empty($arrColumnInfo) || $arrColumnInfo['data_type'] == 1) {
+                    if (empty($arrColumnInfo) || (isset($arrColumnInfo['data_type']) && $arrColumnInfo['data_type'] == 1)) {
                         $objCell->setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_STRING);
                     } else {
                         $objCell->setValue($value);

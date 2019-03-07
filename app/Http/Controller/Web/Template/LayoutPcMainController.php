@@ -45,7 +45,7 @@ class LayoutPcMainController extends BaseController {
              */
             'js' => [
                 ['path' => 'plugin/axios.min.js', 'is_pack' => 0, 'is_remote' => 0, 'is_addhead' => 1],
-                ['path' => Config::get('web.js.read_only') ? 'plugin/vue.js' : 'plugin/vue.js', 'is_pack' => 0, 'is_remote' => 0, 'is_addhead' => 1],
+                ['path' => Config::get('web.js.read_only') ? 'plugin/vue.min.js' : 'plugin/vue.js', 'is_pack' => 0, 'is_remote' => 0, 'is_addhead' => 1],
                 ['path' => 'plugin/elementui.js', 'is_pack' => 0, 'is_remote' => 0, 'is_addhead' => 1],
                 ['path' => 'plugin/bmplugin.js', 'is_pack' => 1, 'is_remote' => 0, 'is_addhead' => 1],
                 ['path' => 'plugin/bmcommon.js', 'is_pack' => 1, 'is_remote' => 0, 'is_addhead' => 1],

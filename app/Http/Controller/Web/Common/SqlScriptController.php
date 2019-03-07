@@ -63,7 +63,7 @@ class SqlScriptController extends BaseController {
              */
             'css' => [
                     ['path' => 'page/common/sqlscript.css', 'is_pack' => 1, 'is_remote' => 0],
-                    ['path' => 'plugin/markdown.css', 'is_pack' => 0, 'is_remote' => 0]
+                    ['path' => 'plugin/markdown.css', 'is_pack' => 1, 'is_remote' => 0]
             ]
         ];
     }

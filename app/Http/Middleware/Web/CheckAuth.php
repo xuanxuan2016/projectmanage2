@@ -66,7 +66,7 @@ class CheckAuth {
      * 用户检查
      */
     protected function checkAuth($objRequest) {
-        $strCookieName = "DevLoginInfo";
+        $strCookieName = "Dev2LoginInfo";
         $strCookie = $objRequest->getCookie($strCookieName);
         //cookie为空
         if (empty($strCookie)) {

@@ -723,7 +723,7 @@
                         return this.auth_button['Task.Require.Edit'] && ['01'].indexOf(this.dialog.require.require_info.status) >= 0;
                         break;
                     case 'devloper':
-                        return this.auth_button['Task.Require.Edit'] && ['02', '03', '04'].indexOf(this.dialog.require.require_info.status) >= 0 && this.dialog.require.require_info.is_self == 1;
+                        return this.auth_button['Task.Require.Edit'] && ['02'].indexOf(this.dialog.require.require_info.status) >= 0 && this.dialog.require.require_info.is_self == 1;
                         break;
                     default :
                         return false;

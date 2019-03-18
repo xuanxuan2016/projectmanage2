@@ -193,10 +193,12 @@
     <div class='page-pagination'>
         <el-pagination
             background
-            layout="total,prev, pager, next"
+            layout="total,sizes,prev, pager, next"
+            :page-sizes='[10,20,50]'
             :current-page=list.page.page_index
             :total=list.page.total
-            :page-size=list.page.page_size
+            :page-size.sync=list.page.page_size
+            @size-change="pageSizeChange"
             @current-change="pageIndexChange"
             @prev-click="pageIndexChange"
             @next-click="pageIndexChange">

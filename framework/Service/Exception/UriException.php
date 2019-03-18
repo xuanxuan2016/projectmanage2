@@ -3,6 +3,7 @@
 namespace Framework\Service\Exception;
 
 use Exception;
+use Framework\Facade\Request;
 use Framework\Service\Foundation\Application;
 use Framework\Service\Http\ResponseFactory;
 
@@ -29,7 +30,10 @@ class UriException extends Exception {
      */
     public function render(Application $objApp, Exception $objException) {
         $mixMessage = json_decode($objException->getMessage(), true);
-        if (is_array($mixMessage)) {
+        if (empty(Request::getUri())) {
+            //跳转home页
+            $mixResponse = $objApp->make('config')->get('web.redirect.uri_empty');
+        } else if (is_array($mixMessage)) {
             $mixResponse = ['err_msg' => $arrMessage['err_msg']];
         } else {
             //需要重定向

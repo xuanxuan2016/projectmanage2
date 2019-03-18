@@ -1160,7 +1160,7 @@ class RequireModel {
         $strWhere = trim($strWhere, ',');
         //sql
         $strSql1 = "select task_name,change_file,status from task where status in ('02','03','04') and id in ({$strWhere})";
-        $strSql2 = "select task_name,change_file,status from task where status in ('02','03','04') and not id in ({$strWhere})";
+        $strSql2 = "select task_name,change_file,change_file1,change_file2,change_file3,change_file4,change_file5,status from task where status in ('02','03','04') and not id in ({$strWhere})";
         $arrTask1 = $this->objDB->setMainTable('task')->select($strSql1, $arrParams);
         $arrTask2 = $this->objDB->setMainTable('task')->select($strSql2, $arrParams);
 
@@ -1173,7 +1173,7 @@ class RequireModel {
                 $value = trim($value);
             });
             foreach ($arrTask2 as $value2) {
-                $arr2 = explode("\n", $value2['change_file']);
+                $arr2 = array_merge(explode("\n", implode("\n", [$value2['change_file'], $value2['change_file1'], $value2['change_file2'], $value2['change_file3'], $value2['change_file4'], $value2['change_file5']])));
                 array_walk($arr2, function(&$value) {
                     $value = trim($value);
                 });

@@ -1199,6 +1199,14 @@
                     app.$data.list.page.page_index = curIndex;
                     require.loadList();
                 }
+            },
+            /**
+             * table分页
+             * 每页条数变化
+             */
+            pageSizeChange: function() {
+                app.$data.list.page.page_index = 1;
+                require.loadList();
             }
         },
         mounted: function() {
@@ -1206,7 +1214,6 @@
                 require.loadAuthButton();
                 require.loadBaseInfo();
                 require.loadList();
-                console.log(app);
             });
         }
     });

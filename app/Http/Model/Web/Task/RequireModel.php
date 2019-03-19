@@ -1280,6 +1280,9 @@ class RequireModel {
             case 'product':
                 switch ($strStatus) {
                     case '01':
+                    case '02':
+                    case '03':
+                    case '04':
                         $arrCol = ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach'];
                         break;
                     default:

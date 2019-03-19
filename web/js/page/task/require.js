@@ -584,6 +584,9 @@
                         switch (this.dialog.require.require_info.status) {
                             case '':
                             case '01':
+                            case '02':
+                            case '03':
+                            case '04':
                                 return true;
                                 break;
                             default:
@@ -720,7 +723,7 @@
                         return this.auth_button['Task.Require.Edit'] && ['01', '02', '03', '04'].indexOf(this.dialog.require.require_info.status) >= 0;
                         break;
                     case 'product':
-                        return this.auth_button['Task.Require.Edit'] && ['01'].indexOf(this.dialog.require.require_info.status) >= 0;
+                        return this.auth_button['Task.Require.Edit'] && ['01', '02', '03', '04'].indexOf(this.dialog.require.require_info.status) >= 0;
                         break;
                     case 'devloper':
                         return this.auth_button['Task.Require.Edit'] && ['02'].indexOf(this.dialog.require.require_info.status) >= 0 && this.dialog.require.require_info.is_self == 1;
@@ -777,6 +780,9 @@
                                 arrCol = ['xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'];
                                 break;
                             case '01':
+                            case '02':
+                            case '03':
+                            case '04':
                                 arrCol = ['id', 'xingzhi', 'needer', 'task_name', 'module_id', 'need_memo', 'need_attach'];
                                 break;
                             default:

@@ -2,15 +2,22 @@
 
 namespace App\Http\Model\Web\Common;
 
+use Framework\Facade\Image;
 use Framework\Facade\Request;
+use Framework\Service\File\UploadFile;
 
 class CommonModel {
 
     /**
+     * UploadFile实例
+     */
+    protected $objUploadFile;
+
+    /**
      * 构造方法
      */
-    public function __construct() {
-        
+    public function __construct(UploadFile $objUploadFile) {
+        $this->objUploadFile = $objUploadFile;
     }
 
     // -------------------------------------- downloadFile -------------------------------------- //
@@ -46,6 +53,33 @@ class CommonModel {
 
         //3.字段数据库配置检查
         //4.业务检查
+    }
+
+    // -------------------------------------- uploadFile -------------------------------------- //
+
+    /**
+     * 上传文件
+     */
+    public function uploadFile(&$strErrMsg, &$arrData) {
+        $arrParam = [];
+        //1.参数验证
+        $strErrMsg = '';
+        if (!empty($strErrMsg)) {
+            return false;
+        }
+        //2.记录操作日志(埋点)
+        //3.业务逻辑
+        //4.结果返回
+        $arrReturn = $this->objUploadFile->init(['ext' => ['png', 'jpeg'], 'size' => 2 * 1024 * 1024])->upload();
+        if ($arrReturn['success'] == 0) {
+            $strErrMsg = $arrReturn['err_msg'];
+            return false;
+        } else {
+            $arrData = [
+                'base64' => Image::getImageBase64($arrReturn['attach_path'])['encode']
+            ];
+            return true;
+        }
     }
 
 }

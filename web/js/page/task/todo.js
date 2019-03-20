@@ -145,13 +145,24 @@
                         priority: '1'
                     }
                 }
-            }
+            },
+            action: '/web/common/common/uploadfile',
+            imageUrl: ''
         },
         watch: {
         },
         created: function() {
         },
         methods: {
+            beforeAvatarUpload: function() {
+
+            },
+            handleAvatarSuccess: function(response, file, fileList) {
+                if (response.success && response.data && response.data.base64) {
+                    console.log(response);
+                    this.imageUrl = response.data.base64;
+                }
+            },
             /**
              * 修改
              */

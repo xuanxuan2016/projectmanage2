@@ -5,3 +5,4 @@ storage/log/access_log
 storage/log/error_log
 storage/cache/auth/
 storage/cache/auth/
+storage/upload/

@@ -45,4 +45,14 @@ class CommonController extends BaseController {
         return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'attach_id' => $strAttachId];
     }
 
+    /**
+     * 上传文件
+     */
+    public function uploadFile() {
+        $strErrMsg = '';
+        $arrData = [];
+        $blnFlag = $this->objCommonModel->uploadFile($strErrMsg, $arrData);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
+    }
+
 }

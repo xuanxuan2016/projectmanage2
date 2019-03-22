@@ -93,7 +93,7 @@ class Menu {
                         from einterface a 
                         join einterfacerole b on a.id=b.auth_id
                         where b.role_id=:role_id and a.status=:status and b.status=:status
-                        order by SUBSTR(a.code,1,2),a.list_index';
+                        order by SUBSTR(a.code,1,2),a.list_index,a.code';
             $arrParams = [
                 ':role_id' => UserFacade::getAccountRole(),
                 ':status' => '01'

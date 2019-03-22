@@ -92,7 +92,8 @@ class Menu {
             $strSql = 'select a.cname,a.code,a.icode,a.itype,a.url,a.icon
                         from einterface a 
                         join einterfacerole b on a.id=b.auth_id
-                        where b.role_id=:role_id and a.status=:status and b.status=:status';
+                        where b.role_id=:role_id and a.status=:status and b.status=:status
+                        order by SUBSTR(a.code,1,2),a.list_index';
             $arrParams = [
                 ':role_id' => UserFacade::getAccountRole(),
                 ':status' => '01'

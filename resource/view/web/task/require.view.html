@@ -152,40 +152,48 @@
             </el-table-column>
             <el-table-column
                 prop="account_name"
-                label="开发人员">
+                label="开发人员"
+                :show-overflow-tooltip="true">
             </el-table-column>
             <el-table-column
                 prop="needer"
-                label="提出人">
+                label="提出人"
+                :show-overflow-tooltip="true">
             </el-table-column>
             <el-table-column
                 prop="xingzhi"
                 label="性质"
+                width="50"     
                 :formatter="formatXingzhi">
             </el-table-column>
             <el-table-column
                 prop="status"
                 label="状态"
+                width="50"     
                 :formatter="formatStatus">
             </el-table-column>
             <el-table-column
                 prop="create_date"
                 label="需求时间"
+                :show-overflow-tooltip="true"
                 :formatter="formatDate">
             </el-table-column>
             <el-table-column
                 prop="send_date"
                 label="分配时间"
+                :show-overflow-tooltip="true"
                 :formatter="formatDate">
             </el-table-column>
             <el-table-column
                 prop="need_done_date"
                 label="期望时间"
+                :show-overflow-tooltip="true"
                 :formatter="formatDate">
             </el-table-column>
             <el-table-column
                 prop="done_date"
                 label="完成时间"
+                :show-overflow-tooltip="true"
                 :formatter="formatDate">
             </el-table-column>
         </el-table>

@@ -272,7 +272,6 @@ insert into einterface(cname,code,icode,itype,url,status,icon) values('编辑角
 
 ```sql
 /*1.为所有管理员账号增加指定权限*/
-/*1.为管理员账号增加指定权限*/
 insert into eauthinterface(role,authid,isauthen,createdate,updatedate)
     select a.role,b.id,1,now(),now()
       from (

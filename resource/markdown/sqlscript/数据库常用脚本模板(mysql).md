@@ -272,15 +272,16 @@ insert into einterface(cname,code,icode,itype,url,status,icon) values('编辑角
 
 ```sql
 /*1.为所有管理员账号增加指定权限*/
+/*1.为管理员账号增加指定权限*/
 insert into eauthinterface(role,authid,isauthen,createdate,updatedate)
     select a.role,b.id,1,now(),now()
       from (
-        select distinct role
-            from operator
-            where status='01' and isadmin=1 and creatortype='01' /*一般只处理客户外网创建的账号*/
+        select distinct o.role 
+                     from operator o,eauthinterface ei,einterface i 
+                    where o.role=ei.role and ei.isauthen=1 and ei.authid=i.id and o.isadmin=1 and i.code='030201' and i.status='01' /*页面权限*/
       ) a
       join einterface b on 1=1
-     where b.status='01' and b.code in ('050203','05020301','05020302','05020303','05020304')
+     where b.status='01' and b.code in ('05020304') /*按钮权限*/
 /*2.为指定账号增加指定权限*/
 insert into eauthinterface(role,authid,isauthen,createdate,updatedate)
     select a.role,b.id,1,now(),now()
@@ -302,6 +303,7 @@ insert into eauthinterface(role,authid,isauthen,createdate,updatedate)
       ) a
       join einterface b on 1=1
      where b.status='01' and b.code in ('05020304') /*按钮权限*/
+
 ```
 
 ---

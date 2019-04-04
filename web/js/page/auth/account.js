@@ -94,8 +94,10 @@
              * 查询条件
              */
             search: {
+                role_id: '',
                 status: '01',
-                is_can_search: '1'
+                is_can_search: '1',
+                cname: ''
             },
             /**
              * table信息

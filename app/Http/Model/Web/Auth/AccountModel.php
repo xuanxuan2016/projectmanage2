@@ -3,6 +3,7 @@
 namespace App\Http\Model\Web\Auth;
 
 use Framework\Facade\Des;
+use Framework\Facade\Config;
 use Framework\Facade\Request;
 use Framework\Service\Database\DB;
 use Framework\Service\Validation\ValidDBData;
@@ -108,6 +109,11 @@ class AccountModel {
         $arrSearchParam = json_decode(Request::getParam('search_param'), true);
         $strWhereSql = '';
         $arrWhereParam = [];
+        //role_id
+        if (!empty($arrSearchParam['role_id']) && checkFormat($arrSearchParam['role_id'], Config::get('const.ValidFormat.FORMAT_POSINT'))) {
+            $strWhereSql .= ' and a.role_id=:role_id';
+            $arrWhereParam[':role_id'] = $arrSearchParam['role_id'];
+        }
         //status
         if (in_array($arrSearchParam['status'], ['01', '06'])) {
             $strWhereSql .= ' and a.status=:status';
@@ -117,6 +123,11 @@ class AccountModel {
         if (in_array($arrSearchParam['is_can_search'], ['1', '0'])) {
             $strWhereSql .= ' and a.is_can_search=:is_can_search';
             $arrWhereParam[':is_can_search'] = $arrSearchParam['is_can_search'];
+        }
+        //cname
+        if (!empty($arrSearchParam['cname'])) {
+            $strWhereSql .= ' and locate(:cname,a.cname)>0';
+            $arrWhereParam[':cname'] = $arrSearchParam['cname'];
         }
 
         //5.其它参数

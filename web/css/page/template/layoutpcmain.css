@@ -96,9 +96,14 @@ and open the template in the editor.
     margin-top: 1px;
     overflow-y: scroll;
     overflow-x: hidden;
+    flex:1;
 }
 
-.side .menu>ul>li{
+.side .menu .el-scrollbar__thumb{
+    background-color: rgba(227, 230, 234, 0.3);
+}
+
+.side .menu .el-submenu{
     width: 220px;
 }
 

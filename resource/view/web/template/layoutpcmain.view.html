@@ -40,11 +40,11 @@
                  <div class="logo">
                      <span>开发管理系统</span>
                 </div>
-                <div class="menu" v-cloak>
+                <el-scrollbar class="menu" v-cloak>
                     {{menu}}
-                </div>
+                </el-scrollbar>
             </div>
-            <div class="content" :class="{'menu-collapse':menu_collapse}">
+            <div class="content">
                 {{template}}
             </div>
         </div>

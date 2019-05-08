@@ -255,8 +255,13 @@ class TodoModel {
      */
     public function loadList(&$strErrMsg, &$arrData) {
         //1.参数验证
+        $strErrMsg = $this->checkLoadList($arrParam);
+        if (!empty($strErrMsg)) {
+            return false;
+        }
         //2.记录操作日志(埋点)
         //3.业务逻辑
+        $arrData = $this->getTeacherbookList($arrParam);
         //4.结果返回
     }
 
@@ -264,6 +269,22 @@ class TodoModel {
      * 参数验证方法：参数检查
      */
     protected function checkLoadList(&$arrParam) {
+        //1.获取页面参数
+        $arrCheckResult = $this->objValidPostData->check(['lecturer_id', 'date'], $this->arrRules, [], false);
+        if (!$arrCheckResult['success']) {
+            return $arrCheckResult['err_msg'];
+        }
+        $arrParam = $arrCheckResult['param'];
+        //2.字段自定义配置检查
+        //3.字段数据库配置检查
+        //4.业务检查
+    }
+
+    /**
+     * 获取数据，具体逻辑
+     */
+    protected function getTeacherbookList($arrParam) {
+        //...
     }
     
     // -------------------------------------- common -------------------------------------- //

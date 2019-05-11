@@ -135,6 +135,9 @@ class View {
             return $strCssPath;
         }
         $strPackCssPath = $this->objApp->make('path.web') . '/css/packer/' . str_replace('.css', '.min.css', $strCssPath);
+        if (is_file($strPackCssPath)) {
+            unlink($strPackCssPath);
+        }
 
         //生成压缩文件        
         if (Config::get('web.css.read_only') == 0) {
@@ -209,6 +212,9 @@ class View {
             return $strJsPath;
         }
         $strPackJsPath = $this->objApp->make('path.web') . '/js/packer/' . str_replace('.js', '.min.js', $strJsPath);
+        if (is_file($strPackJsPath)) {
+            unlink($strPackJsPath);
+        }
 
         //生成压缩文件        
         if (Config::get('web.js.read_only') == 0) {

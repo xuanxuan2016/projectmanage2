@@ -196,12 +196,23 @@ class TodoController extends BaseController {
 
     /**
      * 获取列表数据
+     * 有返回data
      */
     public function loadList() {
         $strErrMsg = '';
         $arrData = [];
         $blnFlag = $this->objTodoModel->loadList($strErrMsg, $arrData);
         return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
+    }
+
+    /**
+     * 编辑事项
+     * 无返回data
+     */
+    public function editTodoInfo() {
+        $strErrMsg = '';
+        $blnFlag = $this->objTodoModel->editTodoInfo($strErrMsg);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
     }
 
 }

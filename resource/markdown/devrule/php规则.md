@@ -270,7 +270,7 @@ class TodoModel {
         if (!empty($strErrMsg)) {
             return false;
         }
-        //2.记录操作日志(埋点)
+        //2.记录操作日志
         //3.业务逻辑
         $arrData = $this->getTeacherbookList($arrParam);
         //4.结果返回
@@ -289,6 +289,7 @@ class TodoModel {
         //2.字段自定义配置检查
         //3.字段数据库配置检查
         //4.业务检查
+        //5.合并需要的cookie
     }
 
     /**

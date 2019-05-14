@@ -296,7 +296,17 @@ class TodoModel {
      * 获取数据，具体逻辑
      */
     protected function getTeacherbookList($arrParam) {
-        //...
+        //1.第1步
+        //具体逻辑
+        
+        //2.第2步
+        //具体逻辑
+
+        //n.第n步
+        //具体逻辑
+
+        //n+1.返回
+        return $arrData;
     }
     
     // -------------------------------------- common -------------------------------------- //

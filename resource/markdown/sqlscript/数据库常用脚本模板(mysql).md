@@ -103,48 +103,50 @@ alter table interview_business alter db_port drop default;
 
 ```sql
 /*1.首先通过如下脚本从表所在库获取插入数据*/
-select concat('insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen) values(''',id,''',''',tablename,''',''',colname,''',''',cname,''',',isnull,',''',sqltype,''',',datatype,',',datalen,');') from
+select concat('insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen,alias) values(''',id,''',''',tablename,''',''',colname,''',''',cname,''',',isnull,',''',sqltype,''',',datatype,',',datalen,',''',alias,''');') from
     (select CONCAT_WS('.',TABLE_NAME,COLUMN_NAME) as id,TABLE_NAME as tablename,COLUMN_NAME as colname,case when COLUMN_COMMENT='' then COLUMN_NAME else COLUMN_COMMENT end as cname,
             case when IS_NULLABLE='NO' then 0 else 1 end as isnull,DATA_TYPE as sqltype,
             case when DATA_TYPE in ('tinyint','smallint','mediumint','int','integer','bigint','float','double','decimal') then 2
                  when DATA_TYPE in ('date','datetime','timestamp','time','year') then 3
                  when DATA_TYPE in ('mediumblob','mediumtext','longblob','longtext','blob','text','tinyblob','tinytext','char','varchar') then 1
                  else 1 end as datatype,
-            case when CHARACTER_MAXIMUM_LENGTH is NULL then -1 else CHARACTER_MAXIMUM_LENGTH end as datalen
+            case when CHARACTER_MAXIMUM_LENGTH is NULL then -1 else CHARACTER_MAXIMUM_LENGTH end as datalen,
+            CONCAT_WS('_',TABLE_NAME,COLUMN_NAME) as alias
       from   information_schema.COLUMNS  
-      where  TABLE_NAME in ('tablename')
+      where  TABLE_NAME in ('empbadgedetail') 
     )a
 /*2.从主库删除原来数据(条件为表名)*/
 delete ecolumns where tablename='tablename'; 
 /*3.向主库插入第一步获取的数据(如以下语句)*/
-insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen) values('attsetlist.id','attsetlist','id','主键',0,'int',2,-1);
-insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen) values('attsetlist.customerid','attsetlist','customerid','客户ID',0,'int',2,-1);
-insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen) values('attsetlist.type','attsetlist','type','考勤套类别',0,'char',1,2);
-insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen) values('attsetlist.cname','attsetlist','cname','考勤套名称',0,'varchar',1,100);
+insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen,alias) values('empbadgedetail.id','empbadgedetail','id','主键',0,'int',2,-1,'empbadgedetail_id');
+insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen,alias) values('empbadgedetail.empid','empbadgedetail','empid','员工ID',0,'int',2,-1,'empbadgedetail_empid');
+insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen,alias) values('empbadgedetail.customerid','empbadgedetail','customerid','客户ID',0,'int',2,-1,'empbadgedetail_customerid');
+insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen,alias) values('empbadgedetail.type','empbadgedetail','type','申请类型',0,'char',1,2,'empbadgedetail_type');
 ```
 
 **2.表中的某些字段处理ecolumns字段**
 
 ```sql
 /*1.首先通过如下脚本从表所在库获取插入数据*/
-select concat('insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen) values(''',id,''',''',tablename,''',''',colname,''',''',cname,''',',isnull,',''',sqltype,''',',datatype,',',datalen,');') from
+select concat('insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen,alias) values(''',id,''',''',tablename,''',''',colname,''',''',cname,''',',isnull,',''',sqltype,''',',datatype,',',datalen,',''',alias,''');') from
     (select CONCAT_WS('.',TABLE_NAME,COLUMN_NAME) as id,TABLE_NAME as tablename,COLUMN_NAME as colname,case when COLUMN_COMMENT='' then COLUMN_NAME else COLUMN_COMMENT end as cname,
             case when IS_NULLABLE='NO' then 0 else 1 end as isnull,DATA_TYPE as sqltype,
             case when DATA_TYPE in ('tinyint','smallint','mediumint','int','integer','bigint','float','double','decimal') then 2
                  when DATA_TYPE in ('date','datetime','timestamp','time','year') then 3
                  when DATA_TYPE in ('mediumblob','mediumtext','longblob','longtext','blob','text','tinyblob','tinytext','char','varchar') then 1
                  else 1 end as datatype,
-            case when CHARACTER_MAXIMUM_LENGTH is NULL then -1 else CHARACTER_MAXIMUM_LENGTH end as datalen
+            case when CHARACTER_MAXIMUM_LENGTH is NULL then -1 else CHARACTER_MAXIMUM_LENGTH end as datalen,
+            CONCAT_WS('_',TABLE_NAME,COLUMN_NAME) as alias
       from   information_schema.COLUMNS  
       where  TABLE_NAME in ('tablename') and COLUMN_NAME in ('colname1','colname2','colname3')
     )a
 /*2.从主库删除原来数据(条件为表名+字段名)*/
 delete ecolumns where tablename='tablename' and colname in ('colname1','colname2','colname3'); 
 /*3.向主库插入第一步获取的数据(如以下语句)*/
-insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen) values('attsetlist.id','attsetlist','id','主键',0,'int',2,-1);
-insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen) values('attsetlist.customerid','attsetlist','customerid','客户ID',0,'int',2,-1);
-insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen) values('attsetlist.type','attsetlist','type','考勤套类别',0,'char',1,2);
-insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen) values('attsetlist.cname','attsetlist','cname','考勤套名称',0,'varchar',1,100);
+insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen,alias) values('empbadgedetail.id','empbadgedetail','id','主键',0,'int',2,-1,'empbadgedetail_id');
+insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen,alias) values('empbadgedetail.empid','empbadgedetail','empid','员工ID',0,'int',2,-1,'empbadgedetail_empid');
+insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen,alias) values('empbadgedetail.customerid','empbadgedetail','customerid','客户ID',0,'int',2,-1,'empbadgedetail_customerid');
+insert into ecolumns(id,tablename,colname,cname,isnull,sqltype,datatype,datalen,alias) values('empbadgedetail.type','empbadgedetail','type','申请类型',0,'char',1,2,'empbadgedetail_type');
 ```
 
 ---

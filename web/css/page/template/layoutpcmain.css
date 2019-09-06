@@ -103,7 +103,7 @@ and open the template in the editor.
     background-color: rgba(227, 230, 234, 0.3);
 }
 
-.side .menu .el-submenu{
+.side.menu-expand .menu .el-submenu{
     width: 220px;
 }
 
@@ -141,7 +141,7 @@ and open the template in the editor.
 }
 
 .menu-collapse.side,
-.menu-collapse .menu>ul>li,
+.menu-collapse .menu .el-submenu,
 .menu-collapse .logo{
     width: 64px;
 }

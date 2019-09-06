@@ -8,7 +8,7 @@
     </head>
     <body>
         <div>
-            <div id="header" class="header" :class="{'menu-collapse':menu_collapse}">
+            <div id="header" class="header" :class="[menu_collapse ? 'menu-collapse':'menu-expand']">
                 <div class="left">
                     <div class="spread"><span @click="menuCollapse"></span></div>
                 </div>
@@ -36,7 +36,7 @@
                     </el-breadcrumb>
                 </div>
             </div>
-            <div id="menu" class="side" :class="{'menu-collapse':menu_collapse}">
+            <div id="menu" class="side" :class="[menu_collapse ? 'menu-collapse':'menu-expand']">
                  <div class="logo">
                      <span>开发管理系统</span>
                 </div>

@@ -66,7 +66,7 @@
             if (id) {
                 return bmplugin.ajax.post('/web/task/require/loadrequireinfo', {id: id, project_id: app.$data.search.project_id}).then(function(data) {
                     if (typeof data.info.need_tip !== 'undefined') {
-                        data.info.need_tip = data.info.need_tip || '01.代码上线前需执行脚本：无\n02.代码上线后需执行脚本：无\n03.代码上线同步执行脚本：无\n04.执行时间较长脚本：无\n05.需新增或修改配置文件节点：无\n06.是否需要杀进程：无\n07.是否涉及多服务器：无\n08.是否涉及文件夹新增及权限问题：无\n09.是否涉及第三方接口：无\n10.上线时间点：未定义';
+                        data.info.need_tip = data.info.need_tip || '01.代码上线前需执行脚本：无\n02.代码上线后需执行脚本：无\n03.代码上线同步执行脚本：无\n04.执行时间较长脚本：无\n05.需新增或修改配置文件节点：无\n06.是否需要杀进程：无\n07.是否涉及多服务器：无\n08.是否涉及文件夹新增及权限问题：无\n09.是否涉及第三方接口：无\n10.上线时间点：未定义\n11.漏洞检查：（sql注入：无 越权漏洞：无）';
                     }
                     require.initDialogInfo('require', data.info);
                 });

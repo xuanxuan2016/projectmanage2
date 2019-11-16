@@ -199,10 +199,11 @@ class TodoController extends BaseController {
      * 有返回data
      */
     public function loadList() {
-        $strErrMsg = '';
+        $arrError = [];
         $arrData = [];
-        $blnFlag = $this->objTodoModel->loadList($strErrMsg, $arrData);
-        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
+        $blnFlag = $this->objTodoModel->loadList($arrError, $arrData);
+        $arrError = array_merge(['err_code' => '', 'err_msg' => ''], $arrError);
+        return ['success' => $blnFlag ? 1 : 0, 'err_code' => $arrError['err_code'], 'err_msg' => $arrError['err_msg'], 'data' => $arrData];
     }
 
     /**
@@ -210,9 +211,11 @@ class TodoController extends BaseController {
      * 无返回data
      */
     public function editTodoInfo() {
-        $strErrMsg = '';
-        $blnFlag = $this->objTodoModel->editTodoInfo($strErrMsg);
-        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg];
+        $arrError = [];
+        $arrData = [];
+        $blnFlag = $this->objTodoModel->editTodoInfo($arrError, $arrData);
+        $arrError = array_merge(['err_code' => '', 'err_msg' => ''], $arrError);
+        return ['success' => $blnFlag ? 1 : 0, 'err_code' => $arrError['err_code'], 'err_msg' => $arrError['err_msg'], 'data' => $arrData];
     }
 
 }

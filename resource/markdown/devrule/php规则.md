@@ -267,10 +267,10 @@ class TodoModel {
      * 主model方法：获取列表数据
      * 在写代码时，以下每个步骤都需要有，如果实际确实没操作，内容可以空，注释需要保留；实际内容，可根据业务做相关调整
      */
-    public function loadList(&$strErrMsg, &$arrData) {
+    public function loadList(&$arrError, &$arrData) {
         //1.参数验证
-        $strErrMsg = $this->checkLoadList($arrParam);
-        if (!empty($strErrMsg)) {
+        $arrError = $this->checkLoadList($arrParam);
+        if (!empty($arrError)) {
             return false;
         }
         //2.记录操作日志
@@ -283,16 +283,19 @@ class TodoModel {
      * 参数验证方法：参数检查
      */
     protected function checkLoadList(&$arrParam) {
-        //1.获取页面参数
-        $arrCheckResult = $this->objValidPostData->check(['lecturer_id', 'date'], $this->arrRules, [], false);
-        if (!$arrCheckResult['success']) {
-            return $arrCheckResult['err_msg'];
+        //0.初始化错误映射
+        //1.参数统一校验
+        $arrCheck = $this->objValidPostData->check(['lecturer_id', 'date'], $this->arrRules, [], false);
+        if (!$arrCheck['success']) {
+            return $this->objHelp->getError($arrCheck['err_code'], $arrCheck['err_msg']);
         }
-        $arrParam = $arrCheckResult['param'];
-        //2.字段自定义配置检查
-        //3.字段数据库配置检查
-        //4.业务检查
+        $arrParam = $arrCheck['param'];
+        //2.校验库数据
+        //3.数据权限校验
+        //4.业务校验
         //5.合并需要的cookie
+        //6.返回
+        return [];
     }
 
     /**

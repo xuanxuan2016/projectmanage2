@@ -44,8 +44,7 @@ class ProjectDocController extends BaseController {
              * 文档内容
              */
             'content' => [
-                'title' => '项目文档',
-                'markdown' => $this->objProjectDocModel->getHtml()
+                'title' => '项目文档'
             ],
             /**
              * js
@@ -65,6 +64,26 @@ class ProjectDocController extends BaseController {
                     ['path' => 'plugin/markdown.css', 'is_pack' => 1, 'is_remote' => 0]
             ]
         ];
+    }
+    
+    /**
+     * 获取列表数据
+     */
+    public function loadList() {
+        $strErrMsg = '';
+        $arrData = [];
+        $blnFlag = $this->objProjectDocModel->loadList($strErrMsg, $arrData);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
+    }
+
+    /**
+     * 加载规则
+     */
+    public function loadProjectDocInfo() {
+        $strErrMsg = '';
+        $arrData = [];
+        $blnFlag = $this->objProjectDocModel->loadProjectDocInfo($strErrMsg, $arrData);
+        return ['success' => $blnFlag ? 1 : 0, 'err_msg' => $strErrMsg, 'data' => $arrData];
     }
 
 }

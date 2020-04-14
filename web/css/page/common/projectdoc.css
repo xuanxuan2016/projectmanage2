@@ -8,3 +8,27 @@ and open the template in the editor.
     Author     : linhai.wang
 */
 
+.page-search .el-collapse-item__content{
+    padding-top:5px;
+}
+
+.article-list{
+    display: flex;
+    flex-wrap: wrap-reverse;
+}
+
+.article-item{
+    border: 1px solid #d7dae2;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin: 10px 10px 0 0;
+    cursor: pointer;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.article-selected,
+.article-item:hover {
+    color: #409eff;
+    border-color: #c6e2ff;
+    background-color: #ecf5ff
+}

@@ -1,3 +1,15 @@
-<div id="app" class="markdown-body">
-    {{markdown}}
+<div id="app"  v-cloak>
+    <div class='page-search'>
+        <el-collapse value="11">
+            <el-collapse-item name="11" title="项目文档">
+                <div class="article-list">
+                    <div v-for="item in list.data" class="article-item" :class="item.id==active ? 'article-selected':''" @click='showArticle(item.id)'>
+                        {{item.cname}}
+                    </div>
+                </div>
+            </el-collapse-item>
+        </el-collapse>
+    </div>
+    <div v-html="article" class="markdown-body">
+    </div>
 </div>

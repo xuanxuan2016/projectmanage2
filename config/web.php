@@ -57,7 +57,7 @@ return [
          * 0:开发环境
          * 1:测试与线上环境
          */
-        'read_only' => 1
+        'read_only' => 0
     ],
     /**
      * image地址

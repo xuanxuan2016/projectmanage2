@@ -20,8 +20,8 @@ drop table if exists interview_business;
 /*创建表(必要操作)*/
 create table if not exists interview_business (
     id int not null AUTO_INCREMENT comment '主键',/*必要字段，根据实际情况选择(tinyint,smallint,int,bigint)*/
-    create_date datetime not null default now() comment '创建时间',/*必要字段*/
-    update_date datetime not null default now() comment '更新时间',/*必要字段*/
+    create_date datetime(3) not null default now(3) comment '创建时间',/*必要字段*/
+    update_date datetime(3) not null default now(3) comment '更新时间',/*必要字段*/
     business_type varchar(50) not null comment '业务类型',
     db_type varchar(50) not null comment '数据库类型',
     db_host varchar(100) not null comment '数据库地址',

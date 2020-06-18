@@ -222,7 +222,7 @@ class RequireModel {
             $arrWhereParam[':needer_id'] = $arrSearchParam['needer'];
         }
         //module
-        if (!empty($arrSearchParam['module_id']) && checkFormat($arrSearchParam['account_id'], Config::get('const.ValidFormat.FORMAT_POSINT'))) {
+        if (!empty($arrSearchParam['module_id']) && checkFormat($arrSearchParam['module_id'], Config::get('const.ValidFormat.FORMAT_POSINT'))) {
             $strWhereSql .= ' and a.module_id=:module_id';
             $arrWhereParam[':module_id'] = $arrSearchParam['module_id'];
         } else {

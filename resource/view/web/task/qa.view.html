@@ -34,15 +34,21 @@
                 <template slot-scope="scope">
                     <div class="operator">
                         <a v-if="auth_button['Task.Qa.Qa'] && scope.row.status=='01'" @click="qaQaInfo(scope.row.id)">送测</a>
-                        <a v-if="auth_button['Task.Qa.Online'] && scope.row.status=='01'" @click="onlineQaInfo(scope.row.id)">上线</a>
+                        <a v-if="auth_button['Task.Qa.Online'] && scope.row.status=='01'" @click="showDialogOnline(scope.row.id,scope.row.summary)">上线</a>
                         <a v-if="auth_button['Task.Qa.Revoke'] && scope.row.status=='01'" @click="revokeQaInfo(scope.row.id)">撤销</a>
                         <a v-if="auth_button['Task.Qa.Down']" @click="downQaInfo(scope.row.id)">下载</a>
+                        <a v-if="auth_button['Task.Qa.Summary'] && scope.row.status=='02'" @click="showDialogSummary(scope.row.summary)">总结</a>
                     </div>
                 </template>
             </el-table-column>      
             <el-table-column
                 prop="qa_name"
                 label="送测名称"
+                :show-overflow-tooltip="true">
+            </el-table-column>      
+            <el-table-column
+                prop="account_name"
+                label="参与人员"
                 :show-overflow-tooltip="true">
             </el-table-column>
             <el-table-column
@@ -78,7 +84,70 @@
             @next-click="pageIndexChange">
         </el-pagination>
     </div>
-    <div class='dialog'>
+    <div class='dialog'>        
+        <el-dialog
+            :title="dialog.online.title"
+            :visible.sync="dialog.online.visible"
+            :append-to-body="true"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            custom-class='dialog-online'
+            top="5vh">
+            <div class="dialog-content">
+                <div class="dialog-row">
+                    <div class="tip">
+                        送测需求的bug总结，请向如下参与人员获取。如产品有问题总结，可一并填入，注意分开来填写。
+                    </div>
+                </div>
+                <template v-for="item in dialog.online.online_info.summary.value">
+                    <div class="dialog-row">
+                        <div class="dialog-item dialog-label require">
+                            {{item.key}}：
+                        </div>
+                    </div>
+                    <div class="dialog-row">
+                        <div class="dialog-item">
+                            <el-input v-model="item.value" maxlength="1000" placeholder="请输入bug总结，如果没有bug，请填写【无bug】" type='textarea' resize='none' rows='4'></el-input>
+                        </div>
+                    </div>  
+                </template>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialog.online.visible = false">取消</el-button>
+                <el-button v-if="auth_button['Task.Qa.Online']" type="primary" @click="onlineQaInfo">上线</el-button>
+            </span>
+        </el-dialog>        
+        <el-dialog
+            :title="dialog.summary.title"
+            :visible.sync="dialog.summary.visible"
+            :append-to-body="true"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            custom-class='dialog-online'
+            top="5vh">
+            <div class="dialog-content">
+                <div class="dialog-row">
+                    <div class="tip">
+                        送测需求的bug总结。
+                    </div>
+                </div>
+                <template v-for="item in dialog.summary.summary_info.summary.value">
+                    <div class="dialog-row">
+                        <div class="dialog-item dialog-label require">
+                            {{item.key}}：
+                        </div>
+                    </div>
+                    <div class="dialog-row">
+                        <div class="dialog-item">
+                            <el-input v-model="item.value" :disabled=true maxlength="1000" placeholder="请输入bug总结，如果没有bug，请填写【无bug】" type='textarea' resize='none' rows='4'></el-input>
+                        </div>
+                    </div>  
+                </template>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialog.summary.visible = false">取消</el-button>
+            </span>
+        </el-dialog>
     </div>
     <div class="auth-button">
         <!--用于页面上的按钮与弹框按钮-->

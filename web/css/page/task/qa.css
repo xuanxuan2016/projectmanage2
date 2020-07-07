@@ -21,3 +21,32 @@ and open the template in the editor.
     color:#66b1ff;
 }
 
+.dialog-online{
+    width: 700px;
+}
+
+.dialog-online .dialog-content .dialog-item {
+    width: 100%;
+    margin-right: 0;
+}
+
+.dialog-online .dialog-content .dialog-label {
+    text-align: left;
+}
+
+.dialog-online .tip{
+    font-weight: bold;
+    color: red;
+}
+
+.dialog-online .dialog-content::-webkit-scrollbar,
+.dialog-online textarea::-webkit-scrollbar{
+    width: 10px;
+}
+
+.dialog-online .dialog-content {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
+}

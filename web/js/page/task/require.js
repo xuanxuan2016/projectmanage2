@@ -1067,6 +1067,11 @@
                     }).then(function() {
                         //3.列表刷新
                         require.loadList();
+                    }).then(function() {
+                        //4.去除选中
+                        for (var index in app.$data.checkListReAllot) {
+                            app.$data.checkListReAllot[index] = false;
+                        }
                     }).catch(function(error) {
                         bmplugin.showErrMsg(error);
                     });

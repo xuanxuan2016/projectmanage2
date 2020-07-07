@@ -119,7 +119,57 @@
             /**
              * 弹框
              */
-            dialog: {}
+            dialog: {
+                online: {
+                    title: '需求上线',
+                    visible: false,
+                    online_info_blank: {
+                        summary: []
+                    },
+                    online_info: {
+                        summary: {
+                            value: [],
+                            rules: {
+                                required: {value: true, err: {err_msg: '请输入bug总结'}}
+                            }
+                        },
+                        id: {
+                            value: '',
+                            rules: {
+                                required: {value: true, err: {err_msg: '请选择需要上线的需求'}}
+                            }
+                        }
+                    }
+                },
+                summary: {
+                    title: '需求bug总结',
+                    visible: false,
+                    summary_info_blank: {
+                        summary: []
+                    },
+                    summary_info: {
+                        summary: {
+                            value: []
+                        }
+                    }
+                }
+            },
+            /**
+             * 规则模板
+             */
+            rule: {
+                summary: {
+                    key: {
+                        value: ''
+                    },
+                    value: {
+                        value: '',
+                        rules: {
+                            required: {value: true, err: {err_msg: '请输入所有参与人员的bug总结'}}
+                        }
+                    }
+                }
+            }
         },
         watch: {
         },
@@ -153,22 +203,50 @@
                 });
             },
             /**
+             * 上线弹框
+             */
+            showDialogOnline: function(id, summary) {
+                new Promise(function(resolve, reject) {
+                    //1.获取需要上线的需求
+                    app.$data.dialog.online.online_info.id.value = id;
+                    app.$data.dialog.online.online_info.summary.value = JSON.parse(summary);
+//                    var summary1 = JSON.parse(summary);
+//                    for (var index in summary1) {
+//                        var tmp = JSON.parse(JSON.stringify(app.$data.rule.summary));
+//                        tmp.key.value = summary1[index].key;
+//                        tmp.value.value = summary1[index].value;
+//                        app.$data.dialog.online.online_info.summary.value.push(tmp);
+//                    }
+                    resolve();
+                }).then(function() {
+                    //2.加载弹框信息
+                }).then(function() {
+                    //3.显示弹框
+                    app.$data.dialog.online.visible = true;
+                }).catch(function(error) {
+                    bmplugin.showErrMsg(error);
+                });
+            },
+            /**
              * 上线
              */
-            onlineQaInfo: function(id) {
+            onlineQaInfo: function() {
                 this.$confirm('确定上线吗?', {
                     type: 'warning',
                     dangerouslyUseHTMLString: true
                 }).then(function() {
                     //1.数据检查
-                    var qaInfo = {id: id};
+                    var qaInfo = validator.check(app.$data.dialog.online.online_info);
                     //2.后台请求
                     if (qaInfo) {
                         new Promise(function(resolve) {
                             //1.上线
                             resolve(qa.onlineQaInfo(qaInfo));
                         }).then(function() {
-                            //2.列表刷新
+                            //2.关闭弹框
+                            app.$data.dialog.online.visible = false
+                        }).then(function() {
+                            //3.列表刷新
                             qa.loadList();
                         }).catch(function(error) {
                             bmplugin.showErrMsg(error);
@@ -176,6 +254,24 @@
                     }
                 }).catch(function() {
 
+                });
+            },
+            /**
+             * 总结弹框
+             */
+            showDialogSummary: function(summary) {
+                new Promise(function(resolve, reject) {
+                    //1.获取需要上线的需求
+                    console.log(summary);
+                    app.$data.dialog.summary.summary_info.summary.value = JSON.parse(summary);
+                    resolve();
+                }).then(function() {
+                    //2.加载弹框信息
+                }).then(function() {
+                    //3.显示弹框
+                    app.$data.dialog.summary.visible = true;
+                }).catch(function(error) {
+                    bmplugin.showErrMsg(error);
                 });
             },
             /**

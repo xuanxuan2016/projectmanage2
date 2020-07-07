@@ -114,7 +114,7 @@ class QaModel {
         $intStart = ($arrParam['page_index'] - 1) * $intPageSize;
 
         //查询
-        $strSql = "select a.id,a.qa_name,a.round,a.status,a.qa_date,a.online_date
+        $strSql = "select a.id,a.qa_name,a.account_name,a.summary,a.round,a.status,a.qa_date,a.online_date
                     from qa a
                     where 1=1 and a.status in ('01','02') {$arrParam['where']['sql']}
                     order by a.create_date desc";
@@ -441,6 +441,16 @@ class QaModel {
 
         //3.字段数据库配置检查
         //4.业务检查
+        $arrSummary = $arrParam['summary'];
+        if (!is_array($arrSummary) || empty($arrSummary)) {
+            return '请输入所有参与人员的bug总结';
+        }
+        foreach ($arrSummary as $summary) {
+            if (empty($summary['key']) || empty($summary['value'])) {
+                return '请输入所有参与人员的bug总结';
+            }
+        }
+        $arrParam['summary'] = json_encode($arrParam['summary']);
     }
 
     /**
@@ -452,9 +462,10 @@ class QaModel {
         $arrParams = [
             ':project_id' => $arrParam['project_id'],
             ':id' => $arrParam['id'],
-            ':status' => '02'
+            ':status' => '02',
+            ':summary' => $arrParam['summary'],
         ];
-        $strSql = 'update qa set status=:status,online_date=now(),update_date=now() where id=:id and project_id=:project_id';
+        $strSql = 'update qa set status=:status,summary=:summary,online_date=now(),update_date=now() where id=:id and project_id=:project_id';
         $intRet = $this->objDB->setMainTable('qa')->update($strSql, $arrParams);
         if ($intRet <= 0) {
             $this->objDB->setMainTable('qa')->rollbackTran();

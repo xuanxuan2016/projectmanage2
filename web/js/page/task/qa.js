@@ -262,7 +262,6 @@
             showDialogSummary: function(summary) {
                 new Promise(function(resolve, reject) {
                     //1.获取需要上线的需求
-                    console.log(summary);
                     app.$data.dialog.summary.summary_info.summary.value = JSON.parse(summary);
                     resolve();
                 }).then(function() {

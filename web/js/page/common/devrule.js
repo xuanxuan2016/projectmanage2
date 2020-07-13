@@ -25,6 +25,11 @@
             if (listInfo) {
                 bmplugin.ajax.post('/web/common/devrule/loadlist', listInfo).then(function(data) {
                     app.$data.list.data = data.list;
+                }).then(function() {
+                    var id = bmcommonjs.getparam('id');
+                    if (id != '') {
+                        app.showArticle(id);
+                    }
                 }).catch(function(error) {
                     bmplugin.showErrMsg(error);
                 });

@@ -1199,7 +1199,7 @@ class RequireModel {
      */
     protected function qaRequire($arrParam) {
         $this->objDB->setMainTable('task')->beginTran();
-        //获取参与人员
+        //获取开发人员/产品人员
         $arrParams = [
         ];
         $strWhere = '';
@@ -1208,14 +1208,15 @@ class RequireModel {
             $strWhere .= ":task_id{$strTaskId},";
         }
         $strWhere = trim($strWhere, ',');
+        
         $strSql = "select distinct (b.cname) cname from task a join account b on a.account_id=b.id where a.id in ({$strWhere})";
         $arrAccountName = $this->objDB->setMainTable('task')->select($strSql, $arrParams);
-        $arrSummary = [];
-        foreach ($arrAccountName as $value) {
-            $arrSummary[] = ['key' => $value['cname'], 'value' => ''];
-        }
         $strAccountName = implode(',', array_values(array_column($arrAccountName, 'cname')));
-        $strSummary = json_encode($arrSummary);
+        
+        $strSql = "select distinct (b.cname) cname from task a join account b on a.needer_id=b.id where a.id in ({$strWhere})";
+        $arrNeederName = $this->objDB->setMainTable('task')->select($strSql, $arrParams);
+        $strNeederName = implode(',', array_values(array_column($arrNeederName, 'cname')));
+        
         //qa
         $strBatchId = getGUID();
         $arrParams = [
@@ -1225,9 +1226,9 @@ class RequireModel {
             ':project_id' => $arrParam['project_id'],
             ':task_id' => implode(',', $arrParam['task_id']),
             ':account_name' => $strAccountName,
-            ':summary' => $strSummary
+            ':needer_name' => $strNeederName
         ];
-        $strSql = 'insert into qa(qa_name,batch_id,qa_tip,project_id,task_id,account_name,summary) values(:qa_name,:batch_id,:qa_tip,:project_id,:task_id,:account_name,:summary)';
+        $strSql = 'insert into qa(qa_name,batch_id,qa_tip,project_id,task_id,account_name,needer_name) values(:qa_name,:batch_id,:qa_tip,:project_id,:task_id,:account_name,:needer_name)';
         $intRet = $this->objDB->setMainTable('task')->insert($strSql, $arrParams);
         if ($intRet <= 0) {
             $this->objDB->setMainTable('task')->rollbackTran();

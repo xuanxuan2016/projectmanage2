@@ -50,3 +50,11 @@ and open the template in the editor.
     overflow-x: hidden;
     padding-right: 10px;
 }
+
+.bug-count .dialog-item:nth-of-type(1){
+    width: 100px;
+}
+
+.bug-count .el-input{
+    width: 150px;
+}

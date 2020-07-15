@@ -33,6 +33,21 @@
             }
         },
         /**
+         * 设置弹框数据
+         */
+        initDialogInfo: function(dialogName, dialogInfo) {
+            for (var objKey in dialogInfo) {
+                if (typeof app.$data.dialog[dialogName][dialogName + '_info'][objKey] === 'undefined') {
+                    continue;
+                }
+                if (typeof app.$data.dialog[dialogName][dialogName + '_info'][objKey].value !== 'undefined') {
+                    app.$data.dialog[dialogName][dialogName + '_info'][objKey].value = dialogInfo[objKey];
+                } else {
+                    app.$data.dialog[dialogName][dialogName + '_info'][objKey] = dialogInfo[objKey];
+                }
+            }
+        },
+        /**
          * 设置送测数据
          */
         initQaInfo: function(qa_info) {
@@ -124,13 +139,32 @@
                     title: '需求上线',
                     visible: false,
                     online_info_blank: {
-                        summary: []
+                        bug_count: '',
+                        account_name: '',
+                        needer_name: '',
+                        account_summary: '',
+                        needer_summary: ''
                     },
                     online_info: {
-                        summary: {
-                            value: [],
+                        bug_count: {
+                            value: '',
                             rules: {
-                                required: {value: true, err: {err_msg: '请输入bug总结'}}
+                                required: {value: true, err: {err_msg: '请输入bug数量'}},
+                                number: {value: true, err: {err_msg: '请输入bug数量'}}
+                            }
+                        },
+                        account_name: '',
+                        needer_name: '',
+                        account_summary: {
+                            value: '',
+                            rules: {
+                                required: {value: true, err: {err_msg: '请输入开发人员总结'}}
+                            }
+                        },
+                        needer_summary: {
+                            value: '',
+                            rules: {
+                                required: {value: true, err: {err_msg: '请输入产品人员总结'}}
                             }
                         },
                         id: {
@@ -145,12 +179,18 @@
                     title: '需求bug总结',
                     visible: false,
                     summary_info_blank: {
-                        summary: []
+                        bug_count: 0,
+                        account_name: '',
+                        needer_name: '',
+                        account_summary: '',
+                        needer_summary: ''
                     },
                     summary_info: {
-                        summary: {
-                            value: []
-                        }
+                        bug_count: 0,
+                        account_name: '',
+                        needer_name: '',
+                        account_summary: '',
+                        needer_summary: ''
                     }
                 }
             },
@@ -205,18 +245,14 @@
             /**
              * 上线弹框
              */
-            showDialogOnline: function(id, summary) {
+            showDialogOnline: function(id, account_name,needer_name) {
                 new Promise(function(resolve, reject) {
-                    //1.获取需要上线的需求
+                    //数据重置
+                    qa.initDialogInfo('online', app.$data.dialog.online.online_info_blank);
+                    //数据填充
                     app.$data.dialog.online.online_info.id.value = id;
-                    app.$data.dialog.online.online_info.summary.value = JSON.parse(summary);
-//                    var summary1 = JSON.parse(summary);
-//                    for (var index in summary1) {
-//                        var tmp = JSON.parse(JSON.stringify(app.$data.rule.summary));
-//                        tmp.key.value = summary1[index].key;
-//                        tmp.value.value = summary1[index].value;
-//                        app.$data.dialog.online.online_info.summary.value.push(tmp);
-//                    }
+                    app.$data.dialog.online.online_info.account_name = account_name;
+                    app.$data.dialog.online.online_info.needer_name = needer_name;
                     resolve();
                 }).then(function() {
                     //2.加载弹框信息
@@ -259,10 +295,15 @@
             /**
              * 总结弹框
              */
-            showDialogSummary: function(summary) {
+            showDialogSummary: function(row) {
                 new Promise(function(resolve, reject) {
-                    //1.获取需要上线的需求
-                    app.$data.dialog.summary.summary_info.summary.value = JSON.parse(summary);
+                    //数据重置
+                    qa.initDialogInfo('summary', app.$data.dialog.summary.summary_info_blank);
+                    //数据填充
+                    app.$data.dialog.summary.summary_info.account_name = row.account_name;
+                    app.$data.dialog.summary.summary_info.needer_name = row.needer_name;
+                    app.$data.dialog.summary.summary_info.account_summary = row.account_summary;
+                    app.$data.dialog.summary.summary_info.needer_summary = row.needer_summary;
                     resolve();
                 }).then(function() {
                     //2.加载弹框信息

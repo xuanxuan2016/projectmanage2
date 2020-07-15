@@ -121,6 +121,12 @@ validator = {
             return false;
         }
     },
+    //数字
+    number: function(data, rule) {
+        if (!reg.number.test(data)) {
+            return false;
+        }
+    },
     /*---------------------------------------- 联合校验 -------------------------------------------*/
     /**
      * @param array data [1, 2] 数组中仅有两个值

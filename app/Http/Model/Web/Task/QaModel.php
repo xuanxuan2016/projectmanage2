@@ -36,6 +36,15 @@ class QaModel {
         ],
         'page_size' => [
             'type' => ['value' => 'posint', 'err_msg' => 'page_size格式不正确']
+        ],
+        'bug_count' => [
+            'type' => ['value' => 'posint', 'err_msg' => '请输入bug数量']
+        ],
+        'account_summary' => [
+            'required' => ['value' => true, 'err_msg' => '请输入开发人员总结']
+        ],
+        'needer_summary' => [
+            'required' => ['value' => true, 'err_msg' => '请输入产品人员总结']
         ]
     ];
 
@@ -114,7 +123,7 @@ class QaModel {
         $intStart = ($arrParam['page_index'] - 1) * $intPageSize;
 
         //查询
-        $strSql = "select a.id,a.qa_name,a.account_name,a.summary,a.round,a.status,a.qa_date,a.online_date
+        $strSql = "select a.id,a.qa_name,a.account_name,a.needer_name,a.account_summary,a.needer_summary,a.round,a.bug_count,a.status,a.qa_date,a.online_date
                     from qa a
                     where 1=1 and a.status in ('01','02') {$arrParam['where']['sql']}
                     order by a.create_date desc";
@@ -434,23 +443,13 @@ class QaModel {
 
         //2.字段自定义配置检查
         $arrRules = $this->arrRules;
-        $arrErrMsg = $this->objValidPostData->check($arrParam, ['project_id', 'id'], $arrRules);
+        $arrErrMsg = $this->objValidPostData->check($arrParam, ['project_id', 'id', 'bug_count', 'account_summary', 'needer_summary'], $arrRules);
         if (!empty($arrErrMsg)) {
             return join(';', $arrErrMsg);
         }
 
         //3.字段数据库配置检查
         //4.业务检查
-        $arrSummary = $arrParam['summary'];
-        if (!is_array($arrSummary) || empty($arrSummary)) {
-            return '请输入所有参与人员的bug总结';
-        }
-        foreach ($arrSummary as $summary) {
-            if (empty($summary['key']) || empty($summary['value'])) {
-                return '请输入所有参与人员的bug总结';
-            }
-        }
-        $arrParam['summary'] = json_encode($arrParam['summary']);
     }
 
     /**
@@ -463,9 +462,11 @@ class QaModel {
             ':project_id' => $arrParam['project_id'],
             ':id' => $arrParam['id'],
             ':status' => '02',
-            ':summary' => $arrParam['summary'],
+            ':bug_count' => $arrParam['bug_count'],
+            ':account_summary' => $arrParam['account_summary'],
+            ':needer_summary' => $arrParam['needer_summary']
         ];
-        $strSql = 'update qa set status=:status,summary=:summary,online_date=now(),update_date=now() where id=:id and project_id=:project_id';
+        $strSql = 'update qa set status=:status,bug_count=:bug_count,account_summary=:account_summary,needer_summary=:needer_summary,online_date=now(),update_date=now() where id=:id and project_id=:project_id';
         $intRet = $this->objDB->setMainTable('qa')->update($strSql, $arrParams);
         if ($intRet <= 0) {
             $this->objDB->setMainTable('qa')->rollbackTran();

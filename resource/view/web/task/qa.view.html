@@ -34,10 +34,10 @@
                 <template slot-scope="scope">
                     <div class="operator">
                         <a v-if="auth_button['Task.Qa.Qa'] && scope.row.status=='01'" @click="qaQaInfo(scope.row.id)">送测</a>
-                        <a v-if="auth_button['Task.Qa.Online'] && scope.row.status=='01'" @click="showDialogOnline(scope.row.id,scope.row.summary)">上线</a>
+                        <a v-if="auth_button['Task.Qa.Online'] && scope.row.status=='01'" @click="showDialogOnline(scope.row.id,scope.row.account_name,scope.row.needer_name)">上线</a>
                         <a v-if="auth_button['Task.Qa.Revoke'] && scope.row.status=='01'" @click="revokeQaInfo(scope.row.id)">撤销</a>
                         <a v-if="auth_button['Task.Qa.Down']" @click="downQaInfo(scope.row.id)">下载</a>
-                        <a v-if="auth_button['Task.Qa.Summary'] && scope.row.status=='02'" @click="showDialogSummary(scope.row.summary)">总结</a>
+                        <a v-if="auth_button['Task.Qa.Summary'] && scope.row.status=='02'" @click="showDialogSummary(scope.row)">总结</a>
                     </div>
                 </template>
             </el-table-column>      
@@ -48,12 +48,21 @@
             </el-table-column>      
             <el-table-column
                 prop="account_name"
-                label="参与人员"
+                label="开发人员"
+                :show-overflow-tooltip="true">
+            </el-table-column>      
+            <el-table-column
+                prop="needer_name"
+                label="产品人员"
                 :show-overflow-tooltip="true">
             </el-table-column>
             <el-table-column
                 prop="round"
                 label="轮数">
+            </el-table-column>
+            <el-table-column
+                prop="bug_count"
+                label="bug数">
             </el-table-column>
             <el-table-column
                 prop="status"
@@ -96,21 +105,37 @@
             <div class="dialog-content">
                 <div class="dialog-row">
                     <div class="tip">
-                        送测需求的bug总结，请向如下参与人员获取。如产品有问题总结，可一并填入，注意分开来填写。
+                        送测需求的bug总结，请从相关开发人员与产品人员获取。
                     </div>
                 </div>
-                <template v-for="item in dialog.online.online_info.summary.value">
-                    <div class="dialog-row">
-                        <div class="dialog-item dialog-label require">
-                            {{item.key}}：
-                        </div>
+                <div class="dialog-row bug-count">
+                    <div class="dialog-item dialog-label require">
+                        bug数量：
                     </div>
-                    <div class="dialog-row">
-                        <div class="dialog-item">
-                            <el-input v-model="item.value" maxlength="1000" placeholder="请输入bug总结，如果没有bug，请填写【无bug】" type='textarea' resize='none' rows='4'></el-input>
-                        </div>
-                    </div>  
-                </template>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.online.online_info.bug_count.value" placeholder="请输入bug数量"></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        开发人员总结({{dialog.online.online_info.account_name}})：
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.online.online_info.account_summary.value" placeholder="请输入bug总结，如果没有bug，请填写【无bug】。&#13;&#10;开发人员1：&#13;&#10;总结&#13;&#10;&#13;&#10;开发人员2：&#13;&#10;总结" type='textarea' resize='none' rows='6'></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        产品人员总结({{dialog.online.online_info.needer_name}})：
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.online.online_info.needer_summary.value" placeholder="请输入bug总结，如果没有bug，请填写【无bug】。&#13;&#10;产品人员1：&#13;&#10;总结&#13;&#10;" type='textarea' resize='none' rows='4'></el-input>
+                    </div>
+                </div>  
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialog.online.visible = false">取消</el-button>
@@ -131,18 +156,26 @@
                         送测需求的bug总结。
                     </div>
                 </div>
-                <template v-for="item in dialog.summary.summary_info.summary.value">
-                    <div class="dialog-row">
-                        <div class="dialog-item dialog-label require">
-                            {{item.key}}：
-                        </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        开发人员总结({{dialog.summary.summary_info.account_name}})：
                     </div>
-                    <div class="dialog-row">
-                        <div class="dialog-item">
-                            <el-input v-model="item.value" :disabled=true maxlength="1000" placeholder="请输入bug总结，如果没有bug，请填写【无bug】" type='textarea' resize='none' rows='4'></el-input>
-                        </div>
-                    </div>  
-                </template>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.summary.summary_info.account_summary" :disabled=true placeholder="请输入bug总结，如果没有bug，请填写【无bug】" type='textarea' resize='none' rows='6'></el-input>
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item dialog-label require">
+                        产品人员总结({{dialog.summary.summary_info.needer_name}})：
+                    </div>
+                </div>
+                <div class="dialog-row">
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.summary.summary_info.needer_summary" :disabled=true placeholder="请输入bug总结，如果没有bug，请填写【无bug】" type='textarea' resize='none' rows='4'></el-input>
+                    </div>
+                </div>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialog.summary.visible = false">取消</el-button>

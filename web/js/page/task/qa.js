@@ -300,6 +300,7 @@
                     //数据重置
                     qa.initDialogInfo('summary', app.$data.dialog.summary.summary_info_blank);
                     //数据填充
+                    app.$data.dialog.summary.summary_info.bug_count = row.bug_count;
                     app.$data.dialog.summary.summary_info.account_name = row.account_name;
                     app.$data.dialog.summary.summary_info.needer_name = row.needer_name;
                     app.$data.dialog.summary.summary_info.account_summary = row.account_summary;

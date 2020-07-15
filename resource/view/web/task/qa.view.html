@@ -156,6 +156,14 @@
                         送测需求的bug总结。
                     </div>
                 </div>
+                <div class="dialog-row bug-count">
+                    <div class="dialog-item dialog-label require">
+                        bug数量：
+                    </div>
+                    <div class="dialog-item">
+                        <el-input v-model="dialog.summary.summary_info.bug_count" :disabled=true placeholder="请输入bug数量"></el-input>
+                    </div>
+                </div>
                 <div class="dialog-row">
                     <div class="dialog-item dialog-label require">
                         开发人员总结({{dialog.summary.summary_info.account_name}})：

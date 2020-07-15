@@ -38,7 +38,7 @@ class QaModel {
             'type' => ['value' => 'posint', 'err_msg' => 'page_size格式不正确']
         ],
         'bug_count' => [
-            'type' => ['value' => 'posint', 'err_msg' => '请输入bug数量']
+            'type' => ['value' => 'int', 'err_msg' => '请输入bug数量']
         ],
         'account_summary' => [
             'required' => ['value' => true, 'err_msg' => '请输入开发人员总结']

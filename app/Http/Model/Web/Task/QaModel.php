@@ -707,6 +707,12 @@ class QaModel {
                 .need_tip{
                         color:red;
                 }
+                textarea{
+                        color: red;
+                        resize: none;
+                        width: 100%;
+                        border: none;
+                }
             </style>
             </head>
                 <body>
@@ -726,28 +732,28 @@ class QaModel {
             $strContent .= "<div class=\"content\">";
 
             $strContent .= "<div class=\"p\">页面入口：</div>";
-            $strContent .= sprintf("<div class=\"page_enter\">%s</div>", $arrTaskItem['page_enter']);
+            $strContent .= sprintf("<div class=\"page_enter\">%s</div>", htmlspecialchars($arrTaskItem['page_enter']));
 
             $strContent .= "<div class=\"p\">需求文档地址：</div>";
-            $strContent .= sprintf("<div class=\"need_attach\">%s</div>", str_replace("\n", "<br/>", $arrTaskItem['need_attach']));
+            $strContent .= sprintf("<div class=\"need_attach\">%s</div>", str_replace("\n", "<br/>", htmlspecialchars($arrTaskItem['need_attach'])));
 
             $strContent .= "<div class=\"p\">需求说明：</div>";
             $strContent .= sprintf("<div class=\"need_memo\">%s</div>", htmlspecialchars_decode($arrTaskItem['need_memo']));
 
             $strContent .= "<div class=\"p\">开发文档地址：</div>";
-            $strContent .= sprintf("<div class=\"other_attach\">%s</div>", str_replace("\n", "<br/>", $arrTaskItem['other_attach']));
+            $strContent .= sprintf("<div class=\"other_attach\">%s</div>", str_replace("\n", "<br/>", htmlspecialchars($arrTaskItem['other_attach'])));
 
             $strContent .= "<div class=\"p\">逻辑说明：</div>";
             $strContent .= sprintf("<div class=\"dev_memo\">%s</div>", htmlspecialchars_decode($arrTaskItem['dev_memo']));
 
             $strContent .= "<div class=\"p\">SQL脚本附件地址：</div>";
-            $strContent .= sprintf("<div class=\"sql_attach\">%s</div>", str_replace("\n", "<br/>", $arrTaskItem['sql_attach']));
+            $strContent .= sprintf("<div class=\"sql_attach\">%s</div>", str_replace("\n", "<br/>", htmlspecialchars($arrTaskItem['sql_attach'])));
 
             $strContent .= "<div class=\"p\">注意事项：</div>";
-            $strContent .= sprintf("<div class=\"need_tip\">%s</div>", str_replace("\n", "<br/>", $arrTaskItem['need_tip']));
+            $strContent .= sprintf("<div class=\"need_tip\">%s</div>", str_replace("\n", "<br/>", htmlspecialchars($arrTaskItem['need_tip'])));
 
             $strContent .= "<div class=\"p\">修改文件：</div>";
-            $strContent .= sprintf("<div class=\"change_file\">%s</div>", str_replace("\n", "<br/>", $arrTaskItem['change_file']));
+            $strContent .= sprintf("<div class=\"change_file\">%s</div>", str_replace("\n", "<br/>", htmlspecialchars($arrTaskItem['change_file'])));
 
             $strContent .= "</div>";
             $intCount++;

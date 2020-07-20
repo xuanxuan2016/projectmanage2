@@ -738,13 +738,13 @@ class QaModel {
             $strContent .= sprintf("<div class=\"need_attach\">%s</div>", str_replace("\n", "<br/>", htmlspecialchars($arrTaskItem['need_attach'])));
 
             $strContent .= "<div class=\"p\">需求说明：</div>";
-            $strContent .= sprintf("<div class=\"need_memo\">%s</div>", htmlspecialchars_decode($arrTaskItem['need_memo']));
+            $strContent .= sprintf("<div class=\"need_memo\">%s</div>", ($arrTaskItem['need_memo']));
 
             $strContent .= "<div class=\"p\">开发文档地址：</div>";
             $strContent .= sprintf("<div class=\"other_attach\">%s</div>", str_replace("\n", "<br/>", htmlspecialchars($arrTaskItem['other_attach'])));
 
             $strContent .= "<div class=\"p\">逻辑说明：</div>";
-            $strContent .= sprintf("<div class=\"dev_memo\">%s</div>", htmlspecialchars_decode($arrTaskItem['dev_memo']));
+            $strContent .= sprintf("<div class=\"dev_memo\">%s</div>", ($arrTaskItem['dev_memo']));
 
             $strContent .= "<div class=\"p\">SQL脚本附件地址：</div>";
             $strContent .= sprintf("<div class=\"sql_attach\">%s</div>", str_replace("\n", "<br/>", htmlspecialchars($arrTaskItem['sql_attach'])));

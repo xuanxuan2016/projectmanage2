@@ -245,20 +245,34 @@ Tips：此为格式说明，实际业务中请按需处理。
 
 namespace App\Http\Model\Web\Task;
 
+use Framework\Facade\DB;
 use Framework\Facade\App;
-use Framework\Service\Database\DB;
+use Framework\Service\Validation\ValidPostData;
 
 class TodoModel {
+
     /**
-     * 数据实例
+     * ValidPostData实例
      */
-    protected $objDB;
+    protected $objValidPostData;
+
+    /**
+     * post参数校验配置
+     */
+    protected $arrRules = [
+        'lecturer_id' => [
+            'type' => ['value' => 'FORMAT_POSINT', 'err_msg' => '讲师id格式不正确']
+        ],
+        'date' => [
+            'type' => ['value' => 'FORMAT_DATETIME', 'err_msg' => '预约日期格式不正确']
+        ]
+    ];
     
     /**
      * 构造方法，依赖注入
      */
-    public function __construct(DB $objDB) {
-        $this->objDB = $objDB;
+    public function __construct(ValidPostData $objValidPostData) {
+        $this->objValidPostData=$objValidPostData;
     }
     
     // -------------------------------------- loadList -------------------------------------- //
@@ -277,6 +291,7 @@ class TodoModel {
         //3.业务逻辑
         $arrData = $this->getTeacherbookList($arrParam);
         //4.结果返回
+        return true;
     }
 
     /**
@@ -285,7 +300,7 @@ class TodoModel {
     protected function checkLoadList(&$arrParam) {
         //0.初始化错误映射
         //1.参数统一校验
-        $arrCheck = $this->objValidPostData->check(['lecturer_id', 'date'], $this->arrRules, [], false);
+        $arrCheck = $this->objValidPostData->check(['lecturer_id', 'date'], $this->arrRules, [], []);
         if (!$arrCheck['success']) {
             return $this->objHelp->getError($arrCheck['err_code'], $arrCheck['err_msg']);
         }
@@ -332,4 +347,4 @@ class TodoModel {
 
 为了使代码阅读起来流畅，请注意代码格式。
 
-> 使用NetBeans开发工具时，可通过【右键->格式】来方便的格式化代码。
+> 使用NetBeans开发工具时，可通过【右键->格式】来方便的格式化代码。使用其他IDE时，也请注意格式化代码。

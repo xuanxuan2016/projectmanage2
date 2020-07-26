@@ -3,7 +3,8 @@
 * [命名规范](#1)
 * [常用快捷方法](#2)
 * [公用方法](#3)
-* [业务处理](#4)
+* [业务处理vue](#4)
+* [业务处理小程序](#6)
 * [代码格式](#5)
 
 ---
@@ -136,7 +137,7 @@ bmcommonjs.getparam('参数名');
 
 ---
 
-### <div id="4">业务处理</div>
+### <div id="4">业务处理vue</div>
 
 <p>
 Tips：此为格式说明，实际业务中请按需处理。
@@ -328,6 +329,252 @@ var book = {
         info = Object.assign(info, {});
         return bmplugin.ajax.post('/web/mybook/book/updatecoursemembers', info);
     }
+}
+```
+
+##### 弹框代码模板
+
+```
+showDialogTodo: function(id) {
+    //title
+    if (id) {
+        app.$data.dialog.todo.title = '编辑待办事项';
+    } else {
+        app.$data.dialog.todo.title = '新增待办事项';
+    }
+    //获取数据
+    new Promise(function(resolve) {
+        //1.加载信息
+        resolve(todo.loadTodoInfo(id));
+    }).then(function() {
+        //2.显示弹框
+        app.$data.dialog.todo.visible = true;
+    }).catch(function(error) {
+        bmplugin.showErrMsg(error);
+    });
+}
+```
+
+```
+/**
+ * 业务对象
+ */
+var todo = {
+    /**
+    * 加载待办数据
+    */
+   loadTodoInfo: function(id) {
+       //数据重置
+       todo.initDialogInfo('todo', app.$data.dialog.todo.todo_info_blank);
+       //后台请求
+       if (id) {
+           return bmplugin.ajax.post('/web/task/todo/loadtodoinfo', {id: id}).then(function(data) {
+               todo.initDialogInfo('todo', data.info);
+           });
+       }
+   }
+}
+```
+
+---
+
+### <div id="6">业务处理小程序</div>
+
+<p>
+Tips：此为格式说明，实际业务中请按需处理。
+</p>
+
+##### 页面代码基本格式
+
+```
+(import common from '../../../utils/common.js';
+
+/**
+ * 外部信息
+ */
+const app = getApp();
+
+Page({
+
+  /**
+   * 页面的初始数据
+   */
+  data: {
+
+  },
+  /**
+   * 页面tap事件主入口
+   */
+  bindtap: function (event) {
+    var strEventname = event.target.dataset.eventname || '';
+    if (this.methods[strEventname]) {
+      this.methods[strEventname](event);
+    }
+  },
+  /**
+   * 页面input事件主入口
+   */
+  bindinput: function (event) {
+    var strEventname = (event.target.dataset.eventname || '').trim();
+    if (strEventname != '') {
+      strEventname = 'input' + strEventname[0].toUpperCase() + strEventname.substr(1);
+    }
+    if (this.methods[strEventname]) {
+      this.methods[strEventname](event);
+    }
+  },
+  /**
+   * 页面focus事件主入口
+   */
+  bindfocus: function (event) {
+    var strEventname = (event.target.dataset.eventname || '').trim();
+    if (strEventname != '') {
+      strEventname = 'focus' + strEventname[0].toUpperCase() + strEventname.substr(1);
+    }
+    if (this.methods[strEventname]) {
+      this.methods[strEventname](event);
+    }
+  },
+  /**
+   * 页面blur事件主入口
+   */
+  bindblur: function (event) {
+    var strEventname = (event.target.dataset.eventname || '').trim();
+    if (strEventname != '') {
+      strEventname = 'blur' + strEventname[0].toUpperCase() + strEventname.substr(1);
+    }
+    if (this.methods[strEventname]) {
+      this.methods[strEventname](event);
+    }
+  },
+  /**
+   * 业务方法集合
+   */
+  methods: {
+    test: function (event) {
+      console.log('test', event);
+    },
+    inputTest: function (event) {
+      console.log('inputTest', event);
+    },
+    focusTest: function (event) {
+      console.log('focusTest', event);
+    },
+    blurTest: function (event) {
+      console.log('blurTest', event);
+    },
+  },
+  /**
+   * http请求集合
+   */
+  http: {
+
+  },
+  /**
+   * 加载页面
+   * 每个页面都需要此方法，用于如下调用
+   * 1.onShow
+   */
+  pageLoad: function () {
+    var that = this;
+    app.ready(() => {
+    });
+  },
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad: function (options) {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function () {
+    this.pageLoad();
+  },
+
+  /**
+   * 生命周期函数--监听页面隐藏
+   */
+  onHide: function () {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload: function () {
+
+  },
+
+  /**
+   * 页面相关事件处理函数--监听用户下拉动作
+   */
+  onPullDownRefresh: function () {
+
+  },
+
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom: function () {
+
+  },
+
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage: function () {
+
+  }
+})
+```
+
+##### http请求代码模板
+
+```
+/**
+* 注册
+*/
+register: function (that, e) {
+ //1.数据检查
+ var objRegisterInfo = common.validator.check(that.data.register_info);
+ //2.后台请求
+ if (objRegisterInfo) {
+   var objParam = Object.assign(JSON.parse(JSON.stringify(that.data.url_param)), objRegisterInfo);
+   new Promise((resolve, reject) => {
+     resolve(that.http.register(objParam));
+   }).then(res => {
+     that.methods.pageBack(that, res);
+   }).catch(err => {
+     wx.showToast({
+       title: err.err_msg,
+       icon: 'none'
+     });
+   });
+ }
+}
+```
+
+```
+/**
+* http请求集合
+*/
+http: {
+ /**
+  * 注册
+  */
+ register: function (param) {
+   return common.http.post('/miniapi/laravelframework/common/login/register', param);
+ }
 }
 ```
 

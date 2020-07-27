@@ -387,7 +387,7 @@ Tips：此为格式说明，实际业务中请按需处理。
 ##### 页面代码基本格式
 
 ```
-(import common from '../../../utils/common.js';
+import common from '../../../utils/common.js';
 
 /**
  * 外部信息
@@ -403,12 +403,12 @@ Page({
 
   },
   /**
-   * 页面tap事件主入口
+   * 页面点击事件主入口
    */
   bindtap: function (event) {
-    var strEventname = event.target.dataset.eventname || '';
+    var strEventname = (event.target.dataset.eventname || '').trim();
     if (this.methods[strEventname]) {
-      this.methods[strEventname](event);
+      this.methods[strEventname](this, event);
     }
   },
   /**
@@ -420,7 +420,7 @@ Page({
       strEventname = 'input' + strEventname[0].toUpperCase() + strEventname.substr(1);
     }
     if (this.methods[strEventname]) {
-      this.methods[strEventname](event);
+      this.methods[strEventname](this, event);
     }
   },
   /**
@@ -432,7 +432,7 @@ Page({
       strEventname = 'focus' + strEventname[0].toUpperCase() + strEventname.substr(1);
     }
     if (this.methods[strEventname]) {
-      this.methods[strEventname](event);
+      this.methods[strEventname](this, event);
     }
   },
   /**
@@ -444,7 +444,7 @@ Page({
       strEventname = 'blur' + strEventname[0].toUpperCase() + strEventname.substr(1);
     }
     if (this.methods[strEventname]) {
-      this.methods[strEventname](event);
+      this.methods[strEventname](this, event);
     }
   },
   /**
@@ -468,7 +468,9 @@ Page({
    * http请求集合
    */
   http: {
-
+    register: function (param) {
+      return common.http.post('/miniapi/laravelframework/common/login/register', param);
+    }
   },
   /**
    * 加载页面

@@ -189,7 +189,7 @@ class RequireModel {
         $arrWhereParam[':project_id'] = $arrSearchParam['project_id'];
         //task_name
         if (!empty($arrSearchParam['task_name'])) {
-            $strWhereSql .= ' and locate(:task_name,a.task_name)>0';
+            $strWhereSql .= ' and (locate(:task_name,a.task_name)>0 or locate(:task_name,a.need_memo)>0 or locate(:task_name,a.dev_memo)>0 or locate(:task_name,a.need_tip)>0)';
             $arrWhereParam[':task_name'] = $arrSearchParam['task_name'];
         }
         //status

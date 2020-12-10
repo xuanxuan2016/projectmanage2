@@ -54,10 +54,10 @@ class TestModel {
     }
 
     public function testone() {
-        $strFilePath = App::make('path.resource') . '/markdown/入职指南.md';
+//        $strFilePath = App::make('path.resource') . '/markdown/入职指南.md';
         //return $this->objHyperDown->makeHtml(file_get_contents($strFilePath));
-        $this->objHyperDown->makeHtml('# <div>1234</div>');
-//        var_dump(Des::encrypt('xiaopangzi'));
+//        $this->objHyperDown->makeHtml('# <div>1234</div>');
+        var_dump(Des::encrypt('xiaopangzi'));
         //   var_dump(Des::passwordHash('qwe123'));
 //        var_dump($this->objExcelRead->init(App::make('path.storage') . '/cache/file/test.xlsx')->getSheets());
 //        var_dump($this->objExcelRead->init(App::make('path.storage') . '/cache/file/test.xlsx')->getSheetData(0));

@@ -61,6 +61,9 @@ class RequireModel {
         'task_name' => [
             'required' => ['value' => true, 'err_msg' => '请输入需求名称']
         ],
+        'browser_fit' => [
+            'required' => ['value' => true, 'err_msg' => '请输入需要支持的浏览器']
+        ],
         'module_id' => [
             'type' => ['value' => 'posint', 'err_msg' => '请选择需求模块']
         ],
@@ -487,7 +490,7 @@ class RequireModel {
     protected function getRequireInfo($arrParam) {
         //查询
         $strSql = 'select a.id,a.status,a.account_id,a.need_done_date,
-                        a.xingzhi,a.needer,a.task_name,b.type module_type,a.module_id,a.need_memo,a.need_attach,
+                        a.xingzhi,a.needer,a.task_name,a.browser_fit,b.type module_type,a.module_id,a.need_memo,a.need_attach,
                         a.page_enter,a.dev_memo,a.need_tip,a.change_file,a.sql_attach,a.other_attach,a.dev_dealy_reason,
                         ifnull(c.round,0) round,a.change_file1,a.change_file2,a.change_file3,a.change_file4,a.change_file5
                     from task a
@@ -558,7 +561,7 @@ class RequireModel {
 
         //2.字段自定义配置检查
         $arrRules = $this->arrRules;
-        $arrErrMsg = $this->objValidPostData->check($arrParam, ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach'], $arrRules);
+        $arrErrMsg = $this->objValidPostData->check($arrParam, ['xingzhi', 'task_name', 'browser_fit', 'module_id', 'need_memo', 'need_attach'], $arrRules);
         if (!empty($arrErrMsg)) {
             return join(';', $arrErrMsg);
         }
@@ -577,12 +580,13 @@ class RequireModel {
             ':xingzhi' => $arrParam['xingzhi'],
             ':needer_id' => User::getAccountId(),
             ':task_name' => $arrParam['task_name'],
+            ':browser_fit' => $arrParam['browser_fit'],
             ':module_id' => $arrParam['module_id'],
             ':need_memo' => $arrParam['need_memo'],
             ':need_attach' => $arrParam['need_attach'],
         ];
         //sql
-        $strSql = 'insert into task(project_id,xingzhi, needer_id,task_name,module_id,need_memo,need_attach) values(:project_id,:xingzhi,:needer_id,:task_name,:module_id,:need_memo,:need_attach)';
+        $strSql = 'insert into task(project_id,xingzhi, needer_id,task_name,browser_fit,module_id,need_memo,need_attach) values(:project_id,:xingzhi,:needer_id,:task_name,:browser_fit,:module_id,:need_memo,:need_attach)';
         $intRet = $this->objDB->setMainTable('task')->insert($strSql, $arrParams, false);
         //返回
         return $intRet == 1 ? true : false;
@@ -1044,7 +1048,7 @@ class RequireModel {
      */
     protected function outputRequire($arrParam) {
         //查询
-        $strSql = "select a.task_name,b.type module_type,b.cname module_name,c.cname account_name,d.cname needer,a.status,a.xingzhi,a.create_date,a.send_date,a.need_done_date,a.done_date
+        $strSql = "select a.task_name,a.browser_fit,b.type module_type,b.cname module_name,c.cname account_name,d.cname needer,a.status,a.xingzhi,a.create_date,a.send_date,a.need_done_date,a.done_date
                     from task a
                         join module b on a.module_id=b.id
                         left join account c on a.account_id=c.id
@@ -1068,6 +1072,7 @@ class RequireModel {
         //生成下载文件
         $arrColumnMap = [
             'task_name' => ['cname' => '需求名称', 'is_output' => 1],
+            'browser_fit' => ['cname' => '浏览器兼容', 'is_output' => 1],
             'module_type' => ['cname' => '模块类型', 'is_output' => 1],
             'module_name' => ['cname' => '模块名称', 'is_output' => 1],
             'account_name' => ['cname' => '开发人员', 'is_output' => 1],
@@ -1208,15 +1213,15 @@ class RequireModel {
             $strWhere .= ":task_id{$strTaskId},";
         }
         $strWhere = trim($strWhere, ',');
-        
+
         $strSql = "select distinct (b.cname) cname from task a join account b on a.account_id=b.id where a.id in ({$strWhere})";
         $arrAccountName = $this->objDB->setMainTable('task')->select($strSql, $arrParams);
         $strAccountName = implode(',', array_values(array_column($arrAccountName, 'cname')));
-        
+
         $strSql = "select distinct (b.cname) cname from task a join account b on a.needer_id=b.id where a.id in ({$strWhere})";
         $arrNeederName = $this->objDB->setMainTable('task')->select($strSql, $arrParams);
         $strNeederName = implode(',', array_values(array_column($arrNeederName, 'cname')));
-        
+
         //qa
         $strBatchId = getGUID();
         $arrParams = [
@@ -1280,14 +1285,14 @@ class RequireModel {
             case 'manager':
                 switch ($strStatus) {
                     case '01':
-                        $arrCol = ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach'];
+                        $arrCol = ['xingzhi', 'task_name', 'browser_fit', 'module_id', 'need_memo', 'need_attach'];
                         break;
                     case '02':
                     case '03':
-                        $arrCol = ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
+                        $arrCol = ['xingzhi', 'task_name', 'browser_fit', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
                         break;
                     case '04':
-                        $arrCol = ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
+                        $arrCol = ['xingzhi', 'task_name', 'browser_fit', 'module_id', 'need_memo', 'need_attach', 'page_enter', 'dev_memo', 'need_tip', 'change_file', 'sql_attach', 'other_attach'];
                         if ($arrRequireInfo['round'] != 0) {
                             $arrCol[] = 'change_file' . $arrRequireInfo['round'];
                         }
@@ -1303,7 +1308,7 @@ class RequireModel {
                     case '02':
                     case '03':
                     case '04':
-                        $arrCol = ['xingzhi', 'task_name', 'module_id', 'need_memo', 'need_attach'];
+                        $arrCol = ['xingzhi', 'task_name', 'browser_fit', 'module_id', 'need_memo', 'need_attach'];
                         break;
                     default:
                         $arrCol = [];

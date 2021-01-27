@@ -262,6 +262,19 @@
                         </div>
                         <div class="dialog-row">
                             <div class="dialog-item dialog-label require">
+                                浏览器兼容性
+                                <el-tooltip class="item" effect="dark" content="产品根据需求告知开发需要兼容的浏览器，常用的为IE11+、Chrome、Edge。如果是后端需求可填写【无】。" placement="right">
+                                    <i class="el-icon-info"></i>
+                                </el-tooltip>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item">
+                                <el-input v-model="dialog.require.require_info.browser_fit.value" :disabled="!require_dialog_product_status" placeholder="请输入需要支持的浏览器" maxlength="100"></el-input>
+                            </div>
+                        </div>
+                        <div class="dialog-row">
+                            <div class="dialog-item dialog-label require">
                                 需求模块
                             </div>
                         </div>

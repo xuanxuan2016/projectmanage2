@@ -540,7 +540,7 @@ class QaModel {
             ':project_id' => $arrParam['project_id'],
             ':id' => $arrParam['id']
         ];
-        $strSql1 = 'select a.id,a.task_name,b.cname devloper,a.need_memo,a.need_attach,
+        $strSql1 = 'select a.id,a.task_name,a.browser_fit,b.cname devloper,a.need_memo,a.need_attach,
                         a.page_enter,a.dev_memo,a.change_file,a.need_tip,a.sql_attach,a.other_attach,
                         a.change_file1,a.change_file2,a.change_file3,a.change_file4,a.change_file5
                     from task a
@@ -672,6 +672,9 @@ class QaModel {
                         font: 12px '微软雅黑', 'Microsoft Yahei', Helvetica Neue, Hiragino Sans GB, '宋体', 'simsun', '黑体', Arial, sans-serif;
                         line-height: 1.5;
                 }
+                .zy{
+                        color:red;
+                }
                 .p {
                         margin: 5px 0px;
                         font-size:14px;
@@ -713,6 +716,10 @@ class QaModel {
                         width: 100%;
                         border: none;
                 }
+                .browser_fit{
+                        font-weight: bold;
+                        color: red;
+                }
             </style>
             </head>
                 <body>
@@ -730,7 +737,10 @@ class QaModel {
         foreach ($arrTask as $arrTaskItem) {
             $strContent .= sprintf("<h2 id=\"conetent%s\">需求%s(%s)：%s</h2>", $arrTaskItem['id'], $intCount, $arrTaskItem['devloper'], $arrTaskItem['task_name']);
             $strContent .= "<div class=\"content\">";
-
+            
+            $strContent .= "<div class=\"p zy\">浏览器兼容性：</div>";
+            $strContent .= sprintf("<div class=\"browser_fit\">%s</div>", htmlspecialchars($arrTaskItem['browser_fit']));
+            
             $strContent .= "<div class=\"p\">页面入口：</div>";
             $strContent .= sprintf("<div class=\"page_enter\">%s</div>", htmlspecialchars($arrTaskItem['page_enter']));
 

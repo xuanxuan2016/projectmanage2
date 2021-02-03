@@ -1165,21 +1165,21 @@ class RequireModel {
         $strWhere = trim($strWhere, ',');
         //sql
         $strSql1 = "select task_name,change_file,status from task where status in ('02','03','04') and id in ({$strWhere})";
-        $strSql2 = "select task_name,change_file,change_file1,change_file2,change_file3,change_file4,change_file5,status from task where status in ('02','03','04') and not id in ({$strWhere})";
+        $strSql2 = "select task_name,change_file,change_file1,change_file2,change_file3,change_file4,change_file5,status from task where status in ('02','03','04') and not id in ({$strWhere}) order by status desc";
         $arrTask1 = $this->objDB->setMainTable('task')->select($strSql1, $arrParams);
         $arrTask2 = $this->objDB->setMainTable('task')->select($strSql2, $arrParams);
 
         //冲突获取
         $arrConflict = [];
         $arrStatus = ['00' => '作废', '01' => '需求', '02' => '开发', '03' => '就绪', '04' => '送测', '05' => '上线'];
-        foreach ($arrTask1 as $value1) {
-            $arr1 = explode("\n", $value1['change_file']);
-            array_walk($arr1, function(&$value) {
+        foreach ($arrTask2 as $value2) {
+            $arr2 = array_merge(explode("\n", implode("\n", [$value2['change_file'], $value2['change_file1'], $value2['change_file2'], $value2['change_file3'], $value2['change_file4'], $value2['change_file5']])));
+            array_walk($arr2, function(&$value) {
                 $value = trim($value);
             });
-            foreach ($arrTask2 as $value2) {
-                $arr2 = array_merge(explode("\n", implode("\n", [$value2['change_file'], $value2['change_file1'], $value2['change_file2'], $value2['change_file3'], $value2['change_file4'], $value2['change_file5']])));
-                array_walk($arr2, function(&$value) {
+            foreach ($arrTask1 as $value1) {
+                $arr1 = explode("\n", $value1['change_file']);
+                array_walk($arr1, function(&$value) {
                     $value = trim($value);
                 });
                 $arrTmp = array_intersect($arr1, $arr2);
@@ -1194,7 +1194,28 @@ class RequireModel {
                 }
             }
         }
-
+//        foreach ($arrTask1 as $value1) {
+//            $arr1 = explode("\n", $value1['change_file']);
+//            array_walk($arr1, function(&$value) {
+//                $value = trim($value);
+//            });
+//            foreach ($arrTask2 as $value2) {
+//                $arr2 = array_merge(explode("\n", implode("\n", [$value2['change_file'], $value2['change_file1'], $value2['change_file2'], $value2['change_file3'], $value2['change_file4'], $value2['change_file5']])));
+//                array_walk($arr2, function(&$value) {
+//                    $value = trim($value);
+//                });
+//                $arrTmp = array_intersect($arr1, $arr2);
+//                $arrTmp = array_values(array_filter($arrTmp, function($value) {
+//                            return !empty($value);
+//                        }));
+//                if (!empty($arrTmp)) {
+//                    $arrConflict[] = [
+//                        'task_name' => "{$value1['task_name']}({$arrStatus[$value1['status']]})===>{$value2['task_name']}({$arrStatus[$value2['status']]})",
+//                        'file' => $arrTmp
+//                    ];
+//                }
+//            }
+//        }
         //返回
         return $arrConflict;
     }

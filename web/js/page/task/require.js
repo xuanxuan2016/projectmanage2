@@ -442,7 +442,8 @@
                     visible: false,
                     conflict: [],
                     qa_info_blank: {
-                        qa_name: ''
+                        qa_name: '',
+                        qa_tip: '',
                     },
                     qa_info: {
                         qa_name: {
@@ -1029,6 +1030,11 @@
                     }).then(function () {
                         //3.列表刷新
                         require.loadList();
+                    }).then(function () {
+                        //4.去除选中
+                        for (var index in app.$data.checkListAllot) {
+                            app.$data.checkListAllot[index] = false;
+                        }
                     }).catch(function (error) {
                         bmplugin.showErrMsg(error);
                     });
@@ -1139,6 +1145,11 @@
                         }).then(function () {
                             //3.列表刷新
                             require.loadList();
+                        }).then(function () {
+                            //4.去除选中
+                            for (var index in app.$data.checkListQa) {
+                                app.$data.checkListQa[index] = false;
+                            }
                         }).catch(function (error) {
                             if (error.data && error.data.conflict) {
                                 app.$data.dialog.qa.conflict = error.data.conflict;

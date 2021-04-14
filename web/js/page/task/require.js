@@ -1128,7 +1128,7 @@
              * 需求送测
              */
             qaRequireInfo: function () {
-                this.$confirm('确定要送测需求吗?', {
+                this.$confirm('确定要送测需求吗?<br/><div style="font-weight: bold;color: red;">开发、表结构等文档是否确认已更新？</div>', {
                     type: 'warning',
                     dangerouslyUseHTMLString: true
                 }).then(function () {
